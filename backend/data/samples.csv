@@ -1,0 +1,11 @@
+id,name,type,host,location,latitude,longitude,collectionDate,availability
+1,Bacterial Culture A,bacterial,Human,Boston, USA,42.3601,-71.0589,2023-05-15,Available
+2,Viral Sample B,viral,Bat,Berlin, Germany,52.52,13.405,2023-07-22,Limited
+3,Fungal Culture C,fungal,Plant,Tokyo, Japan,35.6762,139.6503,2023-03-10,Available
+4,Tissue Sample D,tissue,Mouse,Paris, France,48.8566,2.3522,2023-09-05,Available
+5,Environmental Sample E,environmental,Soil,Sydney, Australia,-33.8688,151.2093,2023-01-30,Available
+6,Bacterial Culture F,bacterial,Water,Cape Town, South Africa,-33.9249,18.4241,2023-04-18,Limited
+7,Viral Sample G,viral,Human,Mumbai, India,19.076,72.8777,2023-08-12,Available
+8,Tissue Sample H,tissue,Zebrafish,Rio de Janeiro, Brazil,-22.9068,-43.1729,2023-06-25,Available
+9,Fungal Culture I,fungal,Wood,Vancouver, Canada,49.2827,-123.1207,2023-02-08,Available
+10,Environmental Sample J,environmental,Ice Core,Oslo, Norway,59.9139,10.7522,2023-10-15,Limited

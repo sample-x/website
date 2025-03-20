@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "name": "Bacterial Culture A",
+    "type": "bacterial",
+    "host": "Human",
+    "location": "Boston, USA",
+    "coordinates": [
+      42.3601,
+      -71.0589
+    ],
+    "collectionDate": "2023-05-15",
+    "storageCondition": "-80\u00b0C",
+    "availability": "Available",
+    "contact": "lab@example.com",
+    "description": "Bacterial culture isolated from clinical samples. This strain shows resistance to common antibiotics and is suitable for research on antimicrobial resistance mechanisms."
+  },
+  {
+    "id": 2,
+    "name": "Viral Sample B",
+    "type": "viral",
+    "host": "Bat",
+    "location": "Berlin, Germany",
+    "coordinates": [
+      52.52,
+      13.405
+    ],
+    "collectionDate": "2023-07-22",
+    "storageCondition": "-20\u00b0C",
+    "availability": "Limited",
+    "contact": "virology@example.com",
+    "description": "Viral sample collected during field research. This sample contains novel viral particles that may be of interest for comparative genomics studies."
+  },
+  {
+    "id": 3,
+    "name": "Fungal Culture C",
+    "type": "fungal",
+    "host": "Plant",
+    "location": "Tokyo, Japan",
+    "coordinates": [
+      35.6762,
+      139.6503
+    ],
+    "collectionDate": "2023-03-10",
+    "storageCondition": "4\u00b0C",
+    "availability": "Available",
+    "contact": "mycology@example.com",
+    "description": "Fungal culture isolated from plant tissue. This strain produces unique secondary metabolites with potential applications in pharmaceutical research."
+  },
+  {
+    "id": 4,
+    "name": "Tissue Sample D",
+    "type": "tissue",
+    "host": "Mouse",
+    "location": "Paris, France",
+    "coordinates": [
+      48.8566,
+      2.3522
+    ],
+    "collectionDate": "2023-09-05",
+    "storageCondition": "-150\u00b0C",
+    "availability": "Available",
+    "contact": "biobank@example.com",
+    "description": "Mouse tissue sample preserved in optimal conditions. This sample is suitable for histological and molecular biology studies."
+  },
+  {
+    "id": 5,
+    "name": "Environmental Sample E",
+    "type": "environmental",
+    "host": "Soil",
+    "location": "Sydney, Australia",
+    "coordinates": [
+      -33.8688,
+      151.2093
+    ],
+    "collectionDate": "2023-01-30",
+    "storageCondition": "Room temperature",
+    "availability": "Available",
+    "contact": "ecology@example.com",
+    "description": "Soil sample collected from a unique ecological niche. This sample contains diverse microbial communities that have not been extensively characterized."
+  },
+  {
+    "id": 6,
+    "name": "Bacterial Culture F",
+    "type": "bacterial",
+    "host": "Water",
+    "location": "Cape Town, South Africa",
+    "coordinates": [
+      -33.9249,
+      18.4241
+    ],
+    "collectionDate": "2023-04-18",
+    "storageCondition": "-80\u00b0C",
+    "availability": "Limited",
+    "contact": "microbiology@example.com",
+    "description": "Bacterial culture isolated from freshwater sources. This strain has unique adaptations to extreme pH conditions."
+  },
+  {
+    "id": 7,
+    "name": "Viral Sample G",
+    "type": "viral",
+    "host": "Human",
+    "location": "Mumbai, India",
+    "coordinates": [
+      19.076,
+      72.8777
+    ],
+    "collectionDate": "2023-08-12",
+    "storageCondition": "-20\u00b0C",
+    "availability": "Available",
+    "contact": "virology@example.com",
+    "description": "Viral sample collected during epidemiological surveillance. This sample represents a regional variant of interest for vaccine development."
+  },
+  {
+    "id": 8,
+    "name": "Tissue Sample H",
+    "type": "tissue",
+    "host": "Zebrafish",
+    "location": "Rio de Janeiro, Brazil",
+    "coordinates": [
+      -22.9068,
+      -43.1729
+    ],
+    "collectionDate": "2023-06-25",
+    "storageCondition": "-150\u00b0C",
+    "availability": "Available",
+    "contact": "marine@example.com",
+    "description": "Zebrafish tissue sample preserved using advanced cryopreservation techniques. This sample is ideal for developmental biology research."
+  },
+  {
+    "id": 9,
+    "name": "Fungal Culture I",
+    "type": "fungal",
+    "host": "Wood",
+    "location": "Vancouver, Canada",
+    "coordinates": [
+      49.2827,
+      -123.1207
+    ],
+    "collectionDate": "2023-02-08",
+    "storageCondition": "4\u00b0C",
+    "availability": "Available",
+    "contact": "forestry@example.com",
+    "description": "Fungal culture isolated from decaying wood. This strain has enzymes that efficiently break down lignin and could be valuable for biofuel research."
+  },
+  {
+    "id": 10,
+    "name": "Environmental Sample J",
+    "type": "environmental",
+    "host": "Ice Core",
+    "location": "Oslo, Norway",
+    "coordinates": [
+      59.9139,
+      10.7522
+    ],
+    "collectionDate": "2023-10-15",
+    "storageCondition": "-20\u00b0C",
+    "availability": "Limited",
+    "contact": "arctic@example.com",
+    "description": "Ice core sample containing preserved microorganisms from several decades ago. This sample provides insights into historical microbial communities and climate conditions."
+  }
+]

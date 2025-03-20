@@ -1,0 +1,325 @@
+/* Map legend styles */
+.map-legend {
+  background: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 200px;
+}
+
+.map-legend h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 8px;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+/* Custom cluster icon styles */
+.custom-cluster-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.cluster-icon {
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Make sure the samples map container has position relative for the legend */
+.samples-map {
+  position: relative;
+}
+
+/* Add styles for the new sample type badges */
+.type-badge, .category-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  text-transform: capitalize;
+}
+
+.type-badge.water, .category-badge.water,
+.type-badge.water-sample, .category-badge.water-sample {
+  background-color: #2196F3;
+}
+
+.type-badge.soil, .category-badge.soil {
+  background-color: #8B4513;
+}
+
+.type-badge.air, .category-badge.air {
+  background-color: #90CAF9;
+}
+
+.type-badge.ice, .category-badge.ice {
+  background-color: #B3E5FC;
+}
+
+.type-badge.industrial-bacteria, .category-badge.industrial-bacteria {
+  background-color: #8BC34A;
+}
+
+.type-badge.cell-line, .category-badge.cell-line {
+  background-color: #E91E63;
+}
+
+.type-badge.environmental-sample, .category-badge.environmental-sample {
+  background-color: #795548;
+}
+
+.type-badge.virus, .category-badge.virus {
+  background-color: #9C27B0;
+}
+
+.type-badge.dna-sample, .category-badge.dna-sample {
+  background-color: #673AB7;
+}
+
+.type-badge.biological, .category-badge.biological {
+  background-color: #4CAF50;
+}
+
+.type-badge.chemical, .category-badge.chemical {
+  background-color: #9C27B0;
+}
+
+.type-badge.physical, .category-badge.physical {
+  background-color: #FF9800;
+}
+
+.type-badge.digital, .category-badge.digital {
+  background-color: #607D8B;
+}
+
+.type-badge.equipment, .category-badge.equipment {
+  background-color: #F44336;
+}
+
+.type-badge.tissue, .category-badge.tissue {
+  background-color: #E91E63;
+}
+
+.type-badge.cell, .category-badge.cell {
+  background-color: #8BC34A;
+}
+
+.type-badge.dna, .category-badge.dna {
+  background-color: #673AB7;
+}
+
+.type-badge.rna, .category-badge.rna {
+  background-color: #3F51B5;
+}
+
+.type-badge.protein, .category-badge.protein {
+  background-color: #00BCD4;
+}
+
+.type-badge.other, .category-badge.other {
+  background-color: #795548;
+}
+
+/* Samples page layout */
+.samples-section {
+  padding: 2rem 0;
+}
+
+.samples-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* On larger screens, use a two-column layout */
+@media (min-width: 1024px) {
+  .samples-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Map container styling */
+.map-container {
+  height: 500px;
+  width: 100%;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Ensure the map doesn't overflow its container */
+.samples-map {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* Make sure the leaflet container stays within bounds */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  z-index: 1;
+}
+
+/* Table styling */
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.samples-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.samples-table th,
+.samples-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.samples-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.samples-table tr:last-child td {
+  border-bottom: none;
+}
+
+.samples-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Purchase button styling */
+.btn-purchase {
+  background-color: var(--color-accent) !important;
+  color: white !important;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.btn-purchase:hover {
+  background-color: #e07c00 !important;
+  transform: translateY(-2px);
+}
+
+/* Error message styling */
+.error-message {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #ffc107;
+}
+
+/* Loading indicator */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: var(--color-dark);
+}
+
+/* Filter controls */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .filters {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.search-bar {
+  flex: 1;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.category-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-filter select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: white;
+}
+
+/* No results message */
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+/* Grayscale map tiles */
+.grayscale-tiles {
+  filter: grayscale(100%) !important;
+}
+
+/* Make sure the sample markers stay colorful */
+.leaflet-marker-icon, 
+.leaflet-marker-shadow,
+.leaflet-interactive {
+  filter: none !important;
+} 

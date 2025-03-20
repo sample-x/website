@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1",
+    "name": "Lake Michigan Water Sample",
+    "description": "Water sample collected from the southern shore of Lake Michigan",
+    "latitude": 41.878,
+    "longitude": -87.629,
+    "category": "water",
+    "date": "2023-05-15"
+  },
+  {
+    "id": "2",
+    "name": "Amazon Rainforest Soil",
+    "description": "Soil sample from the Amazon rainforest floor",
+    "latitude": -3.4653,
+    "longitude": -62.2159,
+    "category": "soil",
+    "date": "2023-06-22"
+  },
+  {
+    "id": "3",
+    "name": "Los Angeles Air Quality",
+    "description": "Air sample collected in downtown Los Angeles",
+    "latitude": 34.0522,
+    "longitude": -118.2437,
+    "category": "air",
+    "date": "2023-07-10"
+  },
+  {
+    "id": "4",
+    "name": "Arctic Ice Core",
+    "description": "Ice core sample from Arctic region",
+    "latitude": 78.2232,
+    "longitude": -103.5234,
+    "category": "ice",
+    "date": "2023-03-05"
+  },
+  {
+    "id": "5",
+    "name": "Sahara Desert Sand",
+    "description": "Sand sample from the Sahara Desert",
+    "latitude": 23.4162,
+    "longitude": 25.6628,
+    "category": "soil",
+    "date": "2023-08-18"
+  },
+  {
+    "id": "6",
+    "name": "Great Barrier Reef Water",
+    "description": "Water sample from the Great Barrier Reef",
+    "latitude": -18.2871,
+    "longitude": 147.6992,
+    "category": "water",
+    "date": "2023-04-30"
+  },
+  {
+    "id": "7",
+    "name": "Tokyo Urban Air",
+    "description": "Air sample from central Tokyo",
+    "latitude": 35.6762,
+    "longitude": 139.6503,
+    "category": "air",
+    "date": "2023-09-12"
+  },
+  {
+    "id": "8",
+    "name": "Mississippi River Water",
+    "description": "Water sample from the Mississippi River delta",
+    "latitude": 29.9511,
+    "longitude": -90.0715,
+    "category": "water",
+    "date": "2023-07-25"
+  },
+  {
+    "id": "9",
+    "name": "Volcanic Soil from Mount Fuji",
+    "description": "Soil sample collected near Mount Fuji",
+    "latitude": 35.3606,
+    "longitude": 138.7274,
+    "category": "soil",
+    "date": "2023-05-28"
+  },
+  {
+    "id": "10",
+    "name": "Antarctic Ice Sample",
+    "description": "Ice core from Antarctic research station",
+    "latitude": -82.8628,
+    "longitude": -135.0000,
+    "category": "ice",
+    "date": "2023-02-15"
+  }
+] 
