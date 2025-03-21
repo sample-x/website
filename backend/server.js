@@ -104,25 +104,58 @@ if (fs.existsSync(nextJsBuildDir)) {
   // Serve static files from the public directory
   app.use(express.static(nextPublicDir));
   
-  // Serve the Next.js build
+  // Serve the Next.js build static files
   app.use('/_next', express.static(path.join(nextJsBuildDir, '_next')));
   
-  // Handle all other routes with Next.js
-  app.get('*', (req, res) => {
+  // List the contents of the .next directory to better understand its structure
+  console.log('Contents of Next.js build directory:', fs.readdirSync(nextJsBuildDir));
+  
+  // Handle all other routes with Next.js - modified for App Router
+  app.get('*', (req, res, next) => {
     // Skip API routes
     if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ message: 'API endpoint not found' });
+      return next();
     }
     
-    const htmlPath = path.join(nextJsBuildDir, 'server/pages', req.path, '.html');
+    // For App Router, we need to check a different structure
+    // First try the app router HTML files
+    const appHtmlPath = path.join(nextJsBuildDir, 'server/app', req.path === '/' ? 'index' : req.path.substring(1), 'page.html');
+    const appIndexHtmlPath = path.join(nextJsBuildDir, 'server/pages/index.html');
     
-    // Try to serve static HTML files first
-    if (fs.existsSync(htmlPath)) {
-      return res.sendFile(htmlPath);
+    console.log('Trying to serve:', appHtmlPath);
+    
+    if (fs.existsSync(appHtmlPath)) {
+      return res.sendFile(appHtmlPath);
     }
     
-    // Otherwise, serve the index page and let client-side routing handle it
-    res.sendFile(path.join(nextJsBuildDir, 'server/pages/index.html'));
+    // Try legacy pages structure as fallback
+    if (fs.existsSync(appIndexHtmlPath)) {
+      return res.sendFile(appIndexHtmlPath);
+    }
+    
+    // If we can't find the HTML file, serve the root HTML and let client-side routing handle it
+    const baseHtmlPath = path.join(nextJsBuildDir, 'server/pages/index.html');
+    const appBaseHtmlPath = path.join(nextJsBuildDir, 'server/app/index/page.html');
+    
+    // Try both possible locations for the index HTML
+    if (fs.existsSync(baseHtmlPath)) {
+      return res.sendFile(baseHtmlPath);
+    } else if (fs.existsSync(appBaseHtmlPath)) {
+      return res.sendFile(appBaseHtmlPath);
+    } else {
+      // If we can't find any HTML files, list the directory contents to help debug
+      console.log('Next.js build directory contents:', fs.readdirSync(nextJsBuildDir));
+      if (fs.existsSync(path.join(nextJsBuildDir, 'server'))) {
+        console.log('Server directory contents:', fs.readdirSync(path.join(nextJsBuildDir, 'server')));
+      }
+      
+      // Return a fallback HTML page
+      res.send(`
+        <h1>Sample Exchange</h1>
+        <p>The server is running, but the Next.js build files could not be found.</p>
+        <p>Please check the server logs for more information.</p>
+      `);
+    }
   });
 } else {
   console.log('Directory contents of frontend:', fs.readdirSync(path.join(__dirname, '../frontend')));
