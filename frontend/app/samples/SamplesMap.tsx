@@ -54,7 +54,31 @@ const getSampleColor = (sampleType: string): string => {
   return defaultColor;
 }
 
-export default function SamplesMap({ samples }) {
+// Define the sample interface
+interface Sample {
+  id: number | string;
+  type: string;
+  location?: {
+    lat: number;
+    lng: number;
+  };
+  latitude?: number;
+  longitude?: number;
+  name: string;
+  description?: string;
+  price?: number;
+  quantity?: number;
+  unit?: string;
+  provider?: string;
+  host?: string;
+  locationName?: string;
+}
+
+interface SamplesMapProps {
+  samples: Sample[];
+}
+
+export default function SamplesMap({ samples }: SamplesMapProps) {
   const [isMounted, setIsMounted] = useState(false)
   
   useEffect(() => {
