@@ -54,24 +54,24 @@ const getSampleColor = (sampleType: string): string => {
   return defaultColor;
 }
 
-// Define the sample interface
+// Define the sample interface to match page.tsx
 interface Sample {
-  id: number | string;
-  type: string;
-  location?: {
-    lat: number;
-    lng: number;
-  };
-  latitude?: number;
-  longitude?: number;
+  id: number;
   name: string;
-  description?: string;
-  price?: number | string;
-  quantity?: number | string;
-  unit?: string;
+  type: string;
+  location: string;
+  availability?: string;
+  description: string;
+  price: number;
+  quantity: number;
+  unit: string;
   provider?: string;
   host?: string;
   locationName?: string;
+  coordinates?: [number, number];
+  // Additional properties for map functionality
+  latitude?: number;
+  longitude?: number;
 }
 
 interface SamplesMapProps {
@@ -89,17 +89,34 @@ export default function SamplesMap({ samples }: SamplesMapProps) {
     return <div className="samples-map-placeholder">Loading map...</div>
   }
   
-  // Get unique sample types from the data - avoiding spread operator on Set
+  // Get unique sample types from the data
   const uniqueTypes = Array.from(new Set(samples.map(sample => sample.type)));
   
   // Ensure all samples have proper location data
   const validSamples = samples.filter(sample => {
-    const hasLocation = sample.location && 
-      (typeof sample.location.lat === 'number' && typeof sample.location.lng === 'number');
+    // Check if sample has coordinates
+    if (sample.coordinates && sample.coordinates.length === 2) {
+      return true;
+    }
     
-    const hasCoordinates = sample.latitude !== undefined && sample.longitude !== undefined;
+    // Check if sample has latitude/longitude properties
+    if (sample.latitude !== undefined && sample.longitude !== undefined) {
+      return true;
+    }
     
-    return hasLocation || hasCoordinates;
+    // Try to parse coordinates from location string (if format is "lat,lng")
+    try {
+      if (sample.location && sample.location.includes(',')) {
+        const [lat, lng] = sample.location.split(',').map(Number);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          return true;
+        }
+      }
+    } catch (e) {
+      // Parsing failed, consider this sample invalid for mapping
+    }
+    
+    return false;
   });
   
   return (
@@ -116,9 +133,26 @@ export default function SamplesMap({ samples }: SamplesMapProps) {
         />
         
         {validSamples.map((sample) => {
-          // Get coordinates from either location object or lat/lng properties
-          const lat = sample.location?.lat || sample.latitude;
-          const lng = sample.location?.lng || sample.longitude;
+          // Get coordinates from various possible sources
+          let lat: number | undefined;
+          let lng: number | undefined;
+          
+          if (sample.coordinates && sample.coordinates.length === 2) {
+            [lat, lng] = sample.coordinates;
+          } else if (sample.latitude !== undefined && sample.longitude !== undefined) {
+            lat = sample.latitude;
+            lng = sample.longitude;
+          } else if (sample.location && sample.location.includes(',')) {
+            try {
+              const parts = sample.location.split(',').map(Number);
+              if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                [lat, lng] = parts;
+              }
+            } catch (e) {
+              // Parsing failed, skip this sample
+              return null;
+            }
+          }
           
           if (!lat || !lng) return null;
           
