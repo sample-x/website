@@ -5,13 +5,15 @@ const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
 const csv = require('csv-parser');
+const mongoose = require('mongoose');
 
 // Load environment variables from .env file
 dotenv.config();
 
 // Connect to MongoDB
-const connectDB = require('./config/db');
-connectDB();
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('MongoDB Connected:', mongoose.connection.host))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Initialize Passport after loading environment variables
 require('./config/passport');
@@ -88,85 +90,60 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
 });
 
-// Serve static files from the Next.js app in production
-if (process.env.NODE_ENV === 'production') {
-  try {
-    console.log('Setting up Next.js frontend serving');
-    
-    // Check if Next.js build exists (look for 'out' directory since we're using export)
-    const nextBuildPath = path.join(__dirname, '../frontend-next/out');
-    const hasNextBuild = fs.existsSync(nextBuildPath);
-    
-    if (hasNextBuild) {
-      console.log('Found Next.js build in:', nextBuildPath);
-      
-      // Serve static files from the out directory
-      app.use(express.static(nextBuildPath));
-      
-      // For all other routes, try to serve the Next.js build
-      app.get('*', (req, res, next) => {
-        // Skip API routes
-        if (req.path.startsWith('/api') || req.path === '/health') {
-          return next();
-        }
-        
-        // Try to serve the index.html file (for client-side routing)
-        const indexPath = path.join(nextBuildPath, 'index.html');
-        if (fs.existsSync(indexPath)) {
-          return res.sendFile(indexPath);
-        }
-        
-        // Fallback if index.html is not found
-        next();
-      });
-      
-      console.log('Next.js frontend serving enabled');
-    } else {
-      console.log('Next.js build not found in:', nextBuildPath);
-      console.log('Directory contents of parent:', fs.readdirSync(path.join(__dirname, '..')));
-      if (fs.existsSync(path.join(__dirname, '../frontend-next'))) {
-        console.log('frontend-next directory contents:', fs.readdirSync(path.join(__dirname, '../frontend-next')));
-      }
-      throw new Error('Next.js build directory not found');
+// Serve Next.js frontend
+console.log('Setting up Next.js frontend serving');
+
+// Updated paths to correctly locate the Next.js build
+const nextJsBuildDir = path.join(__dirname, '../frontend/.next');
+const nextPublicDir = path.join(__dirname, '../frontend/public');
+
+// Check if the Next.js build directory exists
+if (fs.existsSync(nextJsBuildDir)) {
+  console.log('Next.js build found at:', nextJsBuildDir);
+  
+  // Serve static files from the public directory
+  app.use(express.static(nextPublicDir));
+  
+  // Serve the Next.js build
+  app.use('/_next', express.static(path.join(nextJsBuildDir, '_next')));
+  
+  // Handle all other routes with Next.js
+  app.get('*', (req, res) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ message: 'API endpoint not found' });
     }
-  } catch (error) {
-    console.error('Error setting up Next.js frontend:', error.message);
     
-    // Fallback if frontend setup fails
-    app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api') || req.path === '/health') {
-        return next();
-      }
-      
-      res.send(`
-        <html>
-          <head>
-            <title>Sample Exchange</title>
-            <style>
-              body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-              h1 { color: #333; }
-              .api-list { background: #f5f5f5; padding: 15px; border-radius: 5px; }
-            </style>
-          </head>
-          <body>
-            <h1>Sample Exchange API Server</h1>
-            <p>The API server is running successfully.</p>
-            <p>Frontend not available: ${error.message}</p>
-            <div class="api-list">
-              <h3>Available API Endpoints:</h3>
-              <ul>
-                <li>/api/auth</li>
-                <li>/api/users</li>
-                <li>/api/samples</li>
-                <li>/api/transactions</li>
-                <li>/api/contact</li>
-              </ul>
-            </div>
-          </body>
-        </html>
-      `);
-    });
-  }
+    const htmlPath = path.join(nextJsBuildDir, 'server/pages', req.path, '.html');
+    
+    // Try to serve static HTML files first
+    if (fs.existsSync(htmlPath)) {
+      return res.sendFile(htmlPath);
+    }
+    
+    // Otherwise, serve the index page and let client-side routing handle it
+    res.sendFile(path.join(nextJsBuildDir, 'server/pages/index.html'));
+  });
+} else {
+  console.log('Directory contents of frontend:', fs.readdirSync(path.join(__dirname, '../frontend')));
+  console.error('Error setting up Next.js frontend: Next.js build directory not found');
+  
+  // API endpoint info for when frontend is not available
+  app.get('/', (req, res) => {
+    res.send(`
+      <h1>Sample Exchange API Server</h1>
+      <p>The API server is running successfully.</p>
+      <p><strong>Frontend not available:</strong> Next.js build not found in: ${nextJsBuildDir}</p>
+      <h2>Available API Endpoints:</h2>
+      <ul>
+        <li>/api/auth</li>
+        <li>/api/users</li>
+        <li>/api/samples</li>
+        <li>/api/transactions</li>
+        <li>/api/contact</li>
+      </ul>
+    `);
+  });
 }
 
 // Health check endpoint
@@ -260,7 +237,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
