@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 
 // Define colors for different sample types
-const typeColors = {
+const typeColors: Record<string, string> = {
   'water': '#2196F3',      // Blue
   'soil': '#8B4513',       // Brown
   'air': '#90CAF9',        // Light Blue
@@ -39,9 +39,9 @@ const getSampleColor = (sampleType: string): string => {
   
   const lowerType = sampleType.toLowerCase();
   
-  // Direct match
-  if (typeColors[lowerType]) {
-    return typeColors[lowerType];
+  // Direct match - using safer hasOwnProperty check
+  if (Object.prototype.hasOwnProperty.call(typeColors, lowerType)) {
+    return typeColors[lowerType as keyof typeof typeColors];
   }
   
   // Partial match
