@@ -115,13 +115,13 @@ const fallbackSamples = [
   }
 ];
 
-// Updated Sample interface to match SampleList component
+// Updated Sample type definition with optional availability
 interface Sample {
   id: number;
   name: string;
   type: string;
   location: string;
-  availability?: string;
+  availability?: string; // Make this optional
   description: string;
   price: number;
   quantity: number;
@@ -152,9 +152,9 @@ interface ApiSample {
 
 export default function SamplesPage() {
   const [samples, setSamples] = useState<Sample[]>([])
-  const [filteredSamples, setFilteredSamples] = useState([])
+  const [filteredSamples, setFilteredSamples] = useState<Sample[]>([])
   const [filter, setFilter] = useState('')
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState<string[]>([])
   const [selectedCategory, setSelectedCategory] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -217,15 +217,15 @@ export default function SamplesPage() {
           ...sample,
           host: sample.host || getHostInfo(sample as Sample),
           locationName: sample.locationName || getLocationName(sample as Sample)
-        }));
+        })) as Sample[];
         
         // Extract unique categories
         const uniqueCategories = Array.from(
           new Set(processedData.map(sample => sample.type.toLowerCase()))
         );
         
-        setSamples(processedData as Sample[]);
-        setFilteredSamples(processedData as Sample[]);
+        setSamples(processedData);
+        setFilteredSamples(processedData);
         setCategories(uniqueCategories);
         setIsLoading(false);
         setError(''); // Clear any previous errors
@@ -233,19 +233,19 @@ export default function SamplesPage() {
         console.error('Error fetching samples:', error);
         
         // Use our fallback samples without showing an error message
-        const enhancedFallbackSamples = fallbackSamples.map(sample => ({
+        const enhancedFallbackSamples = fallbackSamples.map((sample: any) => ({
           ...sample,
           host: sample.host || getHostInfo(sample as Sample),
           locationName: sample.locationName || getLocationName(sample as Sample)
-        }));
+        })) as Sample[];
         
         // Extract unique categories from fallback data
         const fallbackCategories = Array.from(
           new Set(enhancedFallbackSamples.map(sample => sample.type.toLowerCase()))
         );
         
-        setSamples(enhancedFallbackSamples as Sample[]);
-        setFilteredSamples(enhancedFallbackSamples as Sample[]);
+        setSamples(enhancedFallbackSamples);
+        setFilteredSamples(enhancedFallbackSamples);
         setCategories(fallbackCategories);
         setIsLoading(false);
         
@@ -266,7 +266,7 @@ export default function SamplesPage() {
     
     if (filter) {
       const lowerFilter = filter.toLowerCase();
-      result = result.filter(sample => 
+      result = result.filter((sample: Sample) => 
         sample.name.toLowerCase().includes(lowerFilter) ||
         sample.description.toLowerCase().includes(lowerFilter) ||
         sample.type.toLowerCase().includes(lowerFilter) ||
@@ -275,7 +275,7 @@ export default function SamplesPage() {
     }
     
     if (selectedCategory) {
-      result = result.filter(sample => 
+      result = result.filter((sample: Sample) => 
         sample.type.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
@@ -283,8 +283,8 @@ export default function SamplesPage() {
     setFilteredSamples(result);
   }, [filter, selectedCategory, samples]);
 
-  const handlePurchase = (sampleId) => {
-    router.push(`/checkout/${sampleId}`)
+  const handlePurchase = (sampleId: number | string) => {
+    router.push(`/checkout/${sampleId}`);
   }
 
   return (

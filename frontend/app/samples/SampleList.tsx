@@ -19,7 +19,7 @@ interface Sample {
   // Add any other properties your samples have
 }
 
-// Define props interface
+// Define SampleListProps interface
 interface SampleListProps {
   samples: Sample[];
 }
