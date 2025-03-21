@@ -129,7 +129,8 @@ interface Sample {
   provider?: string;
   host?: string;
   locationName?: string;
-  // Add any other properties your samples have
+  coordinates?: [number, number];
+  // Add other properties
 }
 
 export default function SamplesPage() {
@@ -152,19 +153,15 @@ export default function SamplesPage() {
   }, [categoryParam])
 
   // Function to get host information
-  const getHostInfo = (sample) => {
+  const getHostInfo = (sample: Sample) => {
     if (sample.host && sample.host !== 'Unknown') return sample.host;
     
     // Default to "Environmental" for certain types
-    if (sample.type.toLowerCase().includes('water') || 
-        sample.type.toLowerCase().includes('soil') ||
-        sample.type.toLowerCase().includes('environmental') ||
-        sample.type.toLowerCase().includes('ice') ||
-        sample.type.toLowerCase().includes('air')) {
-      return 'Environmental';
+    if (['water', 'soil', 'air'].includes(sample.type.toLowerCase())) {
+      return "Environmental";
     }
     
-    return 'Not specified';
+    return "Not specified";
   };
 
   // Function to get location name
