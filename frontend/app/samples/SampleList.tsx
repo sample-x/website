@@ -1,6 +1,22 @@
 import Link from 'next/link';
+import { useState } from 'react';
 
-const SampleList = () => {
+// Define the sample interface
+interface Sample {
+  id: number;
+  name: string;
+  type: string;
+  location: string;
+  availability: string;
+  // Add other properties based on your sample data
+}
+
+// Define props interface
+interface SampleListProps {
+  samples: Sample[];
+}
+
+const SampleList = ({ samples }: SampleListProps) => {
   const getHostInfo = (sample) => {
     if (sample.host) return sample.host;
     
@@ -49,7 +65,7 @@ const SampleList = () => {
 
   return (
     <div className="sample-list">
-      {/* Assuming samples is an array of sample objects */}
+      {/* Samples from props */}
       {samples.map((sample) => (
         <div className="sample-card" key={sample.id}>
           <div className="sample-header">

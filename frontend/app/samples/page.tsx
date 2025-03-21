@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import SamplesMap from './SamplesMap'
 import './samples.css'
+import SampleList from './SampleList'
 
 // Define some fallback sample data in case the API fails
 const fallbackSamples = [
@@ -114,8 +115,18 @@ const fallbackSamples = [
   }
 ];
 
+// Sample type definition
+interface Sample {
+  id: number;
+  name: string;
+  type: string;
+  location: string;
+  availability: string;
+  // Add other properties
+}
+
 export default function SamplesPage() {
-  const [samples, setSamples] = useState([])
+  const [samples, setSamples] = useState<Sample[]>([])
   const [filteredSamples, setFilteredSamples] = useState([])
   const [filter, setFilter] = useState('')
   const [categories, setCategories] = useState([])
@@ -317,39 +328,7 @@ export default function SamplesPage() {
                     </div>
                   ) : (
                     <div className="table-container">
-                      <table className="samples-table">
-                        <thead>
-                          <tr>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Host</th>
-                            <th>Location</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filteredSamples.map(sample => (
-                            <tr key={sample.id}>
-                              <td>{sample.name}</td>
-                              <td>
-                                <span className={`category-badge ${sample.type.toLowerCase().replace(/\s+/g, '-')}`}>
-                                  {sample.type}
-                                </span>
-                              </td>
-                              <td>{sample.host || getHostInfo(sample)}</td>
-                              <td>{sample.locationName || getLocationName(sample)}</td>
-                              <td>
-                                <button 
-                                  className="btn-purchase"
-                                  onClick={() => handlePurchase(sample.id)}
-                                >
-                                  Purchase
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <SampleList samples={filteredSamples} />
                     </div>
                   )}
                 </div>
