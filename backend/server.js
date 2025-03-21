@@ -105,57 +105,101 @@ if (fs.existsSync(nextJsBuildDir)) {
   app.use(express.static(nextPublicDir));
   
   // Serve the Next.js build static files
-  app.use('/_next', express.static(path.join(nextJsBuildDir, '_next')));
+  app.use('/_next', express.static(path.join(nextJsBuildDir, 'static')));
   
-  // List the contents of the .next directory to better understand its structure
-  console.log('Contents of Next.js build directory:', fs.readdirSync(nextJsBuildDir));
+  // List directories to debug
+  if (fs.existsSync(path.join(nextJsBuildDir, 'server'))) {
+    console.log('Server directory contents:', fs.readdirSync(path.join(nextJsBuildDir, 'server')));
+    
+    if (fs.existsSync(path.join(nextJsBuildDir, 'server', 'app'))) {
+      console.log('App directory contents:', fs.readdirSync(path.join(nextJsBuildDir, 'server', 'app')));
+    }
+    
+    if (fs.existsSync(path.join(nextJsBuildDir, 'server', 'pages'))) {
+      console.log('Pages directory contents:', fs.readdirSync(path.join(nextJsBuildDir, 'server', 'pages')));
+    }
+  }
   
-  // Handle all other routes with Next.js - modified for App Router
+  // Handle all other routes
   app.get('*', (req, res, next) => {
     // Skip API routes
     if (req.path.startsWith('/api/')) {
       return next();
     }
     
-    // For App Router, we need to check a different structure
-    // First try the app router HTML files
-    const appHtmlPath = path.join(nextJsBuildDir, 'server/app', req.path === '/' ? 'index' : req.path.substring(1), 'page.html');
-    const appIndexHtmlPath = path.join(nextJsBuildDir, 'server/pages/index.html');
+    // For Next.js 14, HTML files are often stored in the app directory with a different structure
+    // We need to examine the structure to find the right paths
+    const normalizedPath = req.path === '/' ? '/index' : req.path;
     
-    console.log('Trying to serve:', appHtmlPath);
-    
-    if (fs.existsSync(appHtmlPath)) {
-      return res.sendFile(appHtmlPath);
-    }
-    
-    // Try legacy pages structure as fallback
-    if (fs.existsSync(appIndexHtmlPath)) {
-      return res.sendFile(appIndexHtmlPath);
-    }
-    
-    // If we can't find the HTML file, serve the root HTML and let client-side routing handle it
-    const baseHtmlPath = path.join(nextJsBuildDir, 'server/pages/index.html');
-    const appBaseHtmlPath = path.join(nextJsBuildDir, 'server/app/index/page.html');
-    
-    // Try both possible locations for the index HTML
-    if (fs.existsSync(baseHtmlPath)) {
-      return res.sendFile(baseHtmlPath);
-    } else if (fs.existsSync(appBaseHtmlPath)) {
-      return res.sendFile(appBaseHtmlPath);
-    } else {
-      // If we can't find any HTML files, list the directory contents to help debug
-      console.log('Next.js build directory contents:', fs.readdirSync(nextJsBuildDir));
-      if (fs.existsSync(path.join(nextJsBuildDir, 'server'))) {
-        console.log('Server directory contents:', fs.readdirSync(path.join(nextJsBuildDir, 'server')));
-      }
+    // Try multiple possible HTML paths
+    const possiblePaths = [
+      // App Router possible paths
+      path.join(nextJsBuildDir, 'server/app', normalizedPath.substring(1), 'page.html'),
+      path.join(nextJsBuildDir, 'server/app', normalizedPath.substring(1), 'index.html'),
+      path.join(nextJsBuildDir, 'server/app', normalizedPath.substring(1) + '/page.html'),
       
-      // Return a fallback HTML page
-      res.send(`
-        <h1>Sample Exchange</h1>
-        <p>The server is running, but the Next.js build files could not be found.</p>
-        <p>Please check the server logs for more information.</p>
-      `);
+      // Pages Router possible paths
+      path.join(nextJsBuildDir, 'server/pages', normalizedPath + '.html'),
+      path.join(nextJsBuildDir, 'server/pages', normalizedPath, 'index.html')
+    ];
+    
+    console.log('Request path:', req.path);
+    console.log('Checking possible HTML paths:', possiblePaths);
+    
+    // Try each path in order
+    for (const htmlPath of possiblePaths) {
+      if (fs.existsSync(htmlPath)) {
+        console.log('Found HTML at:', htmlPath);
+        return res.sendFile(htmlPath);
+      }
     }
+    
+    // If no HTML file was found, try to serve the client-side JavaScript bundle
+    // Next.js 14 often uses this approach for App Router
+    res.sendFile(path.join(nextJsBuildDir, 'static/chunks/app-client.js'), err => {
+      if (err) {
+        // If we couldn't find the client bundle either, use this fallback HTML
+        console.log('Could not find any matching files, using fallback HTML');
+        
+        res.send(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Sample Exchange</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+                .container { max-width: 800px; margin: 0 auto; padding: 2rem; background: white; margin-top: 2rem; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                h1 { color: #333; }
+                p { color: #666; line-height: 1.6; }
+                .btn { display: inline-block; background: #0070f3; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 5px; font-weight: 500; margin-top: 1rem; }
+                .api-list { background: #f9f9f9; padding: 1rem; border-radius: 5px; margin-top: 1rem; }
+                .api-item { margin: 0.5rem 0; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <h1>Sample Exchange</h1>
+                <p>The server is running successfully, but there was an issue serving the Next.js frontend.</p>
+                <p>The API endpoints are available and functional.</p>
+                
+                <div class="api-list">
+                  <h2>Available API Endpoints:</h2>
+                  <div class="api-item">/api/auth - Authentication endpoints</div>
+                  <div class="api-item">/api/users - User management</div>
+                  <div class="api-item">/api/samples - Sample data and search</div>
+                  <div class="api-item">/api/transactions - Transaction processing</div>
+                  <div class="api-item">/api/contact - Contact form submission</div>
+                </div>
+                
+                <p>For more information, please check the server logs or contact the administrator.</p>
+                <a href="/api/samples" class="btn">View Sample API Data</a>
+              </div>
+            </body>
+          </html>
+        `);
+      }
+    });
   });
 } else {
   console.log('Directory contents of frontend:', fs.readdirSync(path.join(__dirname, '../frontend')));
