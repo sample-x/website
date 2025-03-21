@@ -66,8 +66,8 @@ interface Sample {
   longitude?: number;
   name: string;
   description?: string;
-  price?: number;
-  quantity?: number;
+  price?: number | string;
+  quantity?: number | string;
   unit?: string;
   provider?: string;
   host?: string;
@@ -139,12 +139,12 @@ export default function SamplesMap({ samples }: SamplesMapProps) {
                 <div className="sample-popup">
                   <h3>{sample.name}</h3>
                   <p><strong>Type:</strong> <span className={`type-badge ${sample.type.toLowerCase().replace(/\s+/g, '-')}`}>{sample.type}</span></p>
-                  <p><strong>Description:</strong> {sample.description}</p>
-                  {sample.price && <p><strong>Price:</strong> ${parseFloat(sample.price).toFixed(2)}</p>}
+                  {sample.description && <p><strong>Description:</strong> {sample.description}</p>}
+                  {sample.price && <p><strong>Price:</strong> ${typeof sample.price === 'string' ? parseFloat(sample.price).toFixed(2) : sample.price.toFixed(2)}</p>}
                   {sample.quantity && <p><strong>Quantity:</strong> {sample.quantity} {sample.unit}</p>}
-                  <p><strong>Provider:</strong> {sample.provider}</p>
-                  <p><strong>Host:</strong> {sample.host}</p>
-                  <p><strong>Location:</strong> {sample.locationName}</p>
+                  {sample.provider && <p><strong>Provider:</strong> {sample.provider}</p>}
+                  {sample.host && <p><strong>Host:</strong> {sample.host}</p>}
+                  {sample.locationName && <p><strong>Location:</strong> {sample.locationName}</p>}
                   <button className="btn btn-primary btn-small">View Details</button>
                 </div>
               </Popup>
