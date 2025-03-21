@@ -165,7 +165,7 @@ export default function SamplesPage() {
   };
 
   // Function to get location name
-  const getLocationName = (sample) => {
+  const getLocationName = (sample: Sample) => {
     if (sample.locationName && sample.locationName !== 'Unknown') return sample.locationName;
     
     // Map location names based on sample names
