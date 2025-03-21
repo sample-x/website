@@ -15,6 +15,7 @@ interface Sample {
   provider?: string;
   host?: string;
   locationName?: string;
+  coordinates?: [number, number]; // Add coordinates as an optional property
   // Add any other properties your samples have
 }
 
@@ -38,6 +39,9 @@ const SampleList = ({ samples }: SampleListProps) => {
   const getLocationName = (sample: Sample) => {
     if (sample.locationName) return sample.locationName;
     
+    // If coordinates aren't available, return the location string
+    if (!sample.coordinates) return sample.location;
+    
     // Map coordinates to approximate location names
     const locations = {
       'North America': { minLat: 15, maxLat: 72, minLng: -170, maxLng: -50 },
@@ -49,7 +53,7 @@ const SampleList = ({ samples }: SampleListProps) => {
       'Antarctica': { minLat: -90, maxLat: -60, minLng: -180, maxLng: 180 }
     };
     
-    const { lat, lng } = sample.location;
+    const [lat, lng] = sample.coordinates;
     
     for (const [name, bounds] of Object.entries(locations)) {
       if (lat >= bounds.minLat && lat <= bounds.maxLat && 
