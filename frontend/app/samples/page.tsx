@@ -6,6 +6,7 @@ import Link from 'next/link'
 import SamplesMap from './SamplesMap'
 import './samples.css'
 import SampleList from './SampleList'
+import { Suspense } from 'react'
 
 // Define some fallback sample data in case the API fails
 const fallbackSamples = [
@@ -158,16 +159,28 @@ export default function SamplesPage() {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isClient, setIsClient] = useState(false)
   
-  const searchParams = useSearchParams()
-  const categoryParam = searchParams.get('category')
   const router = useRouter()
 
+  // Wrap the component that uses useSearchParams in Suspense
+  const CategoryFilter = () => {
+    const searchParams = useSearchParams()
+    const categoryParam = searchParams?.get('category')
+    
+    useEffect(() => {
+      if (categoryParam) {
+        setSelectedCategory(categoryParam)
+      }
+    }, [categoryParam])
+    
+    return null // This component just handles the side-effect
+  }
+
+  // Check if we're on the client-side
   useEffect(() => {
-    if (categoryParam) {
-      setSelectedCategory(categoryParam)
-    }
-  }, [categoryParam])
+    setIsClient(true)
+  }, [])
 
   // Function to get host information
   const getHostInfo = (sample: Sample) => {
@@ -288,82 +301,88 @@ export default function SamplesPage() {
   }
 
   return (
-    <main>
-      <section className="samples-section">
-        <div className="container">
-          <h1>Sample Exchange</h1>
-          
-          {isLoading ? (
-            <div className="loading">Loading samples...</div>
-          ) : (
-            <>
-              <div className="filters">
-                <div className="search-bar">
-                  <input
-                    type="text"
-                    placeholder="Search samples..."
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                  />
-                </div>
-                
-                <div className="category-filter">
-                  <label htmlFor="category">Filter by Type:</label>
-                  <select
-                    id="category"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                  >
-                    <option value="">All Types</option>
-                    {categories.map(category => (
-                      <option key={category} value={category}>
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              
-              {error && (
-                <div className="error-message">
-                  <p>{error}</p>
-                </div>
-              )}
-              
-              <div className="samples-grid">
-                <div className="samples-list">
-                  <h2>Available Samples ({filteredSamples.length})</h2>
+    <div className="samples-page">
+      <Suspense fallback={<div>Loading...</div>}>
+        <CategoryFilter />
+      </Suspense>
+      
+      <main>
+        <section className="samples-section">
+          <div className="container">
+            <h1>Sample Exchange</h1>
+            
+            {isLoading ? (
+              <div className="loading">Loading samples...</div>
+            ) : (
+              <>
+                <div className="filters">
+                  <div className="search-bar">
+                    <input
+                      type="text"
+                      placeholder="Search samples..."
+                      value={filter}
+                      onChange={(e) => setFilter(e.target.value)}
+                    />
+                  </div>
                   
-                  {filteredSamples.length === 0 ? (
-                    <div className="no-results">
-                      <p>No samples found matching your criteria.</p>
-                      <button 
-                        className="btn btn-secondary"
-                        onClick={() => {
-                          setFilter('');
-                          setSelectedCategory('');
-                        }}
-                      >
-                        Clear Filters
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="table-container">
-                      <SampleList samples={filteredSamples} />
-                    </div>
-                  )}
+                  <div className="category-filter">
+                    <label htmlFor="category">Filter by Type:</label>
+                    <select
+                      id="category"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                    >
+                      <option value="">All Types</option>
+                      {categories.map(category => (
+                        <option key={category} value={category}>
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 
-                <div className="map-container">
-                  {filteredSamples.length > 0 && (
-                    <SamplesMap samples={filteredSamples} />
-                  )}
+                {error && (
+                  <div className="error-message">
+                    <p>{error}</p>
+                  </div>
+                )}
+                
+                <div className="samples-grid">
+                  <div className="samples-list">
+                    <h2>Available Samples ({filteredSamples.length})</h2>
+                    
+                    {filteredSamples.length === 0 ? (
+                      <div className="no-results">
+                        <p>No samples found matching your criteria.</p>
+                        <button 
+                          className="btn btn-secondary"
+                          onClick={() => {
+                            setFilter('');
+                            setSelectedCategory('');
+                          }}
+                        >
+                          Clear Filters
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="table-container">
+                        <SampleList samples={filteredSamples} />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="map-container">
+                    {filteredSamples.length > 0 && (
+                      <SamplesMap samples={filteredSamples} />
+                    )}
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
-        </div>
-      </section>
-    </main>
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
   )
 } 

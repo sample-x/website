@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useEffect } from 'react'
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import './contact.css'
 
@@ -24,7 +25,7 @@ export default function ContactPage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
   
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setSubmitError('')
@@ -57,131 +58,142 @@ export default function ContactPage() {
     }
   }
   
-  return (
-    <main>
-      <section className="contact-hero">
-        <div className="container">
-          <h1>{isDemo ? 'Request a Demo' : 'Contact Us'}</h1>
-          <p>{isDemo 
-            ? 'See Sample Exchange in action with a personalized demo' 
-            : 'Have questions or feedback? We\'d love to hear from you!'}
-          </p>
-        </div>
-      </section>
-      
-      <section className="contact-form-section">
-        <div className="container">
-          <div className="contact-grid">
-            <div className="contact-info">
-              <h2>Get in Touch</h2>
-              <p>Our team is here to help with any questions about our platform.</p>
-              
-              <div className="contact-details">
-                <div className="contact-item">
-                  <i className="icon-location"></i>
-                  <div>
-                    <h3>Address</h3>
-                    <p>655 Oak Grove Ave. #1417<br />Menlo Park, California 94025</p>
-                  </div>
-                </div>
+  function ContactForm() {
+    return (
+      <main>
+        <section className="contact-hero">
+          <div className="container">
+            <h1>{isDemo ? 'Request a Demo' : 'Contact Us'}</h1>
+            <p>{isDemo 
+              ? 'See Sample Exchange in action with a personalized demo' 
+              : 'Have questions or feedback? We\'d love to hear from you!'}
+            </p>
+          </div>
+        </section>
+        
+        <section className="contact-form-section">
+          <div className="container">
+            <div className="contact-grid">
+              <div className="contact-info">
+                <h2>Get in Touch</h2>
+                <p>Our team is here to help with any questions about our platform.</p>
                 
-                <div className="contact-item">
-                  <i className="icon-email"></i>
-                  <div>
-                    <h3>Email</h3>
-                    <p>info (at) sample.exchange</p>
+                <div className="contact-details">
+                  <div className="contact-item">
+                    <i className="icon-location"></i>
+                    <div>
+                      <h3>Address</h3>
+                      <p>655 Oak Grove Ave. #1417<br />Menlo Park, California 94025</p>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="contact-item">
-                  <i className="icon-phone"></i>
-                  <div>
-                    <h3>Phone</h3>
-                    <p>415-570-9067</p>
+                  
+                  <div className="contact-item">
+                    <i className="icon-email"></i>
+                    <div>
+                      <h3>Email</h3>
+                      <p>info (at) sample.exchange</p>
+                    </div>
+                  </div>
+                  
+                  <div className="contact-item">
+                    <i className="icon-phone"></i>
+                    <div>
+                      <h3>Phone</h3>
+                      <p>415-570-9067</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="contact-form-container">
-              {submitSuccess ? (
-                <div className="success-message">
-                  <h2>Thank you!</h2>
-                  <p>Your message has been sent successfully. We'll get back to you soon.</p>
-                  <button 
-                    className="btn btn-primary"
-                    onClick={() => setSubmitSuccess(false)}
-                  >
-                    Send Another Message
-                  </button>
-                </div>
-              ) : (
-                <form className="contact-form" onSubmit={handleSubmit}>
-                  <h2>{isDemo ? 'Schedule Your Demo' : 'Send Us a Message'}</h2>
-                  
-                  {submitError && <div className="error-message">{submitError}</div>}
-                  
-                  <div className="form-group">
-                    <label htmlFor="name">Name</label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
+              
+              <div className="contact-form-container">
+                {submitSuccess ? (
+                  <div className="success-message">
+                    <h2>Thank you!</h2>
+                    <p>Your message has been sent successfully. We'll get back to you soon.</p>
+                    <button 
+                      className="btn btn-primary"
+                      onClick={() => setSubmitSuccess(false)}
+                    >
+                      Send Another Message
+                    </button>
                   </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="subject">Subject</label>
-                    <input
-                      type="text"
-                      id="subject"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="message">Message</label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={5}
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                    ></textarea>
-                  </div>
-                  
-                  <button 
-                    type="submit" 
-                    className="btn btn-primary"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Sending...' : 'Send Message'}
-                  </button>
-                </form>
-              )}
+                ) : (
+                  <form className="contact-form" onSubmit={handleSubmit}>
+                    <h2>{isDemo ? 'Schedule Your Demo' : 'Send Us a Message'}</h2>
+                    
+                    {submitError && <div className="error-message">{submitError}</div>}
+                    
+                    <div className="form-group">
+                      <label htmlFor="name">Name</label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor="email">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor="subject">Subject</label>
+                      <input
+                        type="text"
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor="message">Message</label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        rows={5}
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
+                      ></textarea>
+                    </div>
+                    
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                    </button>
+                  </form>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
+    )
+  }
+
+  return (
+    <div className="contact-page">
+      <h1>Contact Us</h1>
+      <Suspense fallback={<div>Loading form...</div>}>
+        <ContactForm />
+      </Suspense>
+    </div>
   )
 } 
