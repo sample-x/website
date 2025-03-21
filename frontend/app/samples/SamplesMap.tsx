@@ -65,8 +65,8 @@ export default function SamplesMap({ samples }) {
     return <div className="samples-map-placeholder">Loading map...</div>
   }
   
-  // Get unique sample types from the data
-  const uniqueTypes = [...new Set(samples.map(sample => sample.type))];
+  // Get unique sample types from the data - avoiding spread operator on Set
+  const uniqueTypes = Array.from(new Set(samples.map(sample => sample.type)));
   
   // Ensure all samples have proper location data
   const validSamples = samples.filter(sample => {
