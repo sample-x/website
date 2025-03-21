@@ -35,7 +35,7 @@ const SampleList = ({ samples }: SampleListProps) => {
     return "Not specified";
   };
 
-  const getLocationName = (sample) => {
+  const getLocationName = (sample: Sample) => {
     if (sample.locationName) return sample.locationName;
     
     // Map coordinates to approximate location names
