@@ -24,24 +24,15 @@ interface SampleListProps {
 }
 
 const SampleList = ({ samples }: SampleListProps) => {
-  const getHostInfo = (sample) => {
+  const getHostInfo = (sample: Sample) => {
     if (sample.host) return sample.host;
     
     // Default to "Environmental" for certain types
-    if (sample.type.toLowerCase().includes('water') || 
-        sample.type.toLowerCase().includes('soil') ||
-        sample.type.toLowerCase().includes('environmental')) {
-      return 'Environmental';
+    if (['water', 'soil', 'air'].includes(sample.type.toLowerCase())) {
+      return "Environmental";
     }
     
-    // For microorganisms without a specified host
-    if (sample.type.toLowerCase().includes('bacteria') ||
-        sample.type.toLowerCase().includes('virus') ||
-        sample.type.toLowerCase().includes('fungus')) {
-      return 'Environmental';
-    }
-    
-    return 'Not specified';
+    return "Not specified";
   };
 
   const getLocationName = (sample) => {
