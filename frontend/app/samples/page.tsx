@@ -133,6 +133,23 @@ interface Sample {
   // Add other properties
 }
 
+// Define API response type - for data before processing
+interface ApiSample {
+  id: number;
+  name: string;
+  type: string;
+  location: string;
+  description: string;
+  price: number;
+  quantity: number;
+  unit: string;
+  availability?: string;
+  provider?: string;
+  host?: string;
+  locationName?: string;
+  // Add other API properties
+}
+
 export default function SamplesPage() {
   const [samples, setSamples] = useState<Sample[]>([])
   const [filteredSamples, setFilteredSamples] = useState([])
@@ -193,13 +210,13 @@ export default function SamplesPage() {
           throw new Error(`API responded with status: ${response.status}`);
         }
         
-        const data = await response.json();
+        const data = await response.json() as ApiSample[];
         
         // Process the data
-        const processedData = data.map(sample => ({
+        const processedData = data.map((sample: ApiSample) => ({
           ...sample,
-          host: sample.host || getHostInfo(sample),
-          locationName: sample.locationName || getLocationName(sample)
+          host: sample.host || getHostInfo(sample as Sample),
+          locationName: sample.locationName || getLocationName(sample as Sample)
         }));
         
         // Extract unique categories
@@ -218,8 +235,8 @@ export default function SamplesPage() {
         // Use our fallback samples without showing an error message
         const enhancedFallbackSamples = fallbackSamples.map(sample => ({
           ...sample,
-          host: sample.host || getHostInfo(sample),
-          locationName: sample.locationName || getLocationName(sample)
+          host: sample.host || getHostInfo(sample as Sample),
+          locationName: sample.locationName || getLocationName(sample as Sample)
         }));
         
         // Extract unique categories from fallback data
