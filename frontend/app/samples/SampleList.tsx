@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-// Updated Sample interface with all needed properties
+// Updated Sample interface to match page.tsx definition
 interface Sample {
   id: number;
   name: string;
   type: string;
   location: string;
-  availability: string;
+  availability?: string; // Make this optional
   description: string;
   price: number;
   quantity: number;
