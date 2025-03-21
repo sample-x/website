@@ -1,6 +1,7 @@
 'use client'
 
-import ImageWithFallback from '../app/components/ImageWithFallback'
+import Image from 'next/image'
+import ImageWithFallback from '@/components/ImageWithFallback'
 
 export default function AboutPage() {
   return (
@@ -11,10 +12,11 @@ export default function AboutPage() {
           
           <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
             <div style={{ marginBottom: '3rem' }}>
-              <ImageWithFallback 
+              <Image 
                 src="/assets/about-banner.jpg" 
                 alt="SampleX Laboratory" 
-                fallbackSrc="https://via.placeholder.com/1200x400?text=SampleX+Laboratory"
+                width={1200}
+                height={400}
                 className="w-full h-64 object-cover rounded-lg shadow-md mb-8"
               />
               
