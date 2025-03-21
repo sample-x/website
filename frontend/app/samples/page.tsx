@@ -121,7 +121,7 @@ interface Sample {
   name: string;
   type: string;
   location: string;
-  availability: string;
+  availability?: string;
   description: string;
   price: number;
   quantity: number;
@@ -224,8 +224,8 @@ export default function SamplesPage() {
           new Set(processedData.map(sample => sample.type.toLowerCase()))
         );
         
-        setSamples(processedData);
-        setFilteredSamples(processedData);
+        setSamples(processedData as Sample[]);
+        setFilteredSamples(processedData as Sample[]);
         setCategories(uniqueCategories);
         setIsLoading(false);
         setError(''); // Clear any previous errors
@@ -244,8 +244,8 @@ export default function SamplesPage() {
           new Set(enhancedFallbackSamples.map(sample => sample.type.toLowerCase()))
         );
         
-        setSamples(enhancedFallbackSamples);
-        setFilteredSamples(enhancedFallbackSamples);
+        setSamples(enhancedFallbackSamples as Sample[]);
+        setFilteredSamples(enhancedFallbackSamples as Sample[]);
         setCategories(fallbackCategories);
         setIsLoading(false);
         
