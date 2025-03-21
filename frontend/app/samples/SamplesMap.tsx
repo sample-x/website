@@ -34,7 +34,7 @@ const typeColors = {
 const defaultColor = '#607D8B'
 
 // Function to determine color based on sample type
-const getSampleColor = (sampleType) => {
+const getSampleColor = (sampleType: string): string => {
   if (!sampleType) return defaultColor;
   
   const lowerType = sampleType.toLowerCase();
