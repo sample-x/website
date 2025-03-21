@@ -1,14 +1,21 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-// Define the sample interface
+// Updated Sample interface with all needed properties
 interface Sample {
   id: number;
   name: string;
   type: string;
   location: string;
   availability: string;
-  // Add other properties based on your sample data
+  description: string;
+  price: number;
+  quantity: number;
+  unit: string;
+  provider?: string;
+  host?: string;
+  locationName?: string;
+  // Add any other properties your samples have
 }
 
 // Define props interface
@@ -74,10 +81,16 @@ const SampleList = ({ samples }: SampleListProps) => {
               {sample.type}
             </span>
           </div>
-          <p className="sample-description">{sample.description}</p>
+          {sample.description && (
+            <p className="sample-description">{sample.description}</p>
+          )}
           <div className="sample-details">
-            <p><strong>Price:</strong> ${sample.price.toFixed(2)}</p>
-            <p><strong>Quantity:</strong> {sample.quantity} {sample.unit}</p>
+            {sample.price !== undefined && (
+              <p><strong>Price:</strong> ${sample.price.toFixed(2)}</p>
+            )}
+            {sample.quantity !== undefined && sample.unit && (
+              <p><strong>Quantity:</strong> {sample.quantity} {sample.unit}</p>
+            )}
             <p><strong>Provider:</strong> {sample.provider}</p>
             <p><strong>Host:</strong> {sample.host || getHostInfo(sample)}</p>
             <p><strong>Location:</strong> {sample.locationName || getLocationName(sample)}</p>

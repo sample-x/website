@@ -115,14 +115,21 @@ const fallbackSamples = [
   }
 ];
 
-// Sample type definition
+// Updated Sample interface to match SampleList component
 interface Sample {
   id: number;
   name: string;
   type: string;
   location: string;
   availability: string;
-  // Add other properties
+  description: string;
+  price: number;
+  quantity: number;
+  unit: string;
+  provider?: string;
+  host?: string;
+  locationName?: string;
+  // Add any other properties your samples have
 }
 
 export default function SamplesPage() {
