@@ -127,20 +127,19 @@ if (fs.existsSync(nextJsBuildDir)) {
       return next();
     }
     
-    // For Next.js 14, HTML files are often stored in the app directory with a different structure
-    // We need to examine the structure to find the right paths
-    const normalizedPath = req.path === '/' ? '/index' : req.path;
+    // Next.js 14 App Router puts HTML files directly in the app directory
+    // Remove leading slash and handle root path special case
+    const pathWithoutLeadingSlash = req.path === '/' ? 'index' : req.path.substring(1);
     
-    // Try multiple possible HTML paths
+    // Try paths based on the actual structure from the logs
     const possiblePaths = [
-      // App Router possible paths
-      path.join(nextJsBuildDir, 'server/app', normalizedPath.substring(1), 'page.html'),
-      path.join(nextJsBuildDir, 'server/app', normalizedPath.substring(1), 'index.html'),
-      path.join(nextJsBuildDir, 'server/app', normalizedPath.substring(1) + '/page.html'),
-      
-      // Pages Router possible paths
-      path.join(nextJsBuildDir, 'server/pages', normalizedPath + '.html'),
-      path.join(nextJsBuildDir, 'server/pages', normalizedPath, 'index.html')
+      // App Router paths - direct HTML files
+      path.join(nextJsBuildDir, 'server/app', `${pathWithoutLeadingSlash}.html`),
+      // For nested routes like /samples/123
+      path.join(nextJsBuildDir, 'server/app', pathWithoutLeadingSlash, 'index.html'),
+      // Legacy patterns
+      path.join(nextJsBuildDir, 'server/pages', `${pathWithoutLeadingSlash}.html`),
+      path.join(nextJsBuildDir, 'server/pages', '404.html') // Fallback to 404
     ];
     
     console.log('Request path:', req.path);
@@ -154,52 +153,53 @@ if (fs.existsSync(nextJsBuildDir)) {
       }
     }
     
-    // If no HTML file was found, try to serve the client-side JavaScript bundle
-    // Next.js 14 often uses this approach for App Router
-    res.sendFile(path.join(nextJsBuildDir, 'static/chunks/app-client.js'), err => {
-      if (err) {
-        // If we couldn't find the client bundle either, use this fallback HTML
-        console.log('Could not find any matching files, using fallback HTML');
-        
-        res.send(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Sample Exchange</title>
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
-                .container { max-width: 800px; margin: 0 auto; padding: 2rem; background: white; margin-top: 2rem; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-                h1 { color: #333; }
-                p { color: #666; line-height: 1.6; }
-                .btn { display: inline-block; background: #0070f3; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 5px; font-weight: 500; margin-top: 1rem; }
-                .api-list { background: #f9f9f9; padding: 1rem; border-radius: 5px; margin-top: 1rem; }
-                .api-item { margin: 0.5rem 0; }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <h1>Sample Exchange</h1>
-                <p>The server is running successfully, but there was an issue serving the Next.js frontend.</p>
-                <p>The API endpoints are available and functional.</p>
-                
-                <div class="api-list">
-                  <h2>Available API Endpoints:</h2>
-                  <div class="api-item">/api/auth - Authentication endpoints</div>
-                  <div class="api-item">/api/users - User management</div>
-                  <div class="api-item">/api/samples - Sample data and search</div>
-                  <div class="api-item">/api/transactions - Transaction processing</div>
-                  <div class="api-item">/api/contact - Contact form submission</div>
-                </div>
-                
-                <p>For more information, please check the server logs or contact the administrator.</p>
-                <a href="/api/samples" class="btn">View Sample API Data</a>
-              </div>
-            </body>
-          </html>
-        `);
-      }
-    });
+    // If no specific HTML file was found, try to serve the index.html
+    // This supports client-side routing
+    const indexHtmlPath = path.join(nextJsBuildDir, 'server/app/index.html');
+    if (fs.existsSync(indexHtmlPath)) {
+      console.log('Falling back to index.html for client-side routing');
+      return res.sendFile(indexHtmlPath);
+    }
+    
+    // If still no file was found, use the fallback HTML
+    console.log('Could not find any HTML files, using fallback HTML');
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Sample Exchange</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+            .container { max-width: 800px; margin: 0 auto; padding: 2rem; background: white; margin-top: 2rem; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h1 { color: #333; }
+            p { color: #666; line-height: 1.6; }
+            .btn { display: inline-block; background: #0070f3; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 5px; font-weight: 500; margin-top: 1rem; }
+            .api-list { background: #f9f9f9; padding: 1rem; border-radius: 5px; margin-top: 1rem; }
+            .api-item { margin: 0.5rem 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Sample Exchange</h1>
+            <p>The server is running successfully, but there was an issue serving the Next.js frontend.</p>
+            <p>The API endpoints are available and functional.</p>
+            
+            <div class="api-list">
+              <h2>Available API Endpoints:</h2>
+              <div class="api-item">/api/auth - Authentication endpoints</div>
+              <div class="api-item">/api/users - User management</div>
+              <div class="api-item">/api/samples - Sample data and search</div>
+              <div class="api-item">/api/transactions - Transaction processing</div>
+              <div class="api-item">/api/contact - Contact form submission</div>
+            </div>
+            
+            <p>For more information, please check the server logs or contact the administrator.</p>
+            <a href="/api/samples" class="btn">View Sample API Data</a>
+          </div>
+        </body>
+      </html>
+    `);
   });
 } else {
   console.log('Directory contents of frontend:', fs.readdirSync(path.join(__dirname, '../frontend')));
