@@ -3,24 +3,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Sample } from './types';
 
-// Updated Sample interface to match page.tsx definition
-interface Sample {
-  id: number;
-  name: string;
-  type: string;
-  location: string;
-  availability?: string; // Make this optional
-  description: string;
-  price: number;
-  quantity: number;
-  unit: string;
-  provider?: string;
-  host?: string;
-  locationName?: string;
-  coordinates?: [number, number]; // Add coordinates as an optional property
-  // Add any other properties your samples have
-}
-
 // Define SampleListProps interface
 interface SampleListProps {
   samples: Sample[];
@@ -39,10 +21,10 @@ const SampleList: React.FC<SampleListProps> = ({ samples }) => {
   };
 
   const getLocationName = (sample: Sample) => {
-    if (sample.locationName) return sample.locationName;
+    if (sample.location) return sample.location;
     
-    // If coordinates aren't available, return the location string
-    if (!sample.coordinates) return sample.location;
+    // If coordinates aren't available, return a default
+    if (!sample.coordinates) return "Unknown location";
     
     // Map coordinates to approximate location names
     const locations = {
@@ -76,7 +58,6 @@ const SampleList: React.FC<SampleListProps> = ({ samples }) => {
             <th>Type</th>
             <th>Location</th>
             <th>Availability</th>
-            {/* Add price column if needed */}
             <th>Price</th>
           </tr>
         </thead>
@@ -85,9 +66,8 @@ const SampleList: React.FC<SampleListProps> = ({ samples }) => {
             <tr key={sample.id}>
               <td>{sample.name}</td>
               <td>{sample.type}</td>
-              <td>{sample.location}</td>
+              <td>{getLocationName(sample)}</td>
               <td>{sample.availability}</td>
-              {/* Display price if available */}
               <td>${sample.price}</td>
             </tr>
           ))}
