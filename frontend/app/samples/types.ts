@@ -13,7 +13,7 @@ export interface Sample {
   availability: string;
   contact?: string;
   description: string;
-  price?: number;
-  quantity?: number;
-  unit?: string;
+  price: number;
+  quantity: number;
+  unit: string;
 } 

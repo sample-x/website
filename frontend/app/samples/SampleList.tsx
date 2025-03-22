@@ -88,7 +88,7 @@ const SampleList: React.FC<SampleListProps> = ({ samples }) => {
               <td>{sample.location}</td>
               <td>{sample.availability}</td>
               {/* Display price if available */}
-              <td>{sample.price ? `$${sample.price}` : 'N/A'}</td>
+              <td>${sample.price}</td>
             </tr>
           ))}
         </tbody>
