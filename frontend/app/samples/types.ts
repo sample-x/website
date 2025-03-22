@@ -5,7 +5,7 @@ export interface Sample {
   type: string;
   host: string;
   location: string;
-  coordinates?: number[];
+  coordinates?: [number, number];
   latitude?: string;
   longitude?: string;
   collectionDate?: string;

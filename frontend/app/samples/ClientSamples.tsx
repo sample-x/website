@@ -42,13 +42,31 @@ export default function ClientSamples() {
         
         // Ensure the data is in the expected format
         if (Array.isArray(data)) {
-          // Add default values for potentially missing fields expected by SampleList
-          const processedData = data.map((sample: any) => ({
-            ...sample,
-            price: sample.price || 0,
-            quantity: sample.quantity || 1,
-            unit: sample.unit || 'unit'
-          }));
+          // Process the data to match our type definition
+          const processedData = data.map((sample: any) => {
+            // Convert lat/lng to coordinates tuple if they exist
+            let coordinates: [number, number] | undefined = undefined;
+            
+            if (sample.latitude && sample.longitude) {
+              const lat = parseFloat(sample.latitude);
+              const lng = parseFloat(sample.longitude);
+              if (!isNaN(lat) && !isNaN(lng)) {
+                coordinates = [lat, lng];
+              }
+            } else if (Array.isArray(sample.coordinates) && sample.coordinates.length >= 2) {
+              // If coordinates already exist as an array, ensure it's a tuple
+              coordinates = [sample.coordinates[0], sample.coordinates[1]];
+            }
+            
+            return {
+              ...sample,
+              coordinates,
+              price: sample.price ?? 0,
+              quantity: sample.quantity ?? 1,
+              unit: sample.unit ?? 'unit'
+            } as Sample;
+          });
+          
           setSamples(processedData);
         } else {
           setSamples([]);
