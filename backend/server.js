@@ -78,6 +78,77 @@ const normalizeSampleData = (data) => {
   });
 };
 
+// Diagnostic logging for sample data files
+const jsonSamplesPath = path.join(__dirname, 'data', 'samples.json');
+const csvSamplesPath = path.join(__dirname, 'data', 'samples.csv');
+
+console.log('Checking for samples data files:');
+console.log('JSON samples path:', jsonSamplesPath, 'exists:', fs.existsSync(jsonSamplesPath));
+console.log('CSV samples path:', csvSamplesPath, 'exists:', fs.existsSync(csvSamplesPath));
+
+// If neither file exists, list the contents of the backend directory
+if (!fs.existsSync(jsonSamplesPath) && !fs.existsSync(csvSamplesPath)) {
+  console.log('No samples data files found. Directory structure:');
+  console.log('Backend directory:', fs.readdirSync(__dirname));
+  
+  const dataDir = path.join(__dirname, 'data');
+  if (fs.existsSync(dataDir)) {
+    console.log('Data directory contents:', fs.readdirSync(dataDir));
+  } else {
+    console.log('Data directory does not exist. Creating it...');
+    fs.mkdirSync(dataDir, { recursive: true });
+    
+    // Create a basic samples.json file with sample data if none exists
+    const sampleData = [
+      {
+        id: 1,
+        name: "Marine Bacterial Culture",
+        type: "Bacterial",
+        host: "Seawater",
+        location: "Pacific Ocean",
+        latitude: "34.0522",
+        longitude: "-118.2437",
+        collectionDate: "2023-06-15",
+        storageCondition: "Refrigerated",
+        availability: "Available",
+        contact: "researcher@example.com",
+        description: "Marine bacterial culture collected from Pacific Ocean samples."
+      },
+      {
+        id: 2,
+        name: "Human Tissue Sample",
+        type: "Tissue",
+        host: "Human",
+        location: "San Francisco",
+        latitude: "37.7749",
+        longitude: "-122.4194",
+        collectionDate: "2023-07-20",
+        storageCondition: "Frozen",
+        availability: "Limited",
+        contact: "hospital@example.com",
+        description: "Human tissue sample for research purposes."
+      },
+      {
+        id: 3,
+        name: "Plant Extract",
+        type: "Botanical",
+        host: "Medicinal Plant",
+        location: "Amazon Rainforest",
+        latitude: "-3.4653",
+        longitude: "-62.2159",
+        collectionDate: "2023-05-10",
+        storageCondition: "Room Temperature",
+        availability: "Available",
+        contact: "botanist@example.com",
+        description: "Extracted compounds from rare medicinal plants."
+      }
+    ];
+    
+    fs.writeFileSync(path.join(dataDir, 'samples.json'), JSON.stringify(sampleData, null, 2));
+    console.log('Created default samples.json file with sample data');
+  }
+}
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -234,12 +305,13 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// API Routes
+// API Routes for samples data
 app.get('/api/samples', async (req, res) => {
   try {
     // Try to read JSON data first
     const jsonPath = path.join(__dirname, 'data', 'samples.json');
     if (fs.existsSync(jsonPath)) {
+      console.log('Reading samples from JSON file:', jsonPath);
       const jsonData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
       return res.json(normalizeSampleData(jsonData));
     }
@@ -247,15 +319,23 @@ app.get('/api/samples', async (req, res) => {
     // Fall back to CSV if JSON doesn't exist
     const csvPath = path.join(__dirname, 'data', 'samples.csv');
     if (fs.existsSync(csvPath)) {
+      console.log('Reading samples from CSV file:', csvPath);
       const csvData = await readCSV(csvPath);
       return res.json(normalizeSampleData(csvData));
     }
+    
+    // Log diagnostic information if files not found
+    console.log('Samples data files not found. Searched in:');
+    console.log('- JSON:', jsonPath);
+    console.log('- CSV:', csvPath);
+    console.log('Directory contents of data folder:', fs.existsSync(path.join(__dirname, 'data')) ? 
+      fs.readdirSync(path.join(__dirname, 'data')) : 'data directory not found');
     
     // No data found
     return res.status(404).json({ error: 'No sample data found' });
   } catch (error) {
     console.error('Error fetching samples:', error);
-    res.status(500).json({ error: 'Failed to fetch samples' });
+    res.status(500).json({ error: 'Failed to fetch samples', details: error.message });
   }
 });
 

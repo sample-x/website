@@ -1,229 +1,164 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import SampleList from './SampleList';
 import SamplesMap from './SamplesMap';
 import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
 
 // Sample type definition
 interface Sample {
   id: number;
   name: string;
   type: string;
+  host: string;
   location: string;
-  availability?: string;
+  coordinates?: number[];
+  latitude?: string;
+  longitude?: string;
+  collectionDate?: string;
+  storageCondition?: string;
+  availability: string;
+  contact?: string;
   description: string;
-  price: number;
-  quantity: number;
-  unit: string;
-  provider?: string;
-  host?: string;
-  locationName?: string;
-  coordinates?: [number, number];
-}
-
-// Define API response type - for data before processing
-interface ApiSample {
-  id: number;
-  name: string;
-  type: string;
-  location: string;
-  description: string;
-  price: number;
-  quantity: number;
-  unit: string;
-  availability?: string;
-  provider?: string;
-  host?: string;
-  locationName?: string;
 }
 
 export default function ClientSamples() {
   const [samples, setSamples] = useState<Sample[]>([]);
-  const [filteredSamples, setFilteredSamples] = useState<Sample[]>([]);
-  const [filter, setFilter] = useState('');
-  const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  // Create a separate component for handling search params
-  function CategoryHandler() {
-    const searchParams = useSearchParams();
-    const categoryParam = searchParams?.get('category');
-    
-    useEffect(() => {
-      if (categoryParam) {
-        setSelectedCategory(categoryParam);
-      }
-    }, [categoryParam]);
-    
-    return null;
-  }
-
-  // Function to get host information
-  const getHostInfo = (sample: Sample) => {
-    if (sample.host && sample.host !== 'Unknown') return sample.host;
-    
-    // Default to "Environmental" for certain types
-    if (['water', 'soil', 'air'].includes(sample.type.toLowerCase())) {
-      return "Environmental";
-    }
-    
-    return "Not specified";
-  };
-
-  // Function to get location name
-  const getLocationName = (sample: Sample) => {
-    if (sample.locationName && sample.locationName !== 'Unknown') return sample.locationName;
-    
-    // Map location names based on sample names
-    if (sample.name.includes('Michigan')) return 'Michigan, USA';
-    if (sample.name.includes('Amazon')) return 'Amazon Basin, Brazil';
-    if (sample.name.includes('Los Angeles')) return 'Los Angeles, USA';
-    if (sample.name.includes('Arctic')) return 'Arctic Circle';
-    if (sample.name.includes('Sahara')) return 'Sahara Desert, North Africa';
-    if (sample.name.includes('Barrier Reef')) return 'Great Barrier Reef, Australia';
-    if (sample.name.includes('Tokyo')) return 'Tokyo, Japan';
-    if (sample.name.includes('Mississippi')) return 'Mississippi River, USA';
-    if (sample.name.includes('Fuji')) return 'Mount Fuji, Japan';
-    if (sample.name.includes('Antarctic')) return 'Antarctica';
-    
-    return sample.location ? 'Location available' : 'Unknown';
-  };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterAvailability, setFilterAvailability] = useState('');
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Get search parameters from URL if present
+    const urlSearchTerm = searchParams?.get('search') || '';
+    const urlFilterType = searchParams?.get('type') || '';
+    const urlFilterAvailability = searchParams?.get('availability') || '';
+    
+    setSearchTerm(urlSearchTerm);
+    setFilterType(urlFilterType);
+    setFilterAvailability(urlFilterAvailability);
+
+    // Fetch samples data
     const fetchSamples = async () => {
+      setLoading(true);
       try {
-        // Fetch from your API endpoint
+        console.log('Fetching samples data...');
         const response = await fetch('/api/samples');
         
         if (!response.ok) {
-          throw new Error(`API responded with status: ${response.status}`);
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch samples: ${response.status} ${response.statusText} - ${errorText}`);
         }
         
-        const data = await response.json() as ApiSample[];
+        const data = await response.json();
+        console.log('Samples data received:', data);
         
-        // Process the data
-        const processedData = data.map((sample: ApiSample) => ({
-          ...sample,
-          host: sample.host || getHostInfo(sample as Sample),
-          locationName: sample.locationName || getLocationName(sample as Sample)
-        })) as Sample[];
-        
-        // Extract unique categories
-        const uniqueCategories = Array.from(
-          new Set(processedData.map(sample => sample.type.toLowerCase()))
-        );
-        
-        setSamples(processedData);
-        setFilteredSamples(processedData);
-        setCategories(uniqueCategories);
-        setIsLoading(false);
-        setError(''); // Clear any previous errors
-      } catch (error) {
-        console.error('Error fetching samples:', error);
-        
-        // Use fallback data
-        // ... your fallback code here
-        
-        setIsLoading(false);
+        // Ensure the data is in the expected format
+        if (Array.isArray(data)) {
+          setSamples(data);
+        } else {
+          setSamples([]);
+          setError('Received invalid data format from server');
+        }
+      } catch (err) {
+        console.error('Error fetching samples:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error fetching samples');
+        setSamples([]);
+      } finally {
+        setLoading(false);
       }
     };
-    
+
     fetchSamples();
-  }, []);
+  }, [searchParams]);
 
-  // Filter samples based on search input and category
-  useEffect(() => {
-    let result = samples;
-    
-    if (filter) {
-      const lowerFilter = filter.toLowerCase();
-      result = result.filter((sample: Sample) => 
-        sample.name.toLowerCase().includes(lowerFilter) ||
-        sample.description.toLowerCase().includes(lowerFilter) ||
-        sample.type.toLowerCase().includes(lowerFilter) ||
-        (sample.provider && sample.provider.toLowerCase().includes(lowerFilter))
+  // Filter samples based on search term and filters
+  const filteredSamples = samples.filter(sample => {
+    const matchesSearch = searchTerm === '' || 
+      Object.values(sample).some(value => 
+        value && typeof value === 'string' && 
+        value.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
-    
-    if (selectedCategory) {
-      result = result.filter((sample: Sample) => 
-        sample.type.toLowerCase() === selectedCategory.toLowerCase()
-      );
-    }
-    
-    setFilteredSamples(result);
-  }, [filter, selectedCategory, samples]);
+      
+    const matchesType = filterType === '' || sample.type.toLowerCase() === filterType.toLowerCase();
+    const matchesAvailability = filterAvailability === '' || 
+      sample.availability.toLowerCase() === filterAvailability.toLowerCase();
+      
+    return matchesSearch && matchesType && matchesAvailability;
+  });
 
-  const handlePurchase = (sampleId: number | string) => {
-    router.push(`/checkout/${sampleId}`);
-  };
+  // Get unique types for filter
+  const uniqueTypes = [...new Set(samples.map(sample => sample.type))];
+  const uniqueAvailabilities = [...new Set(samples.map(sample => sample.availability))];
 
   return (
     <div className="samples-container">
-      <Suspense fallback={<div>Loading categories...</div>}>
-        <CategoryHandler />
-      </Suspense>
+      <h1>Sample Exchange</h1>
+      <p>Browse our collection of high-quality samples</p>
       
-      {isLoading ? (
-        <div className="loading">Loading samples...</div>
+      {loading ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading samples...</p>
+        </div>
       ) : error ? (
-        <div className="error">{error}</div>
+        <div className="error-container">
+          <h2>Error Loading Samples</h2>
+          <p>{error}</p>
+          <p>Please try again later or contact support if the problem persists.</p>
+          <div className="debug-info">
+            <h3>Debugging Information</h3>
+            <pre>{JSON.stringify({ timestamp: new Date().toISOString() }, null, 2)}</pre>
+          </div>
+        </div>
       ) : (
-        <div className="samples-content">
-          <div className="filters">
+        <div>
+          <div className="filters-container">
             <input
               type="text"
               placeholder="Search samples..."
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
               className="search-input"
             />
             
-            <div className="category-filters">
-              <button 
-                className={selectedCategory === '' ? 'active' : ''}
-                onClick={() => setSelectedCategory('')}
-              >
-                All
-              </button>
-              
-              {categories.map(category => (
-                <button
-                  key={category}
-                  className={selectedCategory === category ? 'active' : ''}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </button>
+            <select 
+              value={filterType} 
+              onChange={e => setFilterType(e.target.value)}
+              className="filter-select"
+            >
+              <option value="">All Types</option>
+              {uniqueTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
               ))}
-            </div>
-          </div>
-          
-          <div className="view-options">
-            <button className="view-btn">List View</button>
-            <button className="view-btn">Map View</button>
-          </div>
-          
-          <div className="samples-display">
-            <div className="list-view">
-              {filteredSamples.length === 0 ? (
-                <div className="no-results">No samples found matching your criteria.</div>
-              ) : (
-                <div className="table-container">
-                  <SampleList samples={filteredSamples} />
-                </div>
-              )}
-            </div>
+            </select>
             
-            <div className="map-container">
-              {filteredSamples.length > 0 && (
-                <SamplesMap samples={filteredSamples} />
-              )}
+            <select 
+              value={filterAvailability} 
+              onChange={e => setFilterAvailability(e.target.value)}
+              className="filter-select"
+            >
+              <option value="">All Availability</option>
+              {uniqueAvailabilities.map(availability => (
+                <option key={availability} value={availability}>{availability}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="results-container">
+            <p>{filteredSamples.length} samples found</p>
+            
+            <div className="samples-display">
+              <SampleList samples={filteredSamples} />
+              
+              <div className="map-container">
+                {filteredSamples.length > 0 && (
+                  <SamplesMap samples={filteredSamples} />
+                )}
+              </div>
             </div>
           </div>
         </div>
