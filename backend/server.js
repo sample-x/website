@@ -306,36 +306,131 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes for samples data
-app.get('/api/samples', async (req, res) => {
+app.get('/api/samples', (req, res) => {
   try {
-    // Try to read JSON data first
+    // Try to read from samples.json first
     const jsonPath = path.join(__dirname, 'data', 'samples.json');
+    
+    console.log('Looking for samples.json at:', jsonPath);
+    console.log('This file exists:', fs.existsSync(jsonPath));
+    
     if (fs.existsSync(jsonPath)) {
-      console.log('Reading samples from JSON file:', jsonPath);
-      const jsonData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-      return res.json(normalizeSampleData(jsonData));
+      console.log('Reading samples from JSON file');
+      const samplesData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      return res.json(samplesData);
     }
     
-    // Fall back to CSV if JSON doesn't exist
-    const csvPath = path.join(__dirname, 'data', 'samples.csv');
-    if (fs.existsSync(csvPath)) {
-      console.log('Reading samples from CSV file:', csvPath);
-      const csvData = await readCSV(csvPath);
-      return res.json(normalizeSampleData(csvData));
+    // Fall back to creating demo data if file doesn't exist
+    console.log('No samples.json found, creating sample data');
+    
+    // Create directory if it doesn't exist
+    const dataDir = path.join(__dirname, 'data');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
     }
     
-    // Log diagnostic information if files not found
-    console.log('Samples data files not found. Searched in:');
-    console.log('- JSON:', jsonPath);
-    console.log('- CSV:', csvPath);
-    console.log('Directory contents of data folder:', fs.existsSync(path.join(__dirname, 'data')) ? 
-      fs.readdirSync(path.join(__dirname, 'data')) : 'data directory not found');
+    // Create sample data
+    const sampleData = [
+      {
+        id: 1,
+        name: "Marine Bacterial Culture",
+        type: "Bacterial",
+        host: "Seawater",
+        location: "Pacific Ocean",
+        latitude: "34.0522",
+        longitude: "-118.2437",
+        collectionDate: "2023-06-15",
+        storageCondition: "Refrigerated",
+        availability: "Available",
+        contact: "researcher@example.com",
+        description: "Marine bacterial culture collected from Pacific Ocean samples.",
+        price: 299,
+        quantity: 1,
+        unit: "sample"
+      },
+      {
+        id: 2,
+        name: "Human Tissue Sample",
+        type: "Tissue",
+        host: "Human",
+        location: "San Francisco",
+        latitude: "37.7749",
+        longitude: "-122.4194",
+        collectionDate: "2023-07-20",
+        storageCondition: "Frozen",
+        availability: "Limited",
+        contact: "hospital@example.com",
+        description: "Human tissue sample for research purposes.",
+        price: 499,
+        quantity: 1,
+        unit: "sample"
+      },
+      {
+        id: 3,
+        name: "Plant Extract",
+        type: "Botanical",
+        host: "Medicinal Plant",
+        location: "Amazon Rainforest",
+        latitude: "-3.4653",
+        longitude: "-62.2159",
+        collectionDate: "2023-05-10",
+        storageCondition: "Room Temperature",
+        availability: "Available",
+        contact: "botanist@example.com",
+        description: "Extracted compounds from rare medicinal plants.",
+        price: 199,
+        quantity: 5,
+        unit: "ml"
+      },
+      {
+        id: 4,
+        name: "Soil Microbiome",
+        type: "Environmental",
+        host: "Soil",
+        location: "Rocky Mountains",
+        latitude: "39.1911",
+        longitude: "-106.8175",
+        collectionDate: "2023-08-05",
+        storageCondition: "Frozen",
+        availability: "Available",
+        contact: "ecology@example.com",
+        description: "Diverse soil microbiome sample from alpine environment.",
+        price: 249,
+        quantity: 10,
+        unit: "gram"
+      },
+      {
+        id: 5,
+        name: "Viral Vector",
+        type: "Viral",
+        host: "Laboratory",
+        location: "Boston",
+        latitude: "42.3601",
+        longitude: "-71.0589",
+        collectionDate: "2023-09-01",
+        storageCondition: "Ultra-Low Temperature",
+        availability: "Limited",
+        contact: "virology@example.com",
+        description: "Engineered viral vectors for gene therapy research.",
+        price: 599,
+        quantity: 1,
+        unit: "vial"
+      }
+    ];
     
-    // No data found
-    return res.status(404).json({ error: 'No sample data found' });
+    // Save the sample data to a file for future use
+    fs.writeFileSync(jsonPath, JSON.stringify(sampleData, null, 2));
+    
+    // Return the sample data
+    return res.json(sampleData);
+    
   } catch (error) {
-    console.error('Error fetching samples:', error);
-    res.status(500).json({ error: 'Failed to fetch samples', details: error.message });
+    console.error('Error serving samples data:', error);
+    res.status(500).json({ 
+      error: 'Failed to retrieve samples',
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 

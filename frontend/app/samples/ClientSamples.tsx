@@ -10,12 +10,15 @@ export default function ClientSamples() {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [apiResponse, setApiResponse] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterAvailability, setFilterAvailability] = useState('');
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    console.log('ClientSamples component mounted');
+    
     // Get search parameters from URL if present
     const urlSearchTerm = searchParams?.get('search') || '';
     const urlFilterType = searchParams?.get('type') || '';
@@ -29,21 +32,33 @@ export default function ClientSamples() {
     const fetchSamples = async () => {
       setLoading(true);
       try {
-        console.log('Fetching samples data...');
+        console.log('Fetching samples data from API...');
         const response = await fetch('/api/samples');
         
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Failed to fetch samples: ${response.status} ${response.statusText} - ${errorText}`);
+        const responseText = await response.text();
+        console.log('Raw API response:', responseText);
+        
+        let data;
+        try {
+          data = JSON.parse(responseText);
+          setApiResponse(data);
+        } catch (e) {
+          console.error('Failed to parse JSON:', e);
+          throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
         }
         
-        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+        
         console.log('Samples data received:', data);
         
         // Ensure the data is in the expected format
         if (Array.isArray(data)) {
           // Process the data to match our type definition
           const processedData = data.map((sample: any) => {
+            console.log('Processing sample:', sample);
+            
             // Convert lat/lng to coordinates tuple if they exist
             let coordinates: [number, number] | undefined = undefined;
             
@@ -67,6 +82,7 @@ export default function ClientSamples() {
             } as Sample;
           });
           
+          console.log('Processed data:', processedData);
           setSamples(processedData);
         } else {
           setSamples([]);
@@ -120,7 +136,19 @@ export default function ClientSamples() {
           <p>Please try again later or contact support if the problem persists.</p>
           <div className="debug-info">
             <h3>Debugging Information</h3>
-            <pre>{JSON.stringify({ timestamp: new Date().toISOString() }, null, 2)}</pre>
+            <pre>{JSON.stringify({ 
+              timestamp: new Date().toISOString(),
+              apiResponse
+            }, null, 2)}</pre>
+          </div>
+        </div>
+      ) : samples.length === 0 ? (
+        <div className="no-samples">
+          <h2>No Samples Found</h2>
+          <p>We couldn't find any samples matching your criteria.</p>
+          <div className="debug-info">
+            <h3>API Response</h3>
+            <pre>{JSON.stringify(apiResponse, null, 2)}</pre>
           </div>
         </div>
       ) : (
