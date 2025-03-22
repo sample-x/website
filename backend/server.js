@@ -101,105 +101,100 @@ const nextPublicDir = path.join(__dirname, '../frontend/public');
 if (fs.existsSync(nextJsBuildDir)) {
   console.log('Next.js build found at:', nextJsBuildDir);
   
-  // Serve static files from the public directory
+  // Serve static files from the public directory first (highest priority)
   app.use(express.static(nextPublicDir));
   
-  // Serve the Next.js build static files
+  // Serve all static files from the .next directory
   app.use('/_next', express.static(path.join(nextJsBuildDir, 'static')));
   
-  // List directories to debug
-  if (fs.existsSync(path.join(nextJsBuildDir, 'server'))) {
-    console.log('Server directory contents:', fs.readdirSync(path.join(nextJsBuildDir, 'server')));
-    
-    if (fs.existsSync(path.join(nextJsBuildDir, 'server', 'app'))) {
-      console.log('App directory contents:', fs.readdirSync(path.join(nextJsBuildDir, 'server', 'app')));
-    }
-    
-    if (fs.existsSync(path.join(nextJsBuildDir, 'server', 'pages'))) {
-      console.log('Pages directory contents:', fs.readdirSync(path.join(nextJsBuildDir, 'server', 'pages')));
-    }
-  }
+  // Also serve directly from the static directory
+  app.use('/static', express.static(path.join(nextJsBuildDir, 'static')));
   
-  // Handle all other routes
+  // Create a mapping for static chunk files
+  app.get(/\/_next\/static\/chunks\/.*/, (req, res) => {
+    const filePath = path.join(nextJsBuildDir, req.path);
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+    const relativePath = req.path.replace('/_next/static/chunks/', '');
+    const alternativePath = path.join(nextJsBuildDir, 'static/chunks', relativePath);
+    
+    if (fs.existsSync(alternativePath)) {
+      return res.sendFile(alternativePath);
+    }
+    
+    res.status(404).send('Static asset not found');
+  });
+  
+  // Create a mapping for image assets
+  app.get(/\/_next\/image.*/, (req, res) => {
+    // Handle Next.js image optimization requests
+    // For simplicity, we'll redirect to the original image in public
+    const imageUrl = new URL(req.url, 'http://localhost');
+    const urlParam = imageUrl.searchParams.get('url');
+    
+    if (urlParam) {
+      // If it's an absolute URL, we can't handle it
+      if (urlParam.startsWith('http')) {
+        return res.redirect(urlParam);
+      }
+      
+      // Try to find the image in the public directory
+      const imagePath = path.join(nextPublicDir, urlParam.startsWith('/') ? urlParam.substring(1) : urlParam);
+      if (fs.existsSync(imagePath)) {
+        return res.sendFile(imagePath);
+      }
+    }
+    
+    res.status(404).send('Image not found');
+  });
+  
+  // Handle client-side routing
   app.get('*', (req, res, next) => {
     // Skip API routes
     if (req.path.startsWith('/api/')) {
       return next();
     }
     
-    // Next.js 14 App Router puts HTML files directly in the app directory
-    // Remove leading slash and handle root path special case
+    // First try to serve the specific HTML file
     const pathWithoutLeadingSlash = req.path === '/' ? 'index' : req.path.substring(1);
-    
-    // Try paths based on the actual structure from the logs
-    const possiblePaths = [
-      // App Router paths - direct HTML files
-      path.join(nextJsBuildDir, 'server/app', `${pathWithoutLeadingSlash}.html`),
-      // For nested routes like /samples/123
-      path.join(nextJsBuildDir, 'server/app', pathWithoutLeadingSlash, 'index.html'),
-      // Legacy patterns
-      path.join(nextJsBuildDir, 'server/pages', `${pathWithoutLeadingSlash}.html`),
-      path.join(nextJsBuildDir, 'server/pages', '404.html') // Fallback to 404
-    ];
+    const directHtmlPath = path.join(nextJsBuildDir, 'server/app', `${pathWithoutLeadingSlash}.html`);
     
     console.log('Request path:', req.path);
-    console.log('Checking possible HTML paths:', possiblePaths);
+    console.log('Checking HTML path:', directHtmlPath);
     
-    // Try each path in order
-    for (const htmlPath of possiblePaths) {
-      if (fs.existsSync(htmlPath)) {
-        console.log('Found HTML at:', htmlPath);
-        return res.sendFile(htmlPath);
-      }
+    if (fs.existsSync(directHtmlPath)) {
+      console.log('Found HTML at:', directHtmlPath);
+      return res.sendFile(directHtmlPath);
     }
     
-    // If no specific HTML file was found, try to serve the index.html
+    // For nested routes, try finding the HTML in a subdirectory
+    const nestedPath = path.join(nextJsBuildDir, 'server/app', pathWithoutLeadingSlash, 'index.html');
+    if (fs.existsSync(nestedPath)) {
+      console.log('Found nested HTML at:', nestedPath);
+      return res.sendFile(nestedPath);
+    }
+    
+    // If no specific HTML file was found, serve the index.html
     // This supports client-side routing
     const indexHtmlPath = path.join(nextJsBuildDir, 'server/app/index.html');
-    if (fs.existsSync(indexHtmlPath)) {
-      console.log('Falling back to index.html for client-side routing');
-      return res.sendFile(indexHtmlPath);
-    }
-    
-    // If still no file was found, use the fallback HTML
-    console.log('Could not find any HTML files, using fallback HTML');
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Sample Exchange</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
-            .container { max-width: 800px; margin: 0 auto; padding: 2rem; background: white; margin-top: 2rem; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            h1 { color: #333; }
-            p { color: #666; line-height: 1.6; }
-            .btn { display: inline-block; background: #0070f3; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 5px; font-weight: 500; margin-top: 1rem; }
-            .api-list { background: #f9f9f9; padding: 1rem; border-radius: 5px; margin-top: 1rem; }
-            .api-item { margin: 0.5rem 0; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>Sample Exchange</h1>
-            <p>The server is running successfully, but there was an issue serving the Next.js frontend.</p>
-            <p>The API endpoints are available and functional.</p>
-            
-            <div class="api-list">
-              <h2>Available API Endpoints:</h2>
-              <div class="api-item">/api/auth - Authentication endpoints</div>
-              <div class="api-item">/api/users - User management</div>
-              <div class="api-item">/api/samples - Sample data and search</div>
-              <div class="api-item">/api/transactions - Transaction processing</div>
-              <div class="api-item">/api/contact - Contact form submission</div>
-            </div>
-            
-            <p>For more information, please check the server logs or contact the administrator.</p>
-            <a href="/api/samples" class="btn">View Sample API Data</a>
-          </div>
-        </body>
-      </html>
-    `);
+    console.log('Falling back to index.html for client-side routing');
+    res.sendFile(indexHtmlPath, err => {
+      if (err) {
+        console.error('Error serving index.html:', err);
+        // Fallback to a simple HTML response
+        res.status(500).send(`
+          <html>
+            <head><title>Sample Exchange - Error</title></head>
+            <body>
+              <h1>Error loading page</h1>
+              <p>Sorry, we encountered an error loading this page.</p>
+              <p>Error: ${err.message}</p>
+            </body>
+          </html>
+        `);
+      }
+    });
   });
 } else {
   console.log('Directory contents of frontend:', fs.readdirSync(path.join(__dirname, '../frontend')));
