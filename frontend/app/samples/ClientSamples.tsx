@@ -4,23 +4,7 @@ import { useEffect, useState } from 'react';
 import SampleList from './SampleList';
 import SamplesMap from './SamplesMap';
 import { useSearchParams } from 'next/navigation';
-
-// Sample type definition
-interface Sample {
-  id: number;
-  name: string;
-  type: string;
-  host: string;
-  location: string;
-  coordinates?: number[];
-  latitude?: string;
-  longitude?: string;
-  collectionDate?: string;
-  storageCondition?: string;
-  availability: string;
-  contact?: string;
-  description: string;
-}
+import { Sample } from './types';
 
 export default function ClientSamples() {
   const [samples, setSamples] = useState<Sample[]>([]);
@@ -58,7 +42,14 @@ export default function ClientSamples() {
         
         // Ensure the data is in the expected format
         if (Array.isArray(data)) {
-          setSamples(data);
+          // Add default values for potentially missing fields expected by SampleList
+          const processedData = data.map((sample: any) => ({
+            ...sample,
+            price: sample.price || 0,
+            quantity: sample.quantity || 1,
+            unit: sample.unit || 'unit'
+          }));
+          setSamples(processedData);
         } else {
           setSamples([]);
           setError('Received invalid data format from server');

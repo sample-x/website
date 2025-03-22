@@ -1,5 +1,7 @@
+import React from 'react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Sample } from './types';
 
 // Updated Sample interface to match page.tsx definition
 interface Sample {
@@ -24,7 +26,7 @@ interface SampleListProps {
   samples: Sample[];
 }
 
-const SampleList = ({ samples }: SampleListProps) => {
+const SampleList: React.FC<SampleListProps> = ({ samples }) => {
   const getHostInfo = (sample: Sample) => {
     if (sample.host) return sample.host;
     
@@ -67,37 +69,30 @@ const SampleList = ({ samples }: SampleListProps) => {
 
   return (
     <div className="sample-list">
-      {/* Samples from props */}
-      {samples.map((sample) => (
-        <div className="sample-card" key={sample.id}>
-          <div className="sample-header">
-            <h3>{sample.name}</h3>
-            <span className={`type-badge ${sample.type.toLowerCase().replace(/\s+/g, '-')}`}>
-              {sample.type}
-            </span>
-          </div>
-          {sample.description && (
-            <p className="sample-description">{sample.description}</p>
-          )}
-          <div className="sample-details">
-            {sample.price !== undefined && (
-              <p><strong>Price:</strong> ${sample.price.toFixed(2)}</p>
-            )}
-            {sample.quantity !== undefined && sample.unit && (
-              <p><strong>Quantity:</strong> {sample.quantity} {sample.unit}</p>
-            )}
-            <p><strong>Provider:</strong> {sample.provider}</p>
-            <p><strong>Host:</strong> {sample.host || getHostInfo(sample)}</p>
-            <p><strong>Location:</strong> {sample.locationName || getLocationName(sample)}</p>
-          </div>
-          <div className="sample-actions">
-            <Link href={`/samples/${sample.id}`} className="btn btn-primary btn-small">
-              View Details
-            </Link>
-            <button className="btn btn-secondary btn-small">Add to Cart</button>
-          </div>
-        </div>
-      ))}
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Availability</th>
+            {/* Add price column if needed */}
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {samples.map(sample => (
+            <tr key={sample.id}>
+              <td>{sample.name}</td>
+              <td>{sample.type}</td>
+              <td>{sample.location}</td>
+              <td>{sample.availability}</td>
+              {/* Display price if available */}
+              <td>{sample.price ? `$${sample.price}` : 'N/A'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

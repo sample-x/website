@@ -1,15 +1,19 @@
+// Shared Sample type definition for consistent use across components
 export interface Sample {
-  id: string;
+  id: number;
   name: string;
-  description: string;
   type: string;
-  price: number;
-  quantity: number;
-  unit: string;
-  provider: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  // Add any other fields that might be needed
+  host: string;
+  location: string;
+  coordinates?: number[];
+  latitude?: string;
+  longitude?: string;
+  collectionDate?: string;
+  storageCondition?: string;
+  availability: string;
+  contact?: string;
+  description: string;
+  price?: number;
+  quantity?: number;
+  unit?: string;
 } 

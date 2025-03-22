@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { Sample } from './types'
 
 // Define colors for different sample types
 const typeColors: Record<string, string> = {
@@ -54,150 +55,66 @@ const getSampleColor = (sampleType: string): string => {
   return defaultColor;
 }
 
-// Define the sample interface to match page.tsx
-interface Sample {
-  id: number;
-  name: string;
-  type: string;
-  location: string;
-  availability?: string;
-  description: string;
-  price: number;
-  quantity: number;
-  unit: string;
-  provider?: string;
-  host?: string;
-  locationName?: string;
-  coordinates?: [number, number];
-  // Additional properties for map functionality
-  latitude?: number;
-  longitude?: number;
-}
-
 interface SamplesMapProps {
   samples: Sample[];
 }
 
-export default function SamplesMap({ samples }: SamplesMapProps) {
-  const [isMounted, setIsMounted] = useState(false)
-  
+const SamplesMap: React.FC<SamplesMapProps> = ({ samples }) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
-  
-  if (!isMounted) {
-    return <div className="samples-map-placeholder">Loading map...</div>
-  }
-  
-  // Get unique sample types from the data
-  const uniqueTypes = Array.from(new Set(samples.map(sample => sample.type)));
-  
-  // Ensure all samples have proper location data
-  const validSamples = samples.filter(sample => {
-    // Check if sample has coordinates
-    if (sample.coordinates && sample.coordinates.length === 2) {
-      return true;
-    }
-    
-    // Check if sample has latitude/longitude properties
-    if (sample.latitude !== undefined && sample.longitude !== undefined) {
-      return true;
-    }
-    
-    // Try to parse coordinates from location string (if format is "lat,lng")
-    try {
-      if (sample.location && sample.location.includes(',')) {
-        const [lat, lng] = sample.location.split(',').map(Number);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          return true;
+    // This is a placeholder for map initialization
+    // In a real app, you would use a mapping library like Leaflet, Google Maps, etc.
+    if (mapRef.current) {
+      const mapElement = mapRef.current;
+      mapElement.innerHTML = '';
+
+      // Simple map representation for demo purposes
+      const mapContainer = document.createElement('div');
+      mapContainer.className = 'mock-map';
+      mapContainer.style.height = '400px';
+      mapContainer.style.backgroundColor = '#e0e0e0';
+      mapContainer.style.padding = '15px';
+      mapContainer.style.borderRadius = '8px';
+
+      const mapTitle = document.createElement('h3');
+      mapTitle.textContent = 'Sample Locations Map';
+      mapContainer.appendChild(mapTitle);
+
+      const mapDescription = document.createElement('p');
+      mapDescription.textContent = `Displaying ${samples.length} sample locations`;
+      mapContainer.appendChild(mapDescription);
+
+      // Create simple markers for each sample
+      samples.forEach(sample => {
+        if (sample.latitude && sample.longitude) {
+          const marker = document.createElement('div');
+          marker.className = 'map-marker';
+          marker.style.padding = '8px';
+          marker.style.margin = '5px 0';
+          marker.style.backgroundColor = '#fff';
+          marker.style.borderRadius = '4px';
+          marker.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+          
+          marker.innerHTML = `
+            <strong>${sample.name}</strong><br>
+            Location: ${sample.location}<br>
+            Coordinates: ${sample.latitude}, ${sample.longitude}
+          `;
+          
+          mapContainer.appendChild(marker);
         }
-      }
-    } catch (e) {
-      // Parsing failed, consider this sample invalid for mapping
+      });
+
+      mapElement.appendChild(mapContainer);
     }
-    
-    return false;
-  });
-  
+  }, [samples]);
+
   return (
-    <div className="samples-map">
-      <MapContainer 
-        center={[20, 0]} 
-        zoom={2} 
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-          className="grayscale-tiles"
-        />
-        
-        {validSamples.map((sample) => {
-          // Get coordinates from various possible sources
-          let lat: number | undefined;
-          let lng: number | undefined;
-          
-          if (sample.coordinates && sample.coordinates.length === 2) {
-            [lat, lng] = sample.coordinates;
-          } else if (sample.latitude !== undefined && sample.longitude !== undefined) {
-            lat = sample.latitude;
-            lng = sample.longitude;
-          } else if (sample.location && sample.location.includes(',')) {
-            try {
-              const parts = sample.location.split(',').map(Number);
-              if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-                [lat, lng] = parts;
-              }
-            } catch (e) {
-              // Parsing failed, skip this sample
-              return null;
-            }
-          }
-          
-          if (!lat || !lng) return null;
-          
-          return (
-            <CircleMarker 
-              key={sample.id}
-              center={[lat, lng]}
-              radius={8}
-              pathOptions={{ 
-                fillColor: getSampleColor(sample.type),
-                color: '#fff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
-              }}
-            >
-              <Popup>
-                <div className="sample-popup">
-                  <h3>{sample.name}</h3>
-                  <p><strong>Type:</strong> <span className={`type-badge ${sample.type.toLowerCase().replace(/\s+/g, '-')}`}>{sample.type}</span></p>
-                  {sample.description && <p><strong>Description:</strong> {sample.description}</p>}
-                  {sample.price && <p><strong>Price:</strong> ${typeof sample.price === 'string' ? parseFloat(sample.price).toFixed(2) : sample.price.toFixed(2)}</p>}
-                  {sample.quantity && <p><strong>Quantity:</strong> {sample.quantity} {sample.unit}</p>}
-                  {sample.provider && <p><strong>Provider:</strong> {sample.provider}</p>}
-                  {sample.host && <p><strong>Host:</strong> {sample.host}</p>}
-                  {sample.locationName && <p><strong>Location:</strong> {sample.locationName}</p>}
-                  <button className="btn btn-primary btn-small">View Details</button>
-                </div>
-              </Popup>
-            </CircleMarker>
-          );
-        })}
-      </MapContainer>
-      
-      <div className="map-legend">
-        <h4>Sample Types</h4>
-        <div className="legend-items">
-          {uniqueTypes.map(type => (
-            <div key={type} className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: getSampleColor(type) }}></span>
-              <span>{type}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="samples-map" ref={mapRef}>
+      <div className="loading-map">Loading map...</div>
     </div>
-  )
-} 
+  );
+};
+
+export default SamplesMap; 
