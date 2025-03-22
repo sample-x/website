@@ -101,46 +101,57 @@ const nextPublicDir = path.join(__dirname, '../frontend/public');
 if (fs.existsSync(nextJsBuildDir)) {
   console.log('Next.js build found at:', nextJsBuildDir);
   
-  // Serve static files from the public directory first (highest priority)
+  // Serve public files first
   app.use(express.static(nextPublicDir));
   
-  // Serve all static files from the .next directory
-  app.use('/_next', express.static(path.join(nextJsBuildDir, 'static')));
+  // Directly serve static assets from .next/static
+  app.use('/_next/static', express.static(path.join(nextJsBuildDir, 'static')));
   
-  // Also serve directly from the static directory
-  app.use('/static', express.static(path.join(nextJsBuildDir, 'static')));
-  
-  // Create a mapping for static chunk files
-  app.get(/\/_next\/static\/chunks\/.*/, (req, res) => {
-    const filePath = path.join(nextJsBuildDir, req.path);
+  // Route for static chunks specifically
+  app.get('/_next/static/chunks/:filename', (req, res) => {
+    const filePath = path.join(nextJsBuildDir, 'static/chunks', req.params.filename);
+    console.log('Serving static chunk:', filePath);
+    
     if (fs.existsSync(filePath)) {
       return res.sendFile(filePath);
     }
-    const relativePath = req.path.replace('/_next/static/chunks/', '');
-    const alternativePath = path.join(nextJsBuildDir, 'static/chunks', relativePath);
-    
-    if (fs.existsSync(alternativePath)) {
-      return res.sendFile(alternativePath);
-    }
-    
-    res.status(404).send('Static asset not found');
+    res.status(404).send('Static chunk not found');
   });
   
-  // Create a mapping for image assets
-  app.get(/\/_next\/image.*/, (req, res) => {
-    // Handle Next.js image optimization requests
-    // For simplicity, we'll redirect to the original image in public
-    const imageUrl = new URL(req.url, 'http://localhost');
-    const urlParam = imageUrl.searchParams.get('url');
+  // Route for static CSS
+  app.get('/_next/static/css/:filename', (req, res) => {
+    const filePath = path.join(nextJsBuildDir, 'static/css', req.params.filename);
+    console.log('Serving static CSS:', filePath);
     
-    if (urlParam) {
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+    res.status(404).send('Static CSS not found');
+  });
+  
+  // Route for static media
+  app.get('/_next/static/media/:filename', (req, res) => {
+    const filePath = path.join(nextJsBuildDir, 'static/media', req.params.filename);
+    console.log('Serving static media:', filePath);
+    
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+    res.status(404).send('Static media not found');
+  });
+  
+  // Route for image optimization
+  app.get('/_next/image', (req, res) => {
+    // Extract the url parameter from the query
+    const imageUrl = req.query.url;
+    if (imageUrl) {
       // If it's an absolute URL, we can't handle it
-      if (urlParam.startsWith('http')) {
-        return res.redirect(urlParam);
+      if (imageUrl.startsWith('http')) {
+        return res.redirect(imageUrl);
       }
       
       // Try to find the image in the public directory
-      const imagePath = path.join(nextPublicDir, urlParam.startsWith('/') ? urlParam.substring(1) : urlParam);
+      const imagePath = path.join(nextPublicDir, imageUrl.startsWith('/') ? imageUrl.substring(1) : imageUrl);
       if (fs.existsSync(imagePath)) {
         return res.sendFile(imagePath);
       }
@@ -149,19 +160,23 @@ if (fs.existsSync(nextJsBuildDir)) {
     res.status(404).send('Image not found');
   });
   
-  // Handle client-side routing
-  app.get('*', (req, res, next) => {
-    // Skip API routes
-    if (req.path.startsWith('/api/')) {
-      return next();
+  // Handle API routes
+  app.use('/api', (req, res, next) => {
+    next(); // This allows the API routes to be handled by your API handlers
+  });
+  
+  // Handle HTML/page routes
+  app.get('*', (req, res) => {
+    // Skip asset paths entirely - they should have been handled by the static middleware
+    if (req.path.includes('/_next/') || req.path.includes('/static/')) {
+      return res.status(404).send('Asset not found');
     }
     
     // First try to serve the specific HTML file
     const pathWithoutLeadingSlash = req.path === '/' ? 'index' : req.path.substring(1);
     const directHtmlPath = path.join(nextJsBuildDir, 'server/app', `${pathWithoutLeadingSlash}.html`);
     
-    console.log('Request path:', req.path);
-    console.log('Checking HTML path:', directHtmlPath);
+    console.log('Request path (HTML):', req.path);
     
     if (fs.existsSync(directHtmlPath)) {
       console.log('Found HTML at:', directHtmlPath);
@@ -178,23 +193,19 @@ if (fs.existsSync(nextJsBuildDir)) {
     // If no specific HTML file was found, serve the index.html
     // This supports client-side routing
     const indexHtmlPath = path.join(nextJsBuildDir, 'server/app/index.html');
-    console.log('Falling back to index.html for client-side routing');
-    res.sendFile(indexHtmlPath, err => {
-      if (err) {
-        console.error('Error serving index.html:', err);
-        // Fallback to a simple HTML response
-        res.status(500).send(`
-          <html>
-            <head><title>Sample Exchange - Error</title></head>
-            <body>
-              <h1>Error loading page</h1>
-              <p>Sorry, we encountered an error loading this page.</p>
-              <p>Error: ${err.message}</p>
-            </body>
-          </html>
-        `);
-      }
-    });
+    if (fs.existsSync(indexHtmlPath)) {
+      console.log('Falling back to index.html for client-side routing');
+      return res.sendFile(indexHtmlPath);
+    }
+    
+    // If all else fails, try serving the 404 page
+    const notFoundPath = path.join(nextJsBuildDir, 'server/app/_not-found.html');
+    if (fs.existsSync(notFoundPath)) {
+      return res.status(404).sendFile(notFoundPath);
+    }
+    
+    // Ultimate fallback
+    res.status(404).send('Page not found');
   });
 } else {
   console.log('Directory contents of frontend:', fs.readdirSync(path.join(__dirname, '../frontend')));
