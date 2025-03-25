@@ -2,66 +2,59 @@
 
 import Image from 'next/image'
 import { FaLeaf, FaFlask, FaBrain, FaDna, FaChartLine, FaDatabase, FaHandshake, FaFileContract } from 'react-icons/fa'
+import './about.css'
 
 export default function About() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Mission Section - Moved to top */}
-      <section className="py-12 bg-gradient-to-r from-orange-500 to-amber-400 text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
-            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
-              <p className="text-lg leading-relaxed">
-                At Sample Exchange, we're committed to building a collaborative ecosystem for scientific sample sharing. 
-                We believe that by connecting researchers and institutions, we can accelerate scientific discovery 
-                and make research more efficient and cost-effective.
-              </p>
-            </div>
-          </div>
-        </div>
+    <main className="about-page">
+      {/* Mission Section - Hero */}
+      <section className="about-hero">
+        <h1>Our Mission</h1>
+        <p>
+          At Sample Exchange, we're committed to building a collaborative ecosystem for scientific sample sharing. 
+          We believe that by connecting researchers and institutions, we can accelerate scientific discovery 
+          and make research more efficient and cost-effective.
+        </p>
       </section>
 
       {/* Story Section */}
-      <section className="bg-white py-16 relative overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center relative z-10">
-            <Image
-              src="/logo.png"
-              alt="SampleX Logo"
-              width={320}
-              height={106}
-              className="mx-auto mb-8"
-            />
-            <h2 className="text-3xl font-bold mb-6 text-[#1f3d4c]">The Sample Exchange Story</h2>
-            <div className="bg-white p-8 rounded-xl shadow-md">
-              <p className="text-lg text-gray-700 leading-relaxed">
-                Scientists are always scrounging around for money. We realized we didn't have enough grant funding to organize yet another expensive sample collection trip to Alaska, to get permafrost samples. A researcher from the U. of Alaska helped us out by collecting samples and sharing them with us for free! How wonderful!
-              </p>
-              <p className="text-lg text-gray-700 mt-4 font-medium">
-                You can say with Sample Exchange, we are simply paying it forward!
-              </p>
+      <section className="about-section alt">
+        <div className="container">
+          <h2>The Sample Exchange Story</h2>
+          <div className="story-container">
+            <div className="text-center mb-6">
+              <Image
+                src="/logo.png"
+                alt="SampleX Logo"
+                width={240}
+                height={80}
+                className="mx-auto mb-6"
+                priority
+              />
             </div>
+            <p className="mb-4">
+              Scientists are always scrounging around for money. We realized we didn't have enough grant funding to organize yet another expensive sample collection trip to Alaska, to get permafrost samples. A researcher from the U. of Alaska helped us out by collecting samples and sharing them with us for free! How wonderful!
+            </p>
+            <p className="font-medium">
+              You can say with Sample Exchange, we are simply paying it forward!
+            </p>
           </div>
         </div>
-        {/* Background decorative elements */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-blue-50 rounded-full opacity-70 -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-50 rounded-full opacity-70 translate-x-1/3 translate-y-1/3"></div>
       </section>
 
       {/* Services Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8 text-[#1f3d4c]">Our Services</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+      <section className="about-section">
+        <div className="container">
+          <h2>Our Services</h2>
+          <div className="services-grid">
             {services.map((service, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full">
-                <div className="bg-gradient-to-r from-orange-500 to-amber-400 p-4 flex justify-center items-center">
-                  <span className="text-white text-3xl">{service.icon}</span>
+              <div key={index} className="service-card">
+                <div className="service-header">
+                  <span className="service-icon">{service.icon}</span>
                 </div>
-                <div className="p-6 flex-grow">
-                  <h3 className="text-xl font-semibold mb-3 text-[#1f3d4c]">{service.title}</h3>
-                  <p className="text-gray-600 text-sm">{service.description}</p>
+                <div className="service-content">
+                  <h3 className="service-title">{service.title}</h3>
+                  <p>{service.description}</p>
                 </div>
               </div>
             ))}
@@ -70,33 +63,28 @@ export default function About() {
       </section>
 
       {/* Team Section */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8 text-[#1f3d4c]">Our Team</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <section className="about-section alt">
+        <div className="container">
+          <h2>Our Team</h2>
+          <div className="team-grid">
             {teamMembers.map((member, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 h-full">
-                <div className="flex flex-col h-full">
-                  <div className="bg-gradient-to-r from-blue-600 to-teal-400 pt-6 px-6 pb-16 relative">
-                    <div className="w-28 h-28 mx-auto relative z-10 bg-white rounded-full p-1">
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        width={112}
-                        height={112}
-                        className="rounded-full object-cover h-full w-full"
-                      />
-                    </div>
+              <div key={index} className="team-card">
+                <div className="team-header">
+                  <div className="team-avatar">
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      width={120}
+                      height={120}
+                      className="object-cover w-full h-full"
+                      priority
+                    />
                   </div>
-                  <div className="p-6 -mt-12 relative z-20">
-                    <div className="bg-white rounded-xl shadow-md p-5">
-                      <h3 className="text-xl font-bold mb-2 text-[#1f3d4c] text-center">{member.name}</h3>
-                      <p className="text-gray-500 text-center text-sm mb-3">{member.title}</p>
-                      <p className="text-gray-700 text-sm leading-relaxed">
-                        {member.bio}
-                      </p>
-                    </div>
-                  </div>
+                </div>
+                <div className="team-content">
+                  <h3 className="team-name">{member.name}</h3>
+                  <p className="team-title">{member.title}</p>
+                  <p>{member.bio}</p>
                 </div>
               </div>
             ))}
