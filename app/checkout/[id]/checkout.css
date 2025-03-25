@@ -1,0 +1,134 @@
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 70vh;
+}
+
+.checkout-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.checkout-header h1 {
+  color: var(--color-dark);
+  position: relative;
+  display: inline-block;
+}
+
+.checkout-header h1::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-primary);
+}
+
+.checkout-content {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.sample-details {
+  padding: 2rem;
+}
+
+.sample-details h2 {
+  margin-bottom: 1rem;
+  color: var(--color-dark);
+}
+
+.sample-type {
+  margin-bottom: 1.5rem;
+}
+
+.sample-description {
+  line-height: 1.6;
+  color: #555;
+}
+
+.checkout-summary {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-left: 1px solid #eee;
+}
+
+.checkout-summary h3 {
+  margin-bottom: 1.5rem;
+  color: var(--color-dark);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  margin: 1.5rem 0;
+  padding-top: 1rem;
+  border-top: 2px solid #ddd;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.btn-checkout {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 1rem;
+}
+
+.btn-checkout:hover {
+  background-color: #d97706;
+}
+
+.btn-back {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.error-message {
+  text-align: center;
+  padding: 3rem;
+}
+
+.error-message h2 {
+  color: #e74c3c;
+  margin-bottom: 1rem;
+}
+
+.error-message p {
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .checkout-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .checkout-summary {
+    border-left: none;
+    border-top: 1px solid #eee;
+  }
+} 

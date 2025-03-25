@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Human Blood Plasma",
+    "type": "tissue",
+    "location": "Seattle, WA",
+    "collection_date": "2023-05-14",
+    "storage": "-80°C",
+    "availability": "available",
+    "price": 120.00,
+    "latitude": 47.6062,
+    "longitude": -122.3321
+  },
+  {
+    "name": "Mouse Brain Tissue",
+    "type": "tissue",
+    "location": "Boston, MA",
+    "collection_date": "2023-04-19",
+    "storage": "Room temperature (fixed)",
+    "availability": "limited",
+    "price": 180.00,
+    "latitude": 42.3601,
+    "longitude": -71.0589
+  },
+  {
+    "name": "E. coli Culture",
+    "type": "bacterial",
+    "location": "Chicago, IL",
+    "collection_date": "2023-05-31",
+    "storage": "4°C",
+    "availability": "available",
+    "price": 75.00,
+    "latitude": 41.8781,
+    "longitude": -87.6298
+  },
+  {
+    "name": "Soil Sample from Amazon Rainforest",
+    "type": "environmental",
+    "location": "Manaus, Brazil",
+    "collection_date": "2023-03-09",
+    "storage": "Room temperature",
+    "availability": "available",
+    "price": 95.00,
+    "latitude": -3.1190,
+    "longitude": -60.0217
+  },
+  {
+    "name": "Human Lung Cell Line",
+    "type": "cell line",
+    "location": "San Francisco, CA",
+    "collection_date": "2023-05-04",
+    "storage": "Liquid nitrogen",
+    "availability": "limited",
+    "price": 210.00,
+    "latitude": 37.7749,
+    "longitude": -122.4194
+  }
+] 

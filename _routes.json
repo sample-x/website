@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/_next/static/*",
+    "/static/*",
+    "/api/*",
+    "/data/*"
+  ],
+  "routes": [
+    {
+      "src": "^/samples/([^/]+)/?$",
+      "dest": "/samples/[id].html"
+    },
+    {
+      "src": "^/checkout/([^/]+)/?$",
+      "dest": "/checkout/[id].html"
+    },
+    {
+      "src": "^/samples/?$",
+      "dest": "/samples.html"
+    },
+    {
+      "src": "^/team/?$",
+      "dest": "/team.html"
+    },
+    {
+      "src": "^/about/?$",
+      "dest": "/about.html"
+    },
+    {
+      "src": "^/contact/?$",
+      "dest": "/contact.html"
+    },
+    {
+      "src": "^/login/?$",
+      "dest": "/login.html"
+    },
+    {
+      "src": "^/register/?$",
+      "dest": "/register.html"
+    },
+    {
+      "src": "^/profile/?$",
+      "dest": "/profile.html"
+    },
+    {
+      "src": "^/upload/?$",
+      "dest": "/upload.html"
+    },
+    {
+      "src": "^/auth/callback/?$",
+      "dest": "/auth/callback.html"
+    },
+    {
+      "src": "^/$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/.*$",
+      "dest": "/404.html"
+    }
+  ]
+}

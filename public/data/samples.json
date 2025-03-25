@@ -1,0 +1,74 @@
+[
+  {
+    "id": "sample-001",
+    "title": "Marine Bacterial Culture",
+    "description": "Pure culture of marine bacteria isolated from deep sea hydrothermal vents.",
+    "price": 149.99,
+    "category": "Microbiology",
+    "image": "/assets/images/samples/bacteria.jpg",
+    "lab": "Oceanographic Institute",
+    "location": "San Diego, CA",
+    "available": true,
+    "featured": true
+  },
+  {
+    "id": "sample-002",
+    "title": "Human Tissue Sample",
+    "description": "Preserved human tissue sample for histological analysis.",
+    "price": 299.99,
+    "category": "Histology",
+    "image": "/assets/images/samples/tissue.jpg",
+    "lab": "Medical Research Center",
+    "location": "Boston, MA",
+    "available": true,
+    "featured": false
+  },
+  {
+    "id": "sample-003",
+    "title": "Plasmid DNA",
+    "description": "Purified plasmid DNA for molecular biology applications.",
+    "price": 89.99,
+    "category": "Molecular Biology",
+    "image": "/assets/images/samples/dna.jpg",
+    "lab": "Genetics Lab",
+    "location": "Cambridge, MA",
+    "available": true,
+    "featured": true
+  },
+  {
+    "id": "sample-004",
+    "title": "Protein Extract",
+    "description": "Crude protein extract from plant tissue.",
+    "price": 129.99,
+    "category": "Biochemistry",
+    "image": "/assets/images/samples/protein.jpg",
+    "lab": "Plant Sciences Department",
+    "location": "Davis, CA",
+    "available": false,
+    "featured": false
+  },
+  {
+    "id": "sample-005",
+    "title": "Antibody Solution",
+    "description": "Monoclonal antibody solution for immunological assays.",
+    "price": 199.99,
+    "category": "Immunology",
+    "image": "/assets/images/samples/antibody.jpg",
+    "lab": "Immunology Research Institute",
+    "location": "New York, NY",
+    "available": true,
+    "featured": true
+  },
+  {
+    "id": "sample-006",
+    "title": "Cell Line",
+    "description": "Immortalized cell line for in vitro studies.",
+    "price": 249.99,
+    "category": "Cell Biology",
+    "image": "/assets/images/samples/cells.jpg",
+    "lab": "Cell Biology Center",
+    "location": "Houston, TX",
+    "available": true,
+    "featured": false
+  }
+]

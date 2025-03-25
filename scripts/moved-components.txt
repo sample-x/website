@@ -1,0 +1,8 @@
+app/components/Header.tsx
+app/components/ImageWithFallback.tsx
+app/components/SampleMap.tsx
+app/components/ContactForm.tsx
+app/components/HomeClient.tsx
+app/components/Navbar.tsx
+app/components/GoogleButton.tsx
+app/components/Navigation.tsx
