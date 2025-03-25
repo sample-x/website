@@ -94,11 +94,16 @@ export default function Home() {
       </section>
 
       <section className="showcase" id="demo">
-        <h2>Showcase lab!!</h2>
-        <div className="showcase-content">
-          <p>"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
-          <p>I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>
-          <cite>Jean-Marie Volland, Ph.D.<br />Group Leader (Marine Microbiology)<br />LRC & JGI</cite>
+        <div className="showcase-background">
+          <div className="showcase-overlay"></div>
+        </div>
+        <div className="container">
+          <h2>Showcase lab!!</h2>
+          <div className="showcase-content">
+            <p>"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
+            <p>I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>
+            <cite>Jean-Marie Volland, Ph.D.<br />Group Leader (Marine Microbiology)<br />LRC & JGI</cite>
+          </div>
         </div>
       </section>
 

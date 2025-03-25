@@ -60,15 +60,10 @@ export default function RootLayout({
           <div className="container">
             <div className="footer-content">
               <div className="footer-logo">
-                <Link href="/">
-                  <Image 
-                    src="/assets/images/logo.png" 
-                    alt="Sample Exchange Logo" 
-                    width={150} 
-                    height={40} 
-                  />
-                </Link>
-                <p>The world's first marketplace for science</p>
+                <h2 className="footer-brand">Sample<span className="text-accent">X</span></h2>
+                <p>
+                  Revolutionizing science collaboration through seamless sample management and exchange.
+                </p>
               </div>
               
               <div className="footer-links">
@@ -101,7 +96,8 @@ export default function RootLayout({
             </div>
             
             <div className="footer-bottom">
-              <p>&copy; {new Date().getFullYear()} Sample Exchange. All rights reserved.</p>
+              <p className="footer-address">655 Oak Grove Ave. #1417, Menlo Park, California 94025</p>
+              <p>&copy; {new Date().getFullYear()} SampleX. All rights reserved.</p>
             </div>
           </div>
         </footer>

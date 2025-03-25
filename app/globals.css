@@ -386,21 +386,50 @@ header, .site-header {
   background-color: var(--color-secondary);
   color: var(--color-light);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.showcase-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('/assets/images/showcase.jpg') center center/cover no-repeat;
+  z-index: -2;
+}
+
+.showcase-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(39, 151, 132, 0.7); /* More transparent green overlay */
+  z-index: -1;
 }
 
 .showcase h2 {
   margin-bottom: 2rem;
   font-size: 2.5rem;
+  position: relative; /* Ensure text is above the overlay */
 }
 
 .showcase-content {
   max-width: 800px;
   margin: 0 auto;
+  position: relative; /* Ensure text is above the overlay */
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.2); /* Slight dark background for better readability */
+  border-radius: 8px;
 }
 
 .showcase-content p {
   margin-bottom: 1rem;
   font-size: 1.2rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* Text shadow for better readability */
 }
 
 .showcase-content cite {
@@ -408,6 +437,7 @@ header, .site-header {
   margin-top: 2rem;
   font-style: normal;
   font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* Text shadow for better readability */
 }
 
 /* Contact Section */
@@ -511,6 +541,22 @@ footer {
 .footer-logo p {
   margin-top: 1rem;
   opacity: 0.8;
+}
+
+.footer-brand {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-light);
+  margin: 0;
+}
+
+.text-accent {
+  color: var(--color-primary);
+}
+
+.footer-address {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
 }
 
 .footer-links {
