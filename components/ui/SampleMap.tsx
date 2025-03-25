@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
-import { Sample } from '../types/sample';
+import { Sample } from '../../app/types/sample';
 import type { Map } from 'leaflet';
 
 interface SampleMapProps {
