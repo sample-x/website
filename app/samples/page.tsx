@@ -16,14 +16,18 @@ export const metadata = {
 export default function SamplesPage() {
   return (
     <Suspense fallback={
-      <main>
-        <section className="samples-page">
-          <div className="samples-hero">
+      <main className="samples-page">
+        <div className="container">
+          <div className="page-header">
             <h1>Browse Samples</h1>
+            <p>Discover and browse scientific samples from researchers around the world.</p>
+          </div>
+          
+          <div className="loading-state">
+            <div className="spinner"></div>
             <p>Loading samples...</p>
           </div>
-          <div className="loading-spinner"></div>
-        </section>
+        </div>
       </main>
     }>
       <ClientPage />

@@ -1,14 +1,17 @@
 'use client';
 
 import SampleMap from '../components/SampleMap';
-import { useState, useCallback } from 'react';
-import { Sample } from '../types/sample';  // adjust the import path as needed
+import { useState, useCallback, useEffect } from 'react';
+import { Sample } from '../types/sample';
+import { FaList, FaThLarge, FaInfoCircle, FaCartPlus } from 'react-icons/fa';
+import './samples.css';
 
 interface PopupInfo {
   isOpen: boolean;
   sample: Sample | null;
 }
 
+// Sample data
 const samples: Sample[] = [
   {
     id: "1",
@@ -92,12 +95,29 @@ const samples: Sample[] = [
   }
 ];
 
+// Define the sample types and their colors
+const sampleTypes = [
+  { id: 'bacterial', name: 'Bacterial', color: '#10b981' },
+  { id: 'tissue', name: 'Tissue', color: '#ef4444' },
+  { id: 'cell line', name: 'Cell Line', color: '#8b5cf6' },
+  { id: 'environmental', name: 'Environmental', color: '#3b82f6' },
+  { id: 'soil', name: 'Soil', color: '#92400e' },
+  { id: 'botanical', name: 'Botanical', color: '#65a30d' },
+  { id: 'viral', name: 'Viral', color: '#db2777' },
+  { id: 'dna', name: 'DNA', color: '#7c3aed' },
+  { id: 'water', name: 'Water Sample', color: '#0ea5e9' },
+  { id: 'industrial', name: 'Industrial Strain', color: '#64748b' },
+];
+
 export default function ClientPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
   const [visibleSamples, setVisibleSamples] = useState(samples);
   const [popupInfo, setPopupInfo] = useState<PopupInfo>({ isOpen: false, sample: null });
+  const [activeView, setActiveView] = useState('list');
+  const [activeSampleTypes, setActiveSampleTypes] = useState<string[]>([]);
+  const [filteredMapSamples, setFilteredMapSamples] = useState(samples);
 
   // Callback for when map bounds change
   const handleMapBoundsChange = useCallback((visibleSampleIds: string[]) => {
@@ -105,144 +125,287 @@ export default function ClientPage() {
     setVisibleSamples(filtered);
   }, []);
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Hero section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-center mb-3">Browse Samples</h1>
-        <p className="text-center text-gray-600">
-          Discover and browse scientific samples from researchers around the world.
-        </p>
-      </div>
+  // Filter samples when search or filter criteria change
+  useEffect(() => {
+    let filtered = samples;
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(sample => 
+        sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        sample.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        sample.location.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Apply type filter
+    if (selectedType !== 'All Types') {
+      filtered = filtered.filter(sample => 
+        sample.type.toLowerCase() === selectedType.toLowerCase()
+      );
+    }
+    
+    // Apply price range filter
+    filtered = filtered.filter(sample => 
+      sample.price >= priceRange.min && sample.price <= priceRange.max
+    );
 
-      {/* Search and Filters */}
-      <div className="flex flex-wrap items-center gap-4 mb-6 bg-white p-4 rounded-lg shadow-sm">
-        <input
-          type="text"
-          placeholder="Search samples..."
-          className="border border-gray-300 rounded-md px-4 py-2 w-64 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select
-          className="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-          value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value)}
-        >
-          <option>All Types</option>
-          <option>tissue</option>
-          <option>bacterial</option>
-          <option>cell line</option>
-          <option>environmental</option>
-          <option>ice core</option>
-        </select>
-        <div className="flex items-center gap-2">
-          <span className="text-gray-600">Price Range:</span>
-          <input
-            type="number"
-            min="0"
-            placeholder="Min"
-            className="border border-gray-300 rounded-md px-3 py-2 w-24 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-            value={priceRange.min}
-            onChange={(e) => setPriceRange({ ...priceRange, min: Number(e.target.value) })}
-          />
-          <span className="text-gray-600">to</span>
-          <input
-            type="number"
-            min="0"
-            placeholder="Max"
-            className="border border-gray-300 rounded-md px-3 py-2 w-24 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-            value={priceRange.max}
-            onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
-          />
+    setVisibleSamples(filtered);
+  }, [searchTerm, selectedType, priceRange]);
+
+  // Filter map samples when active sample types change
+  useEffect(() => {
+    if (activeSampleTypes.length === 0) {
+      setFilteredMapSamples(samples);
+    } else {
+      const filtered = samples.filter(sample => 
+        activeSampleTypes.includes(sample.type.toLowerCase())
+      );
+      setFilteredMapSamples(filtered);
+    }
+  }, [activeSampleTypes]);
+
+  // Toggle sample type in the filter
+  const toggleSampleType = (type: string) => {
+    if (activeSampleTypes.includes(type)) {
+      setActiveSampleTypes(activeSampleTypes.filter(t => t !== type));
+    } else {
+      setActiveSampleTypes([...activeSampleTypes, type]);
+    }
+  };
+
+  return (
+    <main className="samples-page">
+      <div className="container">
+        {/* Page Header */}
+        <div className="page-header">
+          <h1>Browse Samples</h1>
+          <p>Discover and browse scientific samples from researchers around the world.</p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="search-filters">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search samples..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="filter-group">
+            <div className="filter-control">
+              <label>Sample Type</label>
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+              >
+                <option>All Types</option>
+                {sampleTypes.map(type => (
+                  <option key={type.id} value={type.id}>{type.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-control">
+              <label>Price Range</label>
+              <div className="price-range">
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Min"
+                  value={priceRange.min}
+                  onChange={(e) => setPriceRange({ ...priceRange, min: Number(e.target.value) })}
+                />
+                <span>to</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Max"
+                  value={priceRange.max}
+                  onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* View Controls */}
+        <div className="view-controls">
+          <button
+            className={activeView === 'list' ? 'active' : ''}
+            onClick={() => setActiveView('list')}
+          >
+            <FaList /> List View
+          </button>
+          <button
+            className={activeView === 'grid' ? 'active' : ''}
+            onClick={() => setActiveView('grid')}
+          >
+            <FaThLarge /> Grid View
+          </button>
+        </div>
+
+        {/* Samples Table */}
+        <div className="samples-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Collection Date</th>
+                <th>Storage</th>
+                <th>Availability</th>
+                <th>Price</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visibleSamples.map((sample) => (
+                <tr key={sample.id}>
+                  <td>{sample.name}</td>
+                  <td>
+                    <div className="sample-type">
+                      <span 
+                        className={`type-indicator ${sample.type.toLowerCase().replace(' ', '-')}`}
+                      ></span>
+                      {sample.type}
+                    </div>
+                  </td>
+                  <td>{sample.location}</td>
+                  <td>{sample.collection_date}</td>
+                  <td>{sample.storage}</td>
+                  <td>
+                    <span className={`availability-badge ${sample.availability}`}>
+                      {sample.availability}
+                    </span>
+                  </td>
+                  <td className="price">${sample.price.toFixed(2)}</td>
+                  <td>
+                    <div className="action-buttons">
+                      <button 
+                        className="action-button details"
+                        onClick={() => setPopupInfo({ isOpen: true, sample })}
+                        title="View Details"
+                      >
+                        <FaInfoCircle />
+                      </button>
+                      <button 
+                        className="action-button add"
+                        title="Add to Cart"
+                        onClick={() => alert(`Added ${sample.name} to cart!`)}
+                      >
+                        <FaCartPlus />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="pagination">
+          <button disabled>Previous</button>
+          <span className="current-page">Page 1 of 1</span>
+          <button disabled>Next</button>
+        </div>
+
+        {/* Map Section */}
+        <div className="map-section">
+          <h2>Sample Locations</h2>
+          <div className="map-container">
+            <SampleMap 
+              samples={filteredMapSamples} 
+              onBoundsChange={handleMapBoundsChange}
+            />
+            
+            {/* Custom Map Legend with Filtering */}
+            <div className="map-legend">
+              <div className="legend-title">Sample Types</div>
+              <div className="legend-items">
+                {sampleTypes.map(type => (
+                  <div 
+                    key={type.id}
+                    className={`legend-item ${activeSampleTypes.includes(type.id) ? 'active' : ''}`}
+                    onClick={() => toggleSampleType(type.id)}
+                  >
+                    <span 
+                      className="legend-color"
+                      style={{ backgroundColor: type.color }}
+                    ></span>
+                    {type.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Updated Table */}
-      <div className="overflow-x-auto mb-8">
-        <table className="min-w-full bg-white border-collapse">
-          <thead>
-            <tr>
-              <th className="border-b px-4 py-2 text-left">Name</th>
-              <th className="border-b px-4 py-2 text-left">Type</th>
-              <th className="border-b px-4 py-2 text-left">Location</th>
-              <th className="border-b px-4 py-2 text-left">Collection Date</th>
-              <th className="border-b px-4 py-2 text-left">Storage</th>
-              <th className="border-b px-4 py-2 text-left">Availability</th>
-              <th className="border-b px-4 py-2 text-left">Price</th>
-              <th className="border-b px-4 py-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleSamples.map((sample, index) => (
-              <tr key={sample.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-2">{sample.name}</td>
-                <td className="px-4 py-2">{sample.type}</td>
-                <td className="px-4 py-2">{sample.location}</td>
-                <td className="px-4 py-2">{sample.collection_date}</td>
-                <td className="px-4 py-2">{sample.storage}</td>
-                <td className="px-4 py-2">{sample.availability}</td>
-                <td className="px-4 py-2">${sample.price.toFixed(2)}</td>
-                <td className="px-4 py-2">
-                  <button 
-                    onClick={() => setPopupInfo({ isOpen: true, sample: sample })}
-                    className="text-blue-600 hover:underline mr-2"
-                  >
-                    Details
-                  </button>
-                  <button className="text-blue-600 hover:underline">
-                    Add
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Sample Details Popup */}
+      {/* Sample Details Modal */}
       {popupInfo.isOpen && popupInfo.sample && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold">{popupInfo.sample.name}</h3>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2 className="modal-title">{popupInfo.sample.name}</h2>
               <button 
+                className="modal-close"
                 onClick={() => setPopupInfo({ isOpen: false, sample: null })}
-                className="text-gray-500 hover:text-gray-700"
               >
-                ✕
+                &times;
               </button>
             </div>
-            <div className="space-y-2">
-              <p><span className="font-semibold">Type:</span> {popupInfo.sample.type}</p>
-              <p><span className="font-semibold">Location:</span> {popupInfo.sample.location}</p>
-              <p><span className="font-semibold">Collection Date:</span> {popupInfo.sample.collection_date}</p>
-              <p><span className="font-semibold">Storage:</span> {popupInfo.sample.storage}</p>
-              <p><span className="font-semibold">Availability:</span> {popupInfo.sample.availability}</p>
-              <p><span className="font-semibold">Price:</span> ${popupInfo.sample.price.toFixed(2)}</p>
+            <div className="modal-body">
+              <div className="sample-detail-grid">
+                <div className="detail-label">Type:</div>
+                <div className="detail-value">
+                  <div className="sample-type">
+                    <span 
+                      className={`type-indicator ${popupInfo.sample.type.toLowerCase().replace(' ', '-')}`}
+                    ></span>
+                    {popupInfo.sample.type}
+                  </div>
+                </div>
+                
+                <div className="detail-label">Location:</div>
+                <div className="detail-value">{popupInfo.sample.location}</div>
+                
+                <div className="detail-label">Collection Date:</div>
+                <div className="detail-value">{popupInfo.sample.collection_date}</div>
+                
+                <div className="detail-label">Storage:</div>
+                <div className="detail-value">{popupInfo.sample.storage}</div>
+                
+                <div className="detail-label">Availability:</div>
+                <div className="detail-value">
+                  <span className={`availability-badge ${popupInfo.sample.availability}`}>
+                    {popupInfo.sample.availability}
+                  </span>
+                </div>
+                
+                <div className="detail-label">Price:</div>
+                <div className="detail-value price">${popupInfo.sample.price.toFixed(2)}</div>
+                
+                <div className="detail-label">Description:</div>
+                <div className="detail-value">{popupInfo.sample.description}</div>
+              </div>
             </div>
-            <button 
-              className="mt-4 w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
-              onClick={() => {
-                // Add to cart logic here
-                alert('Added to cart!');
-                setPopupInfo({ isOpen: false, sample: null });
-              }}
-            >
-              Add to Cart
-            </button>
+            <div className="modal-footer">
+              <button 
+                className="btn btn-primary"
+                onClick={() => {
+                  alert(`Added ${popupInfo.sample?.name} to cart!`);
+                  setPopupInfo({ isOpen: false, sample: null });
+                }}
+              >
+                Add to Cart
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {/* Map Section */}
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Sample Locations</h2>
-        <SampleMap 
-          samples={samples} 
-          onBoundsChange={handleMapBoundsChange}
-        />
-      </div>
-    </div>
+    </main>
   );
 } 

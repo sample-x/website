@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { Sample } from '../types/sample';
 import type { Map } from 'leaflet';
+import { FaCartPlus } from 'react-icons/fa';
 
 interface SampleMapProps {
   samples: Sample[];
@@ -44,98 +45,104 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
     if (!mapRef.current) return;
 
     const map = mapRef.current;
-    const updateVisibleSamples = () => {
+    map.on('load', () => {
+      // Initial update
       const bounds = map.getBounds();
       const visibleSamples = samples.filter(sample => 
         bounds.contains([sample.latitude, sample.longitude])
       );
       onBoundsChange(visibleSamples.map(sample => sample.id));
-    };
-
-    map.on('moveend', updateVisibleSamples);
-    updateVisibleSamples(); // Initial update
-
-    return () => {
-      map.off('moveend', updateVisibleSamples);
-    };
+    });
   }, [samples, onBoundsChange]);
 
   return (
-    <div className="relative">
-      <MapContainer 
-        center={[20, 0]} 
-        zoom={2} 
-        style={{ height: '500px', width: '100%' }}
-        className="z-0 rounded-lg shadow-lg"
-        ref={mapRef}
-      >
-        <TileLayer
-          url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          maxZoom={19}
-        />
-        {samples.map((sample, index) => (
-          <CircleMarker
-            key={index}
-            center={[sample.latitude, sample.longitude]}
-            radius={8}
-            pathOptions={{
-              fillColor: getMarkerColor(sample.type),
-              color: '#000',
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.8
-            }}
-          >
-            <Popup>
-              <div className="min-w-[200px] p-2">
-                <h3 className="text-lg font-bold mb-2">{sample.name}</h3>
-                <div className="space-y-1">
-                  <p><span className="font-semibold">Type:</span> {sample.type}</p>
-                  <p><span className="font-semibold">Location:</span> {sample.location}</p>
-                  <p><span className="font-semibold">Storage:</span> {sample.storage}</p>
-                  <p><span className="font-semibold">Price:</span> ${sample.price.toFixed(2)}</p>
-                  <p><span className="font-semibold">Availability:</span> {sample.availability}</p>
+    <MapContainer 
+      center={[20, 0]} 
+      zoom={2} 
+      style={{ height: '500px', width: '100%' }}
+      className="z-0"
+      ref={mapRef}
+    >
+      <TileLayer
+        url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        maxZoom={19}
+      />
+      {samples.map((sample) => (
+        <CircleMarker
+          key={sample.id}
+          center={[sample.latitude, sample.longitude]}
+          radius={8}
+          pathOptions={{
+            fillColor: getMarkerColor(sample.type),
+            color: '#fff',
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.9
+          }}
+        >
+          <Popup>
+            <div className="min-w-[220px] p-2">
+              <h3 className="text-lg font-bold mb-2 text-center">{sample.name}</h3>
+              <div className="grid grid-cols-2 gap-x-2 gap-y-1 mb-3">
+                <div className="text-sm font-semibold">Type:</div>
+                <div className="text-sm">
+                  <div className="flex items-center gap-1">
+                    <span 
+                      className="w-2 h-2 rounded-full inline-block"
+                      style={{ backgroundColor: getMarkerColor(sample.type) }}
+                    ></span>
+                    {sample.type}
+                  </div>
                 </div>
-                <button 
-                  className="mt-3 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full transition-colors"
-                >
-                  Add to Cart
-                </button>
+                <div className="text-sm font-semibold">Location:</div>
+                <div className="text-sm">{sample.location}</div>
+                <div className="text-sm font-semibold">Storage:</div>
+                <div className="text-sm">{sample.storage}</div>
+                <div className="text-sm font-semibold">Price:</div>
+                <div className="text-sm font-medium">${sample.price.toFixed(2)}</div>
+                <div className="text-sm font-semibold">Availability:</div>
+                <div className="text-sm">
+                  <span 
+                    className={`inline-block px-2 py-0.5 rounded-full text-xs ${
+                      sample.availability === 'available' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-amber-100 text-amber-800'
+                    }`}
+                  >
+                    {sample.availability}
+                  </span>
+                </div>
               </div>
-            </Popup>
-          </CircleMarker>
-        ))}
-        <BoundsUpdater samples={samples} onChange={onBoundsChange} />
-        
-        {/* Map Legend */}
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-lg z-[1000] border border-gray-200">
-          <div className="text-sm font-semibold mb-2">Sample Types</div>
-          <div className="space-y-1.5">
-            {Object.entries(sampleTypeColors).map(([type, color]) => (
-              <div key={type} className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full border border-gray-400"
-                  style={{ backgroundColor: color }}
-                />
-                <span className="text-xs capitalize">{type}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </MapContainer>
-    </div>
+              <button 
+                className="w-full flex items-center justify-center gap-1 bg-orange-500 text-white px-3 py-1.5 rounded text-sm hover:bg-orange-600 transition-colors"
+                onClick={() => alert(`Added ${sample.name} to cart!`)}
+              >
+                <FaCartPlus /> Add to Cart
+              </button>
+            </div>
+          </Popup>
+        </CircleMarker>
+      ))}
+      <BoundsUpdater samples={samples} onChange={onBoundsChange} />
+    </MapContainer>
   );
 }
 
+// Sample type colors for markers
 const sampleTypeColors: { [key: string]: string } = {
-  'tissue': '#ff6b6b',
-  'bacterial': '#82ca9d',
-  'cell line': '#ff69b4',
-  'environmental': '#20b2aa',
-  'ice core': '#87ceeb'
+  'tissue': '#ef4444',
+  'bacterial': '#10b981',
+  'cell line': '#8b5cf6',
+  'environmental': '#3b82f6',
+  'soil': '#92400e',
+  'botanical': '#65a30d',
+  'viral': '#db2777',
+  'dna': '#7c3aed',
+  'water sample': '#0ea5e9',
+  'industrial strain': '#64748b'
 };
 
 const getMarkerColor = (sampleType: string): string => {
-  return sampleTypeColors[sampleType.toLowerCase()] || '#ff0000';
+  return sampleTypeColors[sampleType.toLowerCase()] || '#888888';
 }; 
