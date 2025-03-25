@@ -25,6 +25,32 @@ export default function TeamPageClient() {
             <div className="team-member">
               <div className="member-image">
                 <img 
+                  src="/assets/images/team/schulz.png" 
+                  alt="Dr. Frederik Schulz"
+                  className="circular-crop grayscale"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/assets/images/team/placeholder.jpg';
+                  }}
+                />
+              </div>
+              <div className="member-info">
+                <h2>Dr. Frederik Schulz</h2>
+                <h3>Co-Founder, CEO</h3>
+                <p>
+                  Dr. Frederik Schulz is a microbiologist and expert in discovery and characterization of 
+                  novel bacterial, archaeal, and eukaryotic microbes and viruses in environmental samples. 
+                </p>
+                <p>
+                  Dr. Schulz is a staff scientist at the DOE Joint Genome Institute at Lawrence Berkeley 
+                  National Laboratory where he is leading the New Lineages of Life Group.
+                </p>
+              </div>
+            </div>
+            
+            <div className="team-member">
+              <div className="member-image">
+                <img 
                   src="/assets/images/team/date.png" 
                   alt="Dr. Shailesh Date" 
                   className="circular-crop grayscale"
@@ -49,32 +75,6 @@ export default function TeamPageClient() {
                   to analyze complex biological systems, pathways and multi-input processes with the goal of 
                   identifying points of intervention. His group also studies fundamental biophysical properties 
                   of living systems, including biological associations, at various scales.
-                </p>
-              </div>
-            </div>
-            
-            <div className="team-member">
-              <div className="member-image">
-                <img 
-                  src="/assets/images/team/schulz.png" 
-                  alt="Dr. Frederik Schulz"
-                  className="circular-crop grayscale"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/assets/images/team/placeholder.jpg';
-                  }}
-                />
-              </div>
-              <div className="member-info">
-                <h2>Dr. Frederik Schulz</h2>
-                <h3>Co-Founder, CEO</h3>
-                <p>
-                  Dr. Frederik Schulz is a microbiologist and expert in discovery and characterization of 
-                  novel bacterial, archaeal, and eukaryotic microbes and viruses in environmental samples. 
-                </p>
-                <p>
-                  Dr. Schulz is a staff scientist at the DOE Joint Genome Institute at Lawrence Berkeley 
-                  National Laboratory where he is leading the New Lineages of Life Group.
                 </p>
               </div>
             </div>

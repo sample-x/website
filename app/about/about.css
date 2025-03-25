@@ -71,6 +71,59 @@
   padding: 2rem;
 }
 
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.story-tile {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.story-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.story-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.story-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.image-caption {
+  font-size: 0.8rem;
+  text-align: center;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+.image-credit {
+  font-size: 0.7rem;
+  color: #777;
+  font-style: italic;
+}
+
 .story-container p {
   color: #333;
   line-height: 1.6;
@@ -222,6 +275,10 @@
   
   .team-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+  
+  .story-grid {
+    grid-template-columns: 1fr;
   }
   
   .about-hero {

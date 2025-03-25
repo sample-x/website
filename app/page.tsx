@@ -86,8 +86,20 @@ export default function Home() {
               <cite>- Harvard Biology PhD Student</cite>
             </div>
             <div className="testimonial-card">
+              <p>"In conversation: You are making me reach for my wallet! Haha! We had the best cell lines. Maybe we should license them out."</p>
+              <cite>- Former CSO, Biotech</cite>
+            </div>
+            <div className="testimonial-card">
+              <p>"I remember ordering 2nd hand equipment off Ebay and having to beg people for introductions to people with samples we are interested in. I wasted so much time trying to find people. This would have totally made my life easier!"</p>
+              <cite>- Harvard Scientist</cite>
+            </div>
+            <div className="testimonial-card">
               <p>"Sample Exchange sounds like it would make our lives easier tremendously. Having an online marketplace takes away the stress from just emailing random people and hoping for a reply."</p>
               <cite>- Harvard Pathologist/Scientist</cite>
+            </div>
+            <div className="testimonial-card">
+              <p>"P.S. I did look at Sample Exchange last night – really like the idea as we discussed. I hope it flies, cause it should!"</p>
+              <cite>- Former CEO, Biotech</cite>
             </div>
           </div>
         </div>

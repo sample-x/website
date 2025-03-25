@@ -42,7 +42,7 @@ export default function RootLayout({
               <ul>
                 <li><Link href="/">Home</Link></li>
                 <li><Link href="/samples">Samples</Link></li>
-                <li><Link href="/about">About</Link></li>
+                <li><Link href="/about">Overview</Link></li>
                 <li><Link href="/contact">Contact</Link></li>
                 <li className="auth-links">
                   <Link href="/login" className="btn btn-outline">Login</Link>
@@ -71,7 +71,7 @@ export default function RootLayout({
                   <ul>
                     <li><Link href="/samples">Browse Samples</Link></li>
                     <li><Link href="/team">Our Team</Link></li>
-                    <li><Link href="/about">About Us</Link></li>
+                    <li><Link href="/about">Overview</Link></li>
                   </ul>
                 </div>
                 

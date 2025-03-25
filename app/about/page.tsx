@@ -21,23 +21,33 @@ export default function About() {
       <section className="about-section alt">
         <div className="container">
           <h2>The Sample Exchange Story</h2>
-          <div className="story-container">
-            <div className="text-center mb-6">
-              <Image
-                src="/logo.png"
-                alt="SampleX Logo"
-                width={240}
-                height={80}
-                className="mx-auto mb-6"
-                priority
-              />
+          <div className="story-grid">
+            <div className="story-tile">
+              <div className="story-content">
+                <p className="mb-4">
+                  Scientists are always scrounging around for money. We realized we didn't have enough grant funding to organize yet another expensive sample collection trip to Alaska, to get permafrost samples. A researcher from the U. of Alaska helped us out by collecting samples and sharing them with us for free! How wonderful!
+                </p>
+                <p className="font-medium">
+                  You can say with Sample Exchange, we are simply paying it forward!
+                </p>
+              </div>
             </div>
-            <p className="mb-4">
-              Scientists are always scrounging around for money. We realized we didn't have enough grant funding to organize yet another expensive sample collection trip to Alaska, to get permafrost samples. A researcher from the U. of Alaska helped us out by collecting samples and sharing them with us for free! How wonderful!
-            </p>
-            <p className="font-medium">
-              You can say with Sample Exchange, we are simply paying it forward!
-            </p>
+            <div className="story-tile">
+              <div className="story-image">
+                <Image
+                  src="/assets/images/permafrost-image.jpeg"
+                  alt="Permafrost Core"
+                  width={400}
+                  height={300}
+                  className="story-img"
+                  priority
+                />
+                <p className="image-caption">
+                  Example of a Permafrost Core<br />
+                  <span className="image-credit">Image courtesy: Permafrost Laboratory, U. of Alaska (Fairbanks)</span>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -55,36 +65,6 @@ export default function About() {
                 <div className="service-content">
                   <h3 className="service-title">{service.title}</h3>
                   <p>{service.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="about-section alt">
-        <div className="container">
-          <h2>Our Team</h2>
-          <div className="team-grid">
-            {teamMembers.map((member, index) => (
-              <div key={index} className="team-card">
-                <div className="team-header">
-                  <div className="team-avatar">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      width={120}
-                      height={120}
-                      className="object-cover w-full h-full circular-crop grayscale"
-                      priority
-                    />
-                  </div>
-                </div>
-                <div className="team-content">
-                  <h3 className="team-name">{member.name}</h3>
-                  <p className="team-title">{member.title}</p>
-                  <p>{member.bio}</p>
                 </div>
               </div>
             ))}
@@ -135,20 +115,5 @@ const services = [
     title: "MTA Support",
     description: "Assistance with Material Transfer Agreements to ensure proper legal and ethical sample sharing.",
     icon: <FaFileContract />
-  }
-];
-
-const teamMembers = [
-  {
-    name: "Dr. Frederik Schulz",
-    title: "Co-Founder, CEO",
-    image: "/assets/images/team/schulz.png",
-    bio: "Dr. Frederik Schulz is a microbiologist and expert in discovery and characterization of novel bacterial, archaeal, and eukaryotic microbes and viruses in environmental samples. Dr. Schulz is a staff scientist at the DOE Joint Genome Institute at Lawrence Berkeley National Laboratory where he is leading the New Lineages of Life Group."
-  },
-  {
-    name: "Dr. Shailesh Date",
-    title: "Founder",
-    image: "/assets/images/team/date.png",
-    bio: "Dr. Shailesh Date is Chief Executive Officer of the Laboratory for Research in Complex Systems (LRC), an independent research institute that uses rigorous quantitative approaches to solve high-value problems in the sciences and the society. He is also Associate Adjunct Professor of Epidemiology and Biostatistics at UCSF and Chief Executive Officer of Silicogenix Inc. Dr. Date's research primarily focuses on developing computational tools to analyze complex biological systems, pathways and multi-input processes with the goal of identifying points of intervention."
   }
 ]; 

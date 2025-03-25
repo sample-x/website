@@ -358,8 +358,23 @@ header, .site-header {
 
 .testimonial-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* First and last testimonial span full width in a 3-column grid */
+.testimonial-grid .testimonial-card:first-child,
+.testimonial-grid .testimonial-card:last-child {
+  grid-column: span 3;
+}
+
+/* Middle three testimonials each take one column */
+.testimonial-grid .testimonial-card:nth-child(2),
+.testimonial-grid .testimonial-card:nth-child(3),
+.testimonial-grid .testimonial-card:nth-child(4) {
+  grid-column: span 1;
 }
 
 .testimonial-card {
@@ -717,6 +732,18 @@ footer {
   
   .footer-links {
     grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .testimonial-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .testimonial-grid .testimonial-card:first-child,
+  .testimonial-grid .testimonial-card:last-child,
+  .testimonial-grid .testimonial-card:nth-child(2),
+  .testimonial-grid .testimonial-card:nth-child(3),
+  .testimonial-grid .testimonial-card:nth-child(4) {
+    grid-column: span 1;
   }
 }
 
