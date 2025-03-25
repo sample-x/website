@@ -76,7 +76,7 @@ export default function About() {
                       alt={member.name}
                       width={120}
                       height={120}
-                      className="object-cover w-full h-full"
+                      className="object-cover w-full h-full circular-crop grayscale"
                       priority
                     />
                   </div>
@@ -141,14 +141,14 @@ const services = [
 const teamMembers = [
   {
     name: "Dr. Frederik Schulz",
-    title: "Lead Scientist & Microbiologist",
-    image: "/frederik-schulz.jpg",
-    bio: "Dr. Frederik Schulz is a microbiologist and expert in discovery and characterization of novel bacterial, archaeal, and eukaryotic microbes and viruses in environmental samples. Dr. Schulz is a staff scientist at the DOE Joint Genome Institute at Lawrence Berkeley National Laboratory where he is leading the New Lineages of Life Group. He has over 80 peer-reviewed publications with over 10 in Nature, Nature Biotechnology or Science, covering topics in Microbial Ecology, Virology and Bioinformatics."
+    title: "Co-Founder, CEO",
+    image: "/assets/images/team/schulz.png",
+    bio: "Dr. Frederik Schulz is a microbiologist and expert in discovery and characterization of novel bacterial, archaeal, and eukaryotic microbes and viruses in environmental samples. Dr. Schulz is a staff scientist at the DOE Joint Genome Institute at Lawrence Berkeley National Laboratory where he is leading the New Lineages of Life Group."
   },
   {
     name: "Dr. Shailesh Date",
-    title: "Senior Research Scientist",
-    image: "/shailesh-date.jpg",
-    bio: "Dr. Shailesh Date is a distinguished scientist with extensive experience in biotechnology and life sciences. He has made significant contributions to the field of sample management and biological research. His work focuses on developing innovative solutions for scientific sample collection, storage, and distribution."
+    title: "Founder",
+    image: "/assets/images/team/date.png",
+    bio: "Dr. Shailesh Date is Chief Executive Officer of the Laboratory for Research in Complex Systems (LRC), an independent research institute that uses rigorous quantitative approaches to solve high-value problems in the sciences and the society. He is also Associate Adjunct Professor of Epidemiology and Biostatistics at UCSF and Chief Executive Officer of Silicogenix Inc. Dr. Date's research primarily focuses on developing computational tools to analyze complex biological systems, pathways and multi-input processes with the goal of identifying points of intervention."
   }
 ]; 

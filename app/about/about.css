@@ -201,6 +201,20 @@
   font-size: 0.95rem;
 }
 
+.circular-crop {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.grayscale {
+  filter: grayscale(100%);
+  transition: filter 0.3s ease;
+}
+
+.grayscale:hover {
+  filter: grayscale(0%);
+}
+
 @media (max-width: 768px) {
   .services-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

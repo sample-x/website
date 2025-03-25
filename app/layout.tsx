@@ -42,7 +42,6 @@ export default function RootLayout({
               <ul>
                 <li><Link href="/">Home</Link></li>
                 <li><Link href="/samples">Samples</Link></li>
-                <li><Link href="/team">Team</Link></li>
                 <li><Link href="/about">About</Link></li>
                 <li><Link href="/contact">Contact</Link></li>
                 <li className="auth-links">
