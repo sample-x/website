@@ -6,8 +6,24 @@ import { FaLeaf, FaFlask, FaBrain, FaDna, FaChartLine, FaDatabase, FaHandshake, 
 export default function About() {
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-white py-20 relative overflow-hidden">
+      {/* Mission Section - Moved to top */}
+      <section className="py-12 bg-gradient-to-r from-orange-500 to-amber-400 text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
+            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
+              <p className="text-lg leading-relaxed">
+                At Sample Exchange, we're committed to building a collaborative ecosystem for scientific sample sharing. 
+                We believe that by connecting researchers and institutions, we can accelerate scientific discovery 
+                and make research more efficient and cost-effective.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Story Section */}
+      <section className="bg-white py-16 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center relative z-10">
             <Image
@@ -17,7 +33,7 @@ export default function About() {
               height={106}
               className="mx-auto mb-8"
             />
-            <h1 className="text-4xl font-bold mb-6 text-[#1f3d4c]">The Sample Exchange Story</h1>
+            <h2 className="text-3xl font-bold mb-6 text-[#1f3d4c]">The Sample Exchange Story</h2>
             <div className="bg-white p-8 rounded-xl shadow-md">
               <p className="text-lg text-gray-700 leading-relaxed">
                 Scientists are always scrounging around for money. We realized we didn't have enough grant funding to organize yet another expensive sample collection trip to Alaska, to get permafrost samples. A researcher from the U. of Alaska helped us out by collecting samples and sharing them with us for free! How wonderful!
@@ -34,16 +50,16 @@ export default function About() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20">
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-[#1f3d4c]">Our Services</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-8 text-[#1f3d4c]">Our Services</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {services.map((service, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                <div className="bg-gradient-to-r from-orange-500 to-amber-400 p-4 flex justify-center">
+              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full">
+                <div className="bg-gradient-to-r from-orange-500 to-amber-400 p-4 flex justify-center items-center">
                   <span className="text-white text-3xl">{service.icon}</span>
                 </div>
-                <div className="p-6">
+                <div className="p-6 flex-grow">
                   <h3 className="text-xl font-semibold mb-3 text-[#1f3d4c]">{service.title}</h3>
                   <p className="text-gray-600 text-sm">{service.description}</p>
                 </div>
@@ -54,29 +70,29 @@ export default function About() {
       </section>
 
       {/* Team Section */}
-      <section className="bg-white py-20">
+      <section className="bg-white py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-[#1f3d4c]">Our Team</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-8 text-[#1f3d4c]">Our Team</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {teamMembers.map((member, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
+              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 h-full">
                 <div className="flex flex-col h-full">
-                  <div className="bg-gradient-to-r from-blue-600 to-teal-400 pt-8 px-8 pb-20 relative">
-                    <div className="w-32 h-32 mx-auto relative z-10 bg-white rounded-full p-1">
+                  <div className="bg-gradient-to-r from-blue-600 to-teal-400 pt-6 px-6 pb-16 relative">
+                    <div className="w-28 h-28 mx-auto relative z-10 bg-white rounded-full p-1">
                       <Image
                         src={member.image}
                         alt={member.name}
-                        width={128}
-                        height={128}
-                        className="rounded-full object-cover"
+                        width={112}
+                        height={112}
+                        className="rounded-full object-cover h-full w-full"
                       />
                     </div>
                   </div>
-                  <div className="p-8 -mt-12 relative z-20">
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                      <h3 className="text-2xl font-bold mb-2 text-[#1f3d4c] text-center">{member.name}</h3>
-                      <p className="text-gray-500 text-center mb-4">{member.title}</p>
-                      <p className="text-gray-700 leading-relaxed">
+                  <div className="p-6 -mt-12 relative z-20">
+                    <div className="bg-white rounded-xl shadow-md p-5">
+                      <h3 className="text-xl font-bold mb-2 text-[#1f3d4c] text-center">{member.name}</h3>
+                      <p className="text-gray-500 text-center text-sm mb-3">{member.title}</p>
+                      <p className="text-gray-700 text-sm leading-relaxed">
                         {member.bio}
                       </p>
                     </div>
@@ -84,22 +100,6 @@ export default function About() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* Mission Section */}
-      <section className="py-20 bg-gradient-to-r from-orange-500 to-amber-400 text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-8">Our Mission</h2>
-            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-xl">
-              <p className="text-xl leading-relaxed">
-                At Sample Exchange, we're committed to building a collaborative ecosystem for scientific sample sharing. 
-                We believe that by connecting researchers and institutions, we can accelerate scientific discovery 
-                and make research more efficient and cost-effective.
-              </p>
-            </div>
           </div>
         </div>
       </section>
