@@ -31,9 +31,10 @@ export default function RootLayout({
                 <Image 
                   src="/assets/images/logo.png" 
                   alt="Sample Exchange Logo" 
-                  width={180} 
-                  height={50} 
+                  width={240} 
+                  height={70} 
                   priority
+                  className="header-logo"
                 />
               </Link>
             </div>
