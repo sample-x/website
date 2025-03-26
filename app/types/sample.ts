@@ -4,6 +4,7 @@ export interface Sample {
   type: string;
   location: string;
   collection_date?: string;
+  storage?: string;
   storage_condition?: string;
   quantity?: number;
   price?: number;
