@@ -7,19 +7,37 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Function to transform camelCase to snake_case
-function transformKeys(obj: any): any {
-    const transformed: any = {};
-    Object.keys(obj).forEach(key => {
-        const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-        transformed[snakeKey] = obj[key];
-    });
+// Function to transform camelCase to snake_case and map fields correctly
+function transformSample(sample: any): Sample {
+    const transformed = {
+        id: sample.id,
+        name: sample.name,
+        type: sample.type,
+        location: sample.location,
+        collection_date: sample.collectionDate,
+        storage_condition: sample.storageCondition,
+        quantity: sample.quantity,
+        price: sample.price,
+        description: sample.description,
+        latitude: sample.latitude,
+        longitude: sample.longitude,
+        availability: sample.availability,
+        contact: sample.contact,
+        inStock: sample.quantity > 0,
+        created_at: new Date().toISOString(),
+        coordinates: sample.latitude && sample.longitude ? [sample.latitude, sample.longitude] : undefined,
+        metadata: {
+            host: sample.host,
+            unit: sample.unit
+        }
+    } as Sample;
+
     return transformed;
 }
 
 export async function loadSamples(): Promise<Sample[]> {
     try {
-        return samplesJson as Sample[];
+        return samplesJson.map(transformSample);
     } catch (error) {
         console.error('Error loading samples:', error);
         return [];
@@ -42,9 +60,9 @@ export async function loadSamplesFromSupabase() {
             throw new Error(`Error clearing samples: ${deleteError.message}`);
         }
 
-        // Insert new samples in batches of 50
+        // Transform and insert new samples in batches of 50
         const batchSize = 50;
-        const samples = samplesJson as Sample[];
+        const samples = samplesJson.map(transformSample);
         
         for (let i = 0; i < samples.length; i += batchSize) {
             const batch = samples.slice(i, i + batchSize);
