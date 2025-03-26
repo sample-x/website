@@ -2,17 +2,18 @@
 
 import { useState } from 'react';
 import { loadSamples } from '@/utils/loadSamples';
+import { Sample } from '@/types/sample';
 
 export default function TestSamplesPage() {
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<{ success: boolean; error?: any } | null>(null);
+    const [result, setResult] = useState<{ success: boolean; data?: Sample[]; error?: any } | null>(null);
 
     const handleLoadSamples = async () => {
         setLoading(true);
         try {
-            const result = await loadSamples();
-            setResult(result);
-            console.log('Load samples result:', result);
+            const samples = await loadSamples();
+            setResult({ success: true, data: samples });
+            console.log('Load samples result:', samples);
         } catch (error) {
             console.error('Error in handleLoadSamples:', error);
             setResult({ success: false, error: error instanceof Error ? error.message : String(error) });
@@ -37,7 +38,13 @@ export default function TestSamplesPage() {
                 <div className="mt-4 p-4 rounded border">
                     {result.success ? (
                         <div className="text-green-600">
-                            Samples loaded successfully!
+                            <p className="font-bold mb-2">Samples loaded successfully!</p>
+                            <p>Total samples loaded: {result.data?.length || 0}</p>
+                            <div className="mt-4 max-h-96 overflow-auto">
+                                <pre className="bg-gray-50 p-4 rounded">
+                                    {JSON.stringify(result.data, null, 2)}
+                                </pre>
+                            </div>
                         </div>
                     ) : (
                         <div className="text-red-600">
