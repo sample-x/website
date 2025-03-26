@@ -1,21 +1,21 @@
 export interface Sample {
-  id: string;
+  id: number;
   name: string;
   type: string;
   location: string;
-  collection_date: string;
-  storage: string;
+  collection_date?: string;
+  storage_condition?: string;
+  quantity?: number;
+  price?: number;
+  description?: string;
+  latitude?: number;
+  longitude?: number;
+  user_id?: string;
+  created_at?: string;
   availability: string;
-  price: number;
-  latitude: number;
-  longitude: number;
-  description: string;
   imageUrl?: string;
   inStock: boolean;
   coordinates?: [number, number]; // [latitude, longitude]
-  user_id: string;
-  created_at: string;
-  available_quantity?: number;
   metadata?: Record<string, any>;
   // Additional fields for sample table
   contact?: string;

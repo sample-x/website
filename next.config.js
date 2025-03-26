@@ -5,15 +5,12 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
-  // Use export mode for Cloudflare Pages
-  output: 'export',
-  
   // Skip trailing slash redirect
   skipTrailingSlashRedirect: true,
   
   // Images configuration
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -48,6 +45,8 @@ const nextConfig = {
     
     return config;
   },
+
+  // Environment variables are now managed through .env.local
 };
 
 module.exports = nextConfig;

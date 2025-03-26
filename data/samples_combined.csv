@@ -1,0 +1,13 @@
+name,type,location,collection_date,storage_condition,quantity,price,description,latitude,longitude
+Marine Bacterial Culture,bacterial,Pacific Ocean,2023-01-01,Refrigerated,5,299.99,Marine bacterial culture collected from Pacific Ocean samples.,34.0522,-118.2437
+Human Tissue Sample,tissue,San Francisco,2023-07-20,Frozen,3,499.99,Human tissue sample for research purposes.,37.7749,-122.4194
+Plant Extract,botanical,Amazon Rainforest,2023-05-10,Room Temperature,8,349.99,Extracted compounds from rare medicinal plants.,-3.4653,-62.2159
+Soil Sample,soil,Yellowstone National Park,2023-04-25,Room Temperature,10,199.99,Soil sample collected from geothermal areas with unique microbial communities.,44.428,-110.5885
+E. coli Industrial Strain,bacterial,Boston MA,2023-08-05,Frozen,4,599.99,Engineered E. coli strain for pharmaceutical production with optimized metabolic pathways.,42.3601,-71.0589
+Atacama Desert Soil,soil,Atacama Desert Chile,2023-01-12,Room Temperature,2,399.99,Ultra-dry soil sample from the Atacama Desert containing extremophile microorganisms.,-24.5,-69.25
+Permafrost Ice Core,environmental,Alaska,2022-11-30,Ultra-frozen,1,1299.99,Ancient ice core containing preserved microorganisms from approximately 10000 years ago.,64.8378,-147.7164
+Mimivirus Culture,viral,Marseille France,2023-03-15,Frozen,6,899.99,Giant virus culture with complex genome approaching the complexity of cellular organisms.,43.2965,5.3698
+HeLa Cell Line,cell line,Baltimore MD,2023-05-02,Cryopreserved,5,699.99,Immortal cell line used in cancer research and numerous scientific discoveries.,39.2904,-76.6122
+Lake Vostok Water Sample,water,Antarctica,2022-12-18,Ultra-frozen,2,1599.99,Pristine water sample from subglacial lake isolated for millions of years.,-77.5,106.0
+Bacillus subtilis Strain,bacterial,Chicago IL,2023-07-12,Frozen,7,549.99,Engineered bacteria for industrial enzyme production.,41.8781,-87.6298
+CHO Cell Line,cell line,San Diego CA,2023-04-18,Cryopreserved,4,799.99,Chinese Hamster Ovary cell line optimized for protein production.,32.7157,-117.1611 

@@ -2,11 +2,14 @@
 
 import Image from 'next/image'
 import { FaLeaf, FaFlask, FaBrain, FaDna, FaChartLine, FaDatabase, FaHandshake, FaFileContract } from 'react-icons/fa'
+import SupabaseTest from '../components/SupabaseTest'
 import './about.css'
 
 export default function About() {
   return (
     <main className="about-page">
+      <SupabaseTest />
+      
       {/* Mission Section - Hero */}
       <section className="about-hero">
         <h1>Our Mission</h1>
