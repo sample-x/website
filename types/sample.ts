@@ -2,19 +2,19 @@ export interface Sample {
     id: number;
     name: string;
     type: string;
-    host?: string;
-    location?: string;
-    latitude?: number;
-    longitude?: number;
+    location: string;
     collection_date?: string;
     storage_condition?: string;
-    availability?: string;
-    contact?: string;
-    description?: string;
-    price?: number;
     quantity?: number;
-    unit?: string;
+    price?: number;
+    description?: string;
+    latitude?: number;
+    longitude?: number;
+    user_id?: string;
     created_at?: string;
+    category?: string;
+    imageUrl?: string;
+    metadata?: Record<string, any>;
 }
 
 export type SampleFilter = {

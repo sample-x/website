@@ -3,24 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useSupabase } from '../context/SupabaseProvider';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { toast } from 'react-toastify';
 import './checkout.css';
-
-interface Sample {
-  id: string | number;
-  name: string;
-  type?: string;
-  category?: string;
-  price?: number;
-  description: string;
-}
+import { Sample } from '@/types/sample';
 
 export default function CheckoutPage() {
+  const supabase = useSupabaseClient();
   const searchParams = useSearchParams();
   const id = searchParams?.get('id');
   const router = useRouter();
-  const { user } = useSupabase();
   const [sample, setSample] = useState<Sample | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,44 +21,60 @@ export default function CheckoutPage() {
   const price = sample?.price || 299.99;
   
   useEffect(() => {
-    async function fetchSampleDetails() {
-      // Check if id exists
+    async function fetchSample() {
       if (!id) {
-        setError('Sample ID is missing');
+        setError('No sample ID provided');
         setLoading(false);
         return;
       }
-      
+
       try {
-        // For static export, use local data
-        const response = await fetch('/data/samples.json');
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch sample data: ${response.status}`);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          router.push('/login?redirect=/checkout?id=' + id);
+          return;
         }
-        
-        const data = await response.json();
-        const foundSample = data.find((s: Sample) => s.id.toString() === id);
-        
-        if (foundSample) {
-          setSample(foundSample);
-        } else {
+
+        const { data, error } = await supabase
+          .from('samples')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        if (!data) {
           setError('Sample not found');
+        } else {
+          setSample(data);
         }
-      } catch (error) {
-        console.error('Error fetching sample:', error);
-        setError('Failed to load sample details. Please try again later.');
+      } catch (err) {
+        console.error('Error fetching sample:', err);
+        setError('Error loading sample details');
       } finally {
         setLoading(false);
       }
     }
-    
-    fetchSampleDetails();
-  }, [id]);
+
+    fetchSample();
+  }, [id, router, supabase]);
   
   const handleCheckout = async () => {
-    // For static export, just show a success message
-    router.push(`/checkout/success?id=${id}`);
+    if (!sample) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push('/login?redirect=/checkout?id=' + id);
+        return;
+      }
+
+      // Add your checkout logic here
+      toast.success('Checkout successful!');
+      router.push('/orders');
+    } catch (err) {
+      console.error('Checkout error:', err);
+      toast.error('Checkout failed. Please try again.');
+    }
   };
   
   if (loading) {
@@ -131,8 +139,9 @@ export default function CheckoutPage() {
           <button 
             className="btn btn-checkout"
             onClick={handleCheckout}
+            disabled={!sample.quantity || sample.quantity <= 0}
           >
-            Proceed to Payment
+            {sample.quantity && sample.quantity > 0 ? 'Proceed to Payment' : 'Out of Stock'}
           </button>
           
           <Link href="/samples" className="btn btn-secondary btn-back">
