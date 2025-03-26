@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 # Custom build script for Cloudflare Pages
 
 # Set environment variables for the build
@@ -10,7 +12,21 @@ npm install
 
 # Build with Next.js
 echo "Building with Next.js..."
-NEXT_TELEMETRY_DISABLED=1 npm run build
+NEXT_TELEMETRY_DISABLED=1 next build
+
+# Export static files
+echo "Exporting static files..."
+NEXT_TELEMETRY_DISABLED=1 next export
+
+# Create _routes.json for Cloudflare Pages
+echo "Creating _routes.json..."
+cat > out/_routes.json << EOL
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": []
+}
+EOL
 
 # Check if the build was successful
 if [ -d "out" ] && [ "$(find out -type f -name "*.html" | wc -l)" -gt 0 ]; then
