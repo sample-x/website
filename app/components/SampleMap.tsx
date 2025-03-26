@@ -22,9 +22,11 @@ function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (i
     const updateVisibleSamples = () => {
       const bounds = map.getBounds();
       const visibleSamples = samples.filter(sample => 
-        bounds.contains([sample.latitude, sample.longitude])
+        typeof sample.latitude === 'number' && 
+        typeof sample.longitude === 'number' && 
+        bounds.contains([sample.latitude, sample.longitude] as [number, number])
       );
-      onChange(visibleSamples.map(sample => sample.id));
+      onChange(visibleSamples.map(sample => String(sample.id || '')));
     };
 
     map.on('moveend', updateVisibleSamples);
@@ -49,9 +51,11 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
       // Initial update
       const bounds = map.getBounds();
       const visibleSamples = samples.filter(sample => 
-        bounds.contains([sample.latitude, sample.longitude])
+        typeof sample.latitude === 'number' && 
+        typeof sample.longitude === 'number' && 
+        bounds.contains([sample.latitude, sample.longitude] as [number, number])
       );
-      onBoundsChange(visibleSamples.map(sample => sample.id));
+      onBoundsChange(visibleSamples.map(sample => String(sample.id || '')));
     });
   }, [samples, onBoundsChange]);
 
@@ -68,10 +72,13 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         maxZoom={19}
       />
-      {samples.map((sample) => (
+      {samples.filter(sample => 
+        typeof sample.latitude === 'number' && 
+        typeof sample.longitude === 'number'
+      ).map((sample) => (
         <CircleMarker
           key={sample.id}
-          center={[sample.latitude, sample.longitude]}
+          center={[sample.latitude as number, sample.longitude as number]}
           radius={8}
           pathOptions={{
             fillColor: getMarkerColor(sample.type),
@@ -98,25 +105,26 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
                 <div className="text-sm font-semibold">Location:</div>
                 <div className="text-sm">{sample.location}</div>
                 <div className="text-sm font-semibold">Storage:</div>
-                <div className="text-sm">{sample.storage}</div>
+                <div className="text-sm">{sample.storage_condition}</div>
                 <div className="text-sm font-semibold">Price:</div>
-                <div className="text-sm font-medium">${sample.price.toFixed(2)}</div>
-                <div className="text-sm font-semibold">Availability:</div>
+                <div className="text-sm font-medium">${(sample.price || 0).toFixed(2)}</div>
+                <div className="text-sm font-semibold">Quantity:</div>
                 <div className="text-sm">
                   <span 
                     className={`inline-block px-2 py-0.5 rounded-full text-xs ${
-                      sample.availability === 'available' 
+                      (sample.quantity || 0) > 0
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-amber-100 text-amber-800'
                     }`}
                   >
-                    {sample.availability}
+                    {(sample.quantity || 0) > 0 ? 'Available' : 'Out of Stock'}
                   </span>
                 </div>
               </div>
               <button 
                 className="w-full flex items-center justify-center gap-1 bg-orange-500 text-white px-3 py-1.5 rounded text-sm hover:bg-orange-600 transition-colors"
                 onClick={() => alert(`Added ${sample.name} to cart!`)}
+                disabled={(sample.quantity || 0) <= 0}
               >
                 <FaCartPlus /> Add to Cart
               </button>
