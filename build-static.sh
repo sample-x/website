@@ -10,13 +10,9 @@ export NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3
 # Install dependencies
 npm install
 
-# Build with Next.js
+# Build with Next.js (this will also handle the export due to output: 'export' in next.config.js)
 echo "Building with Next.js..."
 NEXT_TELEMETRY_DISABLED=1 npx next build
-
-# Export static files
-echo "Exporting static files..."
-NEXT_TELEMETRY_DISABLED=1 npx next export
 
 # Create _routes.json for Cloudflare Pages
 echo "Creating _routes.json..."
