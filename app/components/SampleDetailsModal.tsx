@@ -72,9 +72,9 @@ export default function SampleDetailsModal({ sample, onClose, onAddToCart }: Sam
               <div className="modal-map">
                 <SampleMap 
                   samples={[sample]}
-                  center={{ lat: sample.latitude, lng: sample.longitude }}
+                  center={[sample.latitude, sample.longitude]}
                   zoom={8}
-                  disableInteraction={true}
+                  interactive={false}
                 />
               </div>
             </div>
