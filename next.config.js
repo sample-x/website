@@ -2,6 +2,7 @@
 const path = require('path');
 
 const nextConfig = {
+  output: 'export',
   reactStrictMode: true,
   swcMinify: true,
   
@@ -20,7 +21,7 @@ const nextConfig = {
   },
   
   // Handle dynamic routes
-  trailingSlash: false,
+  trailingSlash: true,
   
   // Simplified webpack config
   webpack: (config, { isServer }) => {
@@ -47,6 +48,10 @@ const nextConfig = {
   },
 
   // Environment variables are now managed through .env.local
+  env: {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  },
 };
 
 module.exports = nextConfig;

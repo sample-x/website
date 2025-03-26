@@ -7,13 +7,14 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "build": "next build",
+    "export": "next export",
     "start": "next start",
     "lint": "next lint --fix",
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md,css}\"",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .next out",
-    "deploy": "scripts/build.sh && wrangler pages deploy out"
+    "deploy": "npm run build && npm run export"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",

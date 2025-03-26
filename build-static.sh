@@ -12,11 +12,11 @@ npm install
 
 # Build with Next.js
 echo "Building with Next.js..."
-NEXT_TELEMETRY_DISABLED=1 next build
+NEXT_TELEMETRY_DISABLED=1 npx next build
 
 # Export static files
 echo "Exporting static files..."
-NEXT_TELEMETRY_DISABLED=1 next export
+NEXT_TELEMETRY_DISABLED=1 npx next export
 
 # Create _routes.json for Cloudflare Pages
 echo "Creating _routes.json..."
