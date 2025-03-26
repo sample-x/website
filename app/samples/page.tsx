@@ -1,5 +1,7 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useSupabase } from '@/app/supabase-provider';
 import { Sample } from '@/types/sample';
 import dynamic from 'next/dynamic';
 import './samples.css';
@@ -12,21 +14,47 @@ const SamplesMapContainer = dynamic(
   { ssr: false }
 );
 
-export const revalidate = 0;
+export default function SamplesPage() {
+  const { supabase } = useSupabase();
+  const [samples, setSamples] = useState<Sample[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function SamplesPage() {
-  const supabase = createServerComponentClient({ cookies });
+  useEffect(() => {
+    async function fetchSamples() {
+      try {
+        const { data, error } = await supabase
+          .from('samples')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-  const { data: samples } = await supabase
-    .from('samples')
-    .select('*')
-    .order('created_at', { ascending: false });
+        if (error) throw error;
+        setSamples(data || []);
+      } catch (error) {
+        console.error('Error fetching samples:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSamples();
+  }, [supabase]);
+
+  if (loading) {
+    return (
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6">Sample Map</h1>
+        <div className="bg-white rounded-lg shadow-lg p-4">
+          Loading...
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Sample Map</h1>
       <div className="bg-white rounded-lg shadow-lg p-4">
-        <SamplesMapContainer samples={samples as Sample[]} />
+        <SamplesMapContainer samples={samples} />
       </div>
     </main>
   );

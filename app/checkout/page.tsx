@@ -110,8 +110,8 @@ export default function CheckoutPage() {
         <div className="sample-details">
           <h2>{sample.name}</h2>
           <p className="sample-type">
-            <span className={`category-badge ${sample.type || sample.category}`}>
-              {sample.type || sample.category}
+            <span className={`category-badge ${sample.type}`}>
+              {sample.type}
             </span>
           </p>
           <p className="sample-description">{sample.description}</p>
