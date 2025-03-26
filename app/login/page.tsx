@@ -9,7 +9,7 @@ import './login.css'
 
 // Client component to handle redirection logic
 function LoginForm() {
-  const { signInWithGoogle, isLoading } = useSupabase()
+  const supabase = useSupabase()
   const [authLoading, setAuthLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -18,7 +18,14 @@ function LoginForm() {
   const handleGoogleSignIn = async () => {
     try {
       setAuthLoading(true)
-      await signInWithGoogle()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?redirect=${redirectTo}`
+        }
+      })
+      
+      if (error) throw error
       // No redirect needed here as the auth state change will trigger a refresh
     } catch (error) {
       console.error('Error signing in with Google:', error)
@@ -39,7 +46,7 @@ function LoginForm() {
         <div className="auth-options">
           <button
             onClick={handleGoogleSignIn}
-            disabled={authLoading || isLoading}
+            disabled={authLoading}
             className="auth-button google-button"
           >
             {authLoading ? 'Signing in...' : 'Sign in with Google'}
