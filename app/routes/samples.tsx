@@ -6,89 +6,33 @@ import { supabase } from '../lib/supabase';
 import { Sample } from '../types/sample';
 
 export async function loader() {
-  const samples: Sample[] = [
-    {
-      id: 1,
-      name: "Human Blood Plasma",
-      type: "tissue",
-      location: "Seattle, WA",
-      collection_date: "2023-05-14",
-      storage: "-80°C",
-      availability: "available",
-      price: 120.00,
-      latitude: 47.6062,
-      longitude: -122.3321,
-      description: "Fresh human blood plasma sample",
-      inStock: true,
-      user_id: "system",
-      created_at: "2023-05-14T00:00:00Z"
-    },
-    {
-      id: 2,
-      name: "Mouse Brain Tissue",
-      type: "tissue",
-      location: "Boston, MA",
-      collection_date: "2023-04-19",
-      storage: "Room temperature (fixed)",
-      availability: "limited",
-      price: 180.00,
-      latitude: 42.3601,
-      longitude: -71.0589,
-      description: "Fixed mouse brain tissue sample",
-      inStock: true,
-      user_id: "system",
-      created_at: "2023-04-19T00:00:00Z"
-    },
-    {
-      id: 3,
-      name: "E. coli Culture",
-      type: "bacterial",
-      location: "Chicago, IL",
-      collection_date: "2023-05-31",
-      storage: "4°C",
-      availability: "available",
-      price: 75.00,
-      latitude: 41.8781,
-      longitude: -87.6298,
-      description: "E. coli strain for research",
-      inStock: true,
-      user_id: "system",
-      created_at: "2023-05-31T00:00:00Z"
-    },
-    {
-      id: 4,
-      name: "Soil Sample from Amazon Rainforest",
-      type: "environmental",
-      location: "Manaus, Brazil",
-      collection_date: "2023-03-09",
-      storage: "Room temperature",
-      availability: "available",
-      price: 95.00,
-      latitude: -3.1190,
-      longitude: -60.0217,
-      description: "Rich soil sample from Amazon",
-      inStock: true,
-      user_id: "system",
-      created_at: "2023-03-09T00:00:00Z"
-    },
-    {
-      id: 5,
-      name: "Human Lung Cell Line",
-      type: "cell line",
-      location: "San Francisco, CA",
-      collection_date: "2023-05-04",
-      storage: "Liquid nitrogen",
-      availability: "limited",
-      price: 210.00,
-      latitude: 37.7749,
-      longitude: -122.4194,
-      description: "Human lung epithelial cells",
-      inStock: true,
-      user_id: "system",
-      created_at: "2023-05-04T00:00:00Z"
-    }
-  ];
-  return json({ samples });
+  const { data: samples, error } = await supabase
+    .from('samples')
+    .select('*');
+
+  if (error) {
+    throw new Error('Failed to fetch samples');
+  }
+
+  // Transform the data to ensure it matches the Sample interface
+  const transformedSamples: Sample[] = (samples || []).map((sample: any) => ({
+    id: Number(sample.id),
+    name: sample.name,
+    type: sample.type,
+    location: sample.location,
+    collection_date: sample.collection_date,
+    storage: sample.storage,
+    availability: sample.availability,
+    price: Number(sample.price || 0),
+    latitude: Number(sample.latitude),
+    longitude: Number(sample.longitude),
+    description: sample.description || '',
+    inStock: sample.in_stock || false,
+    user_id: sample.user_id || '',
+    created_at: sample.created_at || new Date().toISOString()
+  }));
+
+  return json({ samples: transformedSamples });
 }
 
 export default function Samples() {
@@ -116,7 +60,7 @@ export default function Samples() {
         collection_date: sample.collection_date,
         storage: sample.storage,
         availability: sample.availability,
-        price: Number(sample.price),
+        price: Number(sample.price || 0),
         latitude: Number(sample.latitude),
         longitude: Number(sample.longitude),
         description: sample.description || '',
@@ -172,15 +116,15 @@ export default function Samples() {
               </tr>
             </thead>
             <tbody>
-              {visibleSamples.map((sample: any, index: number) => (
-                <tr key={index} className="border-b">
+              {visibleSamples.map((sample: Sample) => (
+                <tr key={sample.id} className="border-b">
                   <td className="px-4 py-2">{sample.name}</td>
                   <td className="px-4 py-2">{sample.type}</td>
                   <td className="px-4 py-2">{sample.location}</td>
                   <td className="px-4 py-2">{sample.collection_date}</td>
                   <td className="px-4 py-2">{sample.storage}</td>
                   <td className="px-4 py-2">{sample.availability}</td>
-                  <td className="px-4 py-2">${sample.price}</td>
+                  <td className="px-4 py-2">${sample.price || 0}</td>
                   <td className="px-4 py-2">
                     <button className="text-blue-500">Info</button>
                   </td>

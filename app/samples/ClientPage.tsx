@@ -5,95 +5,12 @@ import { useState, useCallback, useEffect } from 'react';
 import { Sample } from '../types/sample';
 import { FaList, FaThLarge, FaInfoCircle, FaCartPlus } from 'react-icons/fa';
 import './samples.css';
+import { supabase } from '../lib/supabase';
 
 interface PopupInfo {
   isOpen: boolean;
   sample: Sample | null;
 }
-
-// Sample data
-const samples: Sample[] = [
-  {
-    id: "1",
-    name: "Human Blood Plasma",
-    type: "tissue",
-    location: "Seattle, WA",
-    collection_date: "2023-05-14",
-    storage: "-80°C",
-    availability: "available",
-    price: 120.00,
-    latitude: 47.6062,
-    longitude: -122.3321,
-    description: "Fresh human blood plasma sample",
-    inStock: true,
-    user_id: "system",
-    created_at: "2023-05-14T00:00:00Z"
-  },
-  {
-    id: "2",
-    name: "Mouse Brain Tissue",
-    type: "tissue",
-    location: "Boston, MA",
-    collection_date: "2023-04-19",
-    storage: "Room temperature (fixed)",
-    availability: "limited",
-    price: 180.00,
-    latitude: 42.3601,
-    longitude: -71.0589,
-    description: "Fixed mouse brain tissue sample",
-    inStock: true,
-    user_id: "system",
-    created_at: "2023-04-19T00:00:00Z"
-  },
-  {
-    id: "3",
-    name: "E. coli Culture",
-    type: "bacterial",
-    location: "Chicago, IL",
-    collection_date: "2023-05-31",
-    storage: "4°C",
-    availability: "available",
-    price: 75.00,
-    latitude: 41.8781,
-    longitude: -87.6298,
-    description: "E. coli culture sample",
-    inStock: true,
-    user_id: "system",
-    created_at: "2023-05-31T00:00:00Z"
-  },
-  {
-    id: "4",
-    name: "Soil Sample from Amazon Rainforest",
-    type: "environmental",
-    location: "Manaus, Brazil",
-    collection_date: "2023-03-09",
-    storage: "Room temperature",
-    availability: "available",
-    price: 95.00,
-    latitude: -3.1190,
-    longitude: -60.0217,
-    description: "Soil sample from the Amazon rainforest",
-    inStock: true,
-    user_id: "system",
-    created_at: "2023-03-09T00:00:00Z"
-  },
-  {
-    id: "5",
-    name: "Human Lung Cell Line",
-    type: "cell line",
-    location: "San Francisco, CA",
-    collection_date: "2023-05-04",
-    storage: "Liquid nitrogen",
-    availability: "limited",
-    price: 210.00,
-    latitude: 37.7749,
-    longitude: -122.4194,
-    description: "Human lung cell line sample",
-    inStock: true,
-    user_id: "system",
-    created_at: "2023-05-04T00:00:00Z"
-  }
-];
 
 // Define the sample types and their colors
 const sampleTypes = [
@@ -113,21 +30,64 @@ export default function ClientPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
-  const [visibleSamples, setVisibleSamples] = useState(samples);
+  const [allSamples, setAllSamples] = useState<Sample[]>([]);
+  const [visibleSamples, setVisibleSamples] = useState<Sample[]>([]);
   const [popupInfo, setPopupInfo] = useState<PopupInfo>({ isOpen: false, sample: null });
   const [activeView, setActiveView] = useState('list');
   const [activeSampleTypes, setActiveSampleTypes] = useState<string[]>([]);
-  const [filteredMapSamples, setFilteredMapSamples] = useState(samples);
+  const [filteredMapSamples, setFilteredMapSamples] = useState<Sample[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch samples from Supabase
+  useEffect(() => {
+    const fetchSamples = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('samples')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching samples:', error);
+        setIsLoading(false);
+        return;
+      }
+
+      // Transform the data to ensure it matches the Sample interface
+      const transformedSamples: Sample[] = data.map((sample: any) => ({
+        id: Number(sample.id),
+        name: sample.name,
+        type: sample.type,
+        location: sample.location,
+        collection_date: sample.collection_date,
+        storage: sample.storage,
+        availability: sample.availability,
+        price: Number(sample.price),
+        latitude: Number(sample.latitude),
+        longitude: Number(sample.longitude),
+        description: sample.description || '',
+        inStock: sample.in_stock || false,
+        user_id: sample.user_id || '',
+        created_at: sample.created_at || new Date().toISOString()
+      }));
+
+      setAllSamples(transformedSamples);
+      setVisibleSamples(transformedSamples);
+      setFilteredMapSamples(transformedSamples);
+      setIsLoading(false);
+    };
+
+    fetchSamples();
+  }, []);
 
   // Callback for when map bounds change
   const handleMapBoundsChange = useCallback((visibleSampleIds: string[]) => {
-    const filtered = samples.filter(sample => visibleSampleIds.includes(sample.id));
+    const filtered = allSamples.filter(sample => visibleSampleIds.includes(String(sample.id)));
     setVisibleSamples(filtered);
-  }, []);
+  }, [allSamples]);
 
   // Filter samples when search or filter criteria change
   useEffect(() => {
-    let filtered = samples;
+    let filtered = allSamples;
     
     // Apply search filter
     if (searchTerm) {
@@ -151,19 +111,19 @@ export default function ClientPage() {
     );
 
     setVisibleSamples(filtered);
-  }, [searchTerm, selectedType, priceRange]);
+  }, [searchTerm, selectedType, priceRange, allSamples]);
 
   // Filter map samples when active sample types change
   useEffect(() => {
     if (activeSampleTypes.length === 0) {
-      setFilteredMapSamples(samples);
+      setFilteredMapSamples(allSamples);
     } else {
-      const filtered = samples.filter(sample => 
+      const filtered = allSamples.filter(sample => 
         activeSampleTypes.includes(sample.type.toLowerCase())
       );
       setFilteredMapSamples(filtered);
     }
-  }, [activeSampleTypes]);
+  }, [activeSampleTypes, allSamples]);
 
   // Toggle sample type in the filter
   const toggleSampleType = (type: string) => {
