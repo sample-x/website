@@ -34,7 +34,7 @@ export function useSamples() {
   const [filteredSamples, setFilteredSamples] = useState<Sample[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { supabase } = useSupabase();
+  const supabase = useSupabase();
 
   // Function to load samples from API if Supabase is not available
   const loadSamplesFromApi = useCallback(async (filters: SampleFilter = {}) => {
