@@ -30,24 +30,42 @@ interface RawOrder {
 }
 
 // Interface for the order items from Supabase
-interface OrderItem {
+interface OrderItemResponse {
   id: string;
   price: number;
   quantity: number;
-  samples?: {
+  samples: {
     id: string;
     name: string;
     type: string;
     location: string;
-  };
-  [key: string]: any; // For any additional fields
+  } | null;
 }
 
 export default function ProfilePage() {
-  const { user, signOut } = useSupabase();
+  const supabase = useSupabase();
+  const [user, setUser] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    // Get initial user
+    const getUser = async () => {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      setUser(currentUser);
+    };
+    getUser();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase.auth]);
 
   useEffect(() => {
     // Redirect if not logged in
@@ -100,7 +118,7 @@ export default function ProfilePage() {
             
             return {
               ...order,
-              items: orderItems.map((item: OrderItem) => ({
+              items: (orderItems || []).map((item: any) => ({
                 id: item.id,
                 name: item.samples?.name || 'Unknown Sample',
                 price: item.price,
@@ -120,11 +138,12 @@ export default function ProfilePage() {
     };
     
     fetchOrders();
-  }, [user, router]);
+  }, [user, router, supabase]);
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       router.push('/');
       toast.success('Signed out successfully');
     } catch (error) {
@@ -198,17 +217,14 @@ export default function ProfilePage() {
                       <span className="order-total">${order.total_amount.toFixed(2)}</span>
                     </div>
                   </div>
-                  
                   <div className="order-items">
-                    <h4>Items</h4>
-                    <ul>
-                      {order.items.map((item) => (
-                        <li key={item.id} className="order-item">
-                          <span className="item-name">{item.name}</span>
-                          <span className="item-price">${item.price.toFixed(2)}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {order.items.map((item) => (
+                      <div key={item.id} className="order-item">
+                        <span className="item-name">{item.name}</span>
+                        <span className="item-quantity">x{item.quantity}</span>
+                        <span className="item-price">${item.price.toFixed(2)}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
