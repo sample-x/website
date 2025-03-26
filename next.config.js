@@ -18,6 +18,7 @@ const nextConfig = {
         hostname: 'znmkkduvzzmoxzgthwby.supabase.co',
       },
     ],
+    domains: ['tile.openstreetmap.org'],
   },
   
   // Handle dynamic routes
