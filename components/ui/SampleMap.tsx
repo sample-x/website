@@ -4,11 +4,25 @@ import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaf
 import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { Sample } from '../../app/types/sample';
-import type { Map } from 'leaflet';
+import type { Map, LatLngTuple } from 'leaflet';
 
 interface SampleMapProps {
   samples: Sample[];
   onBoundsChange: (visibleSampleIds: string[]) => void;
+}
+
+// Helper function to check if a sample has valid coordinates
+function hasValidCoordinates(sample: Sample): boolean {
+  return typeof sample.latitude === 'number' && 
+         typeof sample.longitude === 'number' &&
+         !isNaN(sample.latitude) && 
+         !isNaN(sample.longitude);
+}
+
+// Helper function to get coordinates as LatLngTuple
+function getCoordinates(sample: Sample): LatLngTuple | null {
+  if (!hasValidCoordinates(sample)) return null;
+  return [sample.latitude!, sample.longitude!] as LatLngTuple;
 }
 
 // BoundsUpdater component to handle map bounds changes
@@ -20,10 +34,11 @@ function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (i
 
     const updateVisibleSamples = () => {
       const bounds = map.getBounds();
-      const visibleSamples = samples.filter(sample => 
-        bounds.contains([sample.latitude, sample.longitude])
-      );
-      onChange(visibleSamples.map(sample => sample.id));
+      const visibleSamples = samples.filter(sample => {
+        const coords = getCoordinates(sample);
+        return coords ? bounds.contains(coords) : false;
+      });
+      onChange(visibleSamples.map(sample => String(sample.id)));
     };
 
     map.on('moveend', updateVisibleSamples);
@@ -46,10 +61,11 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
     const map = mapRef.current;
     const updateVisibleSamples = () => {
       const bounds = map.getBounds();
-      const visibleSamples = samples.filter(sample => 
-        bounds.contains([sample.latitude, sample.longitude])
-      );
-      onBoundsChange(visibleSamples.map(sample => sample.id));
+      const visibleSamples = samples.filter(sample => {
+        const coords = getCoordinates(sample);
+        return coords ? bounds.contains(coords) : false;
+      });
+      onBoundsChange(visibleSamples.map(sample => String(sample.id)));
     };
 
     map.on('moveend', updateVisibleSamples);
@@ -59,6 +75,9 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
       map.off('moveend', updateVisibleSamples);
     };
   }, [samples, onBoundsChange]);
+
+  // Filter out samples without valid coordinates
+  const validSamples = samples.filter(hasValidCoordinates);
 
   return (
     <div className="relative">
@@ -74,39 +93,44 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
         />
-        {samples.map((sample, index) => (
-          <CircleMarker
-            key={index}
-            center={[sample.latitude, sample.longitude]}
-            radius={8}
-            pathOptions={{
-              fillColor: getMarkerColor(sample.type),
-              color: '#000',
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.8
-            }}
-          >
-            <Popup>
-              <div className="min-w-[200px] p-2">
-                <h3 className="text-lg font-bold mb-2">{sample.name}</h3>
-                <div className="space-y-1">
-                  <p><span className="font-semibold">Type:</span> {sample.type}</p>
-                  <p><span className="font-semibold">Location:</span> {sample.location}</p>
-                  <p><span className="font-semibold">Storage:</span> {sample.storage}</p>
-                  <p><span className="font-semibold">Price:</span> ${sample.price.toFixed(2)}</p>
-                  <p><span className="font-semibold">Availability:</span> {sample.availability}</p>
+        {validSamples.map((sample, index) => {
+          const coords = getCoordinates(sample);
+          if (!coords) return null;
+          
+          return (
+            <CircleMarker
+              key={sample.id || index}
+              center={coords}
+              radius={8}
+              pathOptions={{
+                fillColor: getMarkerColor(sample.type),
+                color: '#000',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+              }}
+            >
+              <Popup>
+                <div className="min-w-[200px] p-2">
+                  <h3 className="text-lg font-bold mb-2">{sample.name}</h3>
+                  <div className="space-y-1">
+                    <p><span className="font-semibold">Type:</span> {sample.type}</p>
+                    <p><span className="font-semibold">Location:</span> {sample.location}</p>
+                    <p><span className="font-semibold">Storage:</span> {sample.storage}</p>
+                    <p><span className="font-semibold">Price:</span> ${(sample.price ?? 0).toFixed(2)}</p>
+                    <p><span className="font-semibold">Availability:</span> {sample.availability}</p>
+                  </div>
+                  <button 
+                    className="mt-3 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full transition-colors"
+                  >
+                    Add to Cart
+                  </button>
                 </div>
-                <button 
-                  className="mt-3 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full transition-colors"
-                >
-                  Add to Cart
-                </button>
-              </div>
-            </Popup>
-          </CircleMarker>
-        ))}
-        <BoundsUpdater samples={samples} onChange={onBoundsChange} />
+              </Popup>
+            </CircleMarker>
+          );
+        })}
+        <BoundsUpdater samples={validSamples} onChange={onBoundsChange} />
         
         {/* Map Legend */}
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-lg z-[1000] border border-gray-200">
