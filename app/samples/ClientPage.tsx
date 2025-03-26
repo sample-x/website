@@ -61,7 +61,7 @@ export default function ClientPage() {
         collection_date: sample.collection_date,
         storage: sample.storage,
         availability: sample.availability,
-        price: Number(sample.price),
+        price: sample.price ? Number(sample.price) : 0,
         latitude: Number(sample.latitude),
         longitude: Number(sample.longitude),
         description: sample.description || '',
@@ -105,10 +105,11 @@ export default function ClientPage() {
       );
     }
     
-    // Apply price range filter
-    filtered = filtered.filter(sample => 
-      sample.price >= priceRange.min && sample.price <= priceRange.max
-    );
+    // Apply price range filter with safe handling of undefined prices
+    filtered = filtered.filter(sample => {
+      const price = sample.price ?? 0;
+      return price >= priceRange.min && price <= priceRange.max;
+    });
 
     setVisibleSamples(filtered);
   }, [searchTerm, selectedType, priceRange, allSamples]);
@@ -240,7 +241,7 @@ export default function ClientPage() {
                       {sample.availability}
                     </span>
                   </td>
-                  <td className="price">${sample.price.toFixed(2)}</td>
+                  <td className="price">${(sample.price ?? 0).toFixed(2)}</td>
                   <td>
                     <div className="action-buttons">
                       <button 
@@ -346,7 +347,7 @@ export default function ClientPage() {
                 </div>
                 
                 <div className="detail-label">Price:</div>
-                <div className="detail-value price">${popupInfo.sample.price.toFixed(2)}</div>
+                <div className="detail-value price">${(popupInfo.sample.price ?? 0).toFixed(2)}</div>
                 
                 <div className="detail-label">Description:</div>
                 <div className="detail-value">{popupInfo.sample.description}</div>
