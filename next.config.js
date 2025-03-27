@@ -2,15 +2,15 @@
 const path = require('path');
 
 const nextConfig = {
-  // Remove static export to support dynamic features
-  // output: 'export',
+  // Enable static export for Cloudflare Pages
+  output: 'export',
   reactStrictMode: true,
   swcMinify: true,
   
   // Skip trailing slash redirect
   skipTrailingSlashRedirect: true,
   
-  // Images configuration
+  // Images configuration for static export
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -24,6 +24,13 @@ const nextConfig = {
   
   // Handle dynamic routes
   trailingSlash: true,
+  
+  // Disable server API routes in static export
+  experimental: {
+    // This property is no longer needed in newer Next.js versions
+    // but keeping it for backwards compatibility
+    appDir: true,
+  },
   
   // Simplified webpack config
   webpack: (config, { isServer }) => {

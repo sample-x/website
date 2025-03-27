@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { isStaticExport } from '@/app/lib/staticData'
 
 interface User {
   id: string;
@@ -17,17 +18,29 @@ interface AuthContextType {
   googleLogin: () => Promise<void>;
   logout: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  isStaticMode: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isStaticMode, setIsStaticMode] = useState(false)
 
   // Check if user is already logged in
   useEffect(() => {
+    // Check if we're in static deployment mode
+    const staticMode = isStaticExport()
+    setIsStaticMode(staticMode)
+    
+    // In static mode, skip authentication checks
+    if (staticMode) {
+      setLoading(false)
+      return
+    }
+    
     const checkLoggedIn = async () => {
       try {
         const token = localStorage.getItem('authToken')
@@ -61,6 +74,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Regular email/password login
   const login = async (email: string, password: string) => {
+    // In static mode, show a message that authentication is not available
+    if (isStaticMode) {
+      setError('Authentication is not available in static mode')
+      return
+    }
+    
     setLoading(true)
     setError(null)
     
@@ -91,6 +110,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Google OAuth login
   const googleLogin = async () => {
+    // In static mode, show a message that authentication is not available
+    if (isStaticMode) {
+      setError('Authentication is not available in static mode')
+      return
+    }
+    
     try {
       // Open a popup window for Google login
       const width = 500;
@@ -149,6 +174,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Logout
   const logout = async () => {
+    // In static mode, just clear any state
+    if (isStaticMode) {
+      setUser(null)
+      return
+    }
+    
     try {
       await fetch('http://localhost:5000/api/auth/logout', {
         method: 'POST',
@@ -166,6 +197,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Register new user
   const register = async (name: string, email: string, password: string) => {
+    // In static mode, show a message that registration is not available
+    if (isStaticMode) {
+      setError('Registration is not available in static mode')
+      return
+    }
+    
     setLoading(true)
     setError(null)
     
@@ -202,7 +239,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login, 
       googleLogin, 
       logout, 
-      register 
+      register,
+      isStaticMode
     }}>
       {children}
     </AuthContext.Provider>

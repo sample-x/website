@@ -1,11 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase-client';
 import { Sample } from '@/types/sample';
 import samplesJson from '@/data/samples.json';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { isStaticExport } from '@/app/lib/staticData';
 
 // Function to transform camelCase to snake_case and map fields correctly
 function transformSample(sample: any): Sample {
@@ -45,9 +41,14 @@ export async function loadSamples(): Promise<Sample[]> {
 }
 
 export async function loadSamplesFromSupabase() {
+    // Don't attempt to load samples in static mode
+    if (isStaticExport()) {
+        console.log('Running in static mode, skipping Supabase operations');
+        return false;
+    }
+    
     try {
         console.log('Starting to load samples...');
-        console.log('Supabase URL:', supabaseUrl);
         console.log('Number of samples to load:', samplesJson.length);
         
         // Clear existing samples

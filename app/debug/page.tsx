@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/app/supabase-provider';
 import SupabaseConnectionTest from '@/app/components/SupabaseConnectionTest';
+import { isStaticExport } from '@/app/lib/staticData';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInfoCircle, faServer, faCode } from '@fortawesome/free-solid-svg-icons';
 
 export default function DebugPage() {
   const { supabase } = useSupabase();
@@ -16,8 +19,12 @@ export default function DebugPage() {
     message: 'Not run yet',
     data: null
   });
+  const [isStatic, setIsStatic] = useState(false);
 
   useEffect(() => {
+    // Check if we're in static mode
+    setIsStatic(isStaticExport());
+
     // Get all the environment variables starting with NEXT_PUBLIC
     const publicEnvVars: {[key: string]: string} = {};
     
@@ -34,6 +41,15 @@ export default function DebugPage() {
   }, []);
 
   const runTestQuery = async () => {
+    if (isStatic) {
+      setTestQuery({
+        success: false,
+        message: 'Cannot run database queries in static mode',
+        data: { note: 'Static deployment does not have a live connection to Supabase' }
+      });
+      return;
+    }
+
     try {
       // Try a simple query to test the connection
       const { data, error } = await supabase
@@ -67,10 +83,27 @@ export default function DebugPage() {
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Supabase Debug Page</h1>
       
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 className="text-2xl mb-4">Connection Status</h2>
-        <SupabaseConnectionTest />
-      </div>
+      {isStatic ? (
+        <div className="bg-yellow-100 text-yellow-800 p-4 rounded mb-6">
+          <h2 className="text-xl font-bold mb-2">
+            <FontAwesomeIcon icon={faServer} className="mr-2" />
+            Static Mode Detected
+          </h2>
+          <p className="mb-2">
+            This page is running in static mode as part of a Cloudflare Pages deployment.
+            In this mode, live Supabase database connections are not available.
+          </p>
+          <p>
+            For full functionality with live database connectivity, please run the application
+            in development mode or deploy to a platform that supports server-side rendering.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl mb-4">Connection Status</h2>
+          <SupabaseConnectionTest />
+        </div>
+      )}
       
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 className="text-2xl mb-4">Environment Variables</h2>
@@ -109,9 +142,12 @@ export default function DebugPage() {
         <h2 className="text-2xl mb-4">Test Query</h2>
         <button
           onClick={runTestQuery}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
+          className={`font-bold py-2 px-4 rounded mb-4 ${isStatic 
+            ? 'bg-gray-400 cursor-not-allowed' 
+            : 'bg-blue-500 hover:bg-blue-700 text-white'}`}
+          disabled={isStatic}
         >
-          Run Test Query
+          Run Test Query {isStatic && '(Disabled in Static Mode)'}
         </button>
         
         <div className="mt-4">
@@ -126,6 +162,34 @@ export default function DebugPage() {
       </div>
 
       <div className="bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl mb-4">
+          <FontAwesomeIcon icon={faCode} className="mr-2" />
+          Static/Dynamic Mode
+        </h2>
+        <div className="p-4 bg-gray-100 rounded">
+          <p>
+            <strong>Current mode:</strong> {isStatic ? 'Static (Cloudflare Pages)' : 'Dynamic (Development/SSR)'}
+          </p>
+          <p className="mt-2">
+            <strong>Features available in static mode:</strong>
+          </p>
+          <ul className="list-disc pl-6 mt-1">
+            <li>Sample viewing with demo data</li>
+            <li>Map visualization with demo data</li>
+            <li>All static content and pages</li>
+          </ul>
+          <p className="mt-2">
+            <strong>Features requiring dynamic mode:</strong>
+          </p>
+          <ul className="list-disc pl-6 mt-1">
+            <li>Live Supabase database connections</li>
+            <li>Sample uploads and management</li>
+            <li>User authentication</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div className="bg-white rounded-lg shadow-lg p-6 mt-8">
         <h2 className="text-2xl mb-4">Troubleshooting Steps</h2>
         <ol className="list-decimal pl-6">
           <li className="mb-2">

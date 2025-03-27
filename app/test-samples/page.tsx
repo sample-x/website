@@ -1,12 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { loadSamples } from '@/utils/loadSamples';
 import { Sample } from '@/types/sample';
+import { isStaticExport } from '@/app/lib/staticData';
 
 export default function TestSamplesPage() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<{ success: boolean; data?: Sample[]; error?: any } | null>(null);
+    const [isStatic, setIsStatic] = useState(false);
+
+    useEffect(() => {
+        // Check if we're in static mode
+        setIsStatic(isStaticExport());
+    }, []);
 
     const handleLoadSamples = async () => {
         setLoading(true);
@@ -25,6 +32,13 @@ export default function TestSamplesPage() {
     return (
         <div className="container mx-auto p-8">
             <h1 className="text-3xl font-bold mb-8">Test Samples Loading</h1>
+            
+            {isStatic && (
+                <div className="mb-4 p-4 bg-blue-50 text-blue-800 rounded">
+                    <p className="font-bold">Running in Static Mode</p>
+                    <p>This page will load sample data from static JSON files. No Supabase connection available.</p>
+                </div>
+            )}
             
             <button
                 onClick={handleLoadSamples}

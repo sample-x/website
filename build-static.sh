@@ -32,12 +32,29 @@ EOL
 echo "Installing dependencies..."
 npm ci
 
-# Build the Next.js app
-echo "Building the Next.js app..."
+# Build the Next.js app with static export
+echo "Building the Next.js app with static export..."
 npm run build
+# Note: With next.config.js output: 'export', the output is already in the 'out' directory
+# We don't need to run next export separately
+
+# Create a Cloudflare _headers file in the output directory
+echo "Creating Cloudflare _headers file..."
+cat > out/_headers << EOL
+/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+  Access-Control-Allow-Headers: Content-Type, Authorization, x-client-info, apikey, X-Client-Info
+EOL
+
+# Copy _routes.json to the output directory
+echo "Copying _routes.json to output directory..."
+if [ -f "_routes.json" ]; then
+  cp _routes.json out/
+fi
 
 # Clean up temporary .env.local file
 echo "Cleaning up temporary files..."
 rm -f .env.local
 
-echo "Build process completed successfully."
+echo "Build process completed successfully. Files are in the 'out' directory."

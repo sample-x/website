@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import './checkout.css'
+import { isStaticExport, getStaticSampleById } from '@/app/lib/staticData'
 
 interface Sample {
   id: string | number;
@@ -20,11 +21,16 @@ export default function CheckoutClient({ id }: { id: string }) {
   const [sample, setSample] = useState<Sample | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isStatic, setIsStatic] = useState(false)
   
   // Mock price if not available in the sample data
   const price = sample?.price || 299.99
   
   useEffect(() => {
+    // Check if we're in static mode
+    const staticMode = isStaticExport()
+    setIsStatic(staticMode)
+    
     async function fetchSampleDetails() {
       // Check if id exists
       if (!id) {
@@ -33,6 +39,26 @@ export default function CheckoutClient({ id }: { id: string }) {
         return;
       }
       
+      // In static mode, use the static sample data
+      if (staticMode) {
+        const staticSample = getStaticSampleById(parseInt(id, 10));
+        if (staticSample) {
+          setSample({
+            id: staticSample.id,
+            name: staticSample.name,
+            type: staticSample.type,
+            price: staticSample.price,
+            description: staticSample.description || ''
+          });
+          setLoading(false);
+        } else {
+          setError('Sample not found in static data');
+          setLoading(false);
+        }
+        return;
+      }
+      
+      // Dynamic mode - fetch from API
       try {
         // Use relative path to the backend API
         let response = await fetch(`/api/samples/${id}`);
@@ -76,6 +102,12 @@ export default function CheckoutClient({ id }: { id: string }) {
     // Check if id exists
     if (!id) {
       setError('Sample ID is missing');
+      return;
+    }
+
+    // In static mode, just navigate to success page with mock data
+    if (isStatic) {
+      router.push(`/checkout/success?id=${id}&orderId=static-demo-order-${Date.now()}`);
       return;
     }
 
@@ -132,6 +164,12 @@ export default function CheckoutClient({ id }: { id: string }) {
   
   return (
     <div className="checkout-container">
+      {isStatic && (
+        <div className="static-mode-notice">
+          <p>Running in demo mode. Checkout functionality is simulated.</p>
+        </div>
+      )}
+      
       <div className="checkout-header">
         <h1>Checkout</h1>
       </div>

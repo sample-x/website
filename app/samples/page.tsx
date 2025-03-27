@@ -10,6 +10,7 @@ import { faInfoCircle, faCartPlus, faFlask, faFileAlt, faUpload } from '@fortawe
 import Link from 'next/link';
 import SupabaseConnectionTest from '@/app/components/SupabaseConnectionTest';
 import SamplesTable from './SamplesTable';
+import { getStaticSamples, isStaticExport } from '@/app/lib/staticData';
 
 // Define an interface that matches what SamplesTable expects
 interface TableSample {
@@ -36,11 +37,26 @@ export default function SamplesPage() {
   const [samples, setSamples] = useState<SupabaseSample[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isStatic, setIsStatic] = useState(false);
 
   useEffect(() => {
+    // Check if we're in static export mode (Cloudflare Pages deployment)
+    const staticMode = isStaticExport();
+    setIsStatic(staticMode);
+
     async function fetchSamples() {
       try {
-        console.log('Fetching samples...');
+        // If in static mode, use our pre-defined static data
+        if (staticMode) {
+          console.log('Using static sample data...');
+          const staticSamples = getStaticSamples();
+          setSamples(staticSamples);
+          setLoading(false);
+          return;
+        }
+
+        // Otherwise, fetch from Supabase
+        console.log('Fetching samples from Supabase...');
         const { data, error } = await supabase
           .from('samples')
           .select('*')
@@ -84,8 +100,18 @@ export default function SamplesPage() {
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Sample Management</h1>
       
-      {/* Supabase Connection Test */}
-      <SupabaseConnectionTest />
+      {/* Supabase Connection Test - only show in dynamic mode */}
+      {!isStatic && <SupabaseConnectionTest />}
+      
+      {/* Static mode notice */}
+      {isStatic && (
+        <div className="bg-blue-100 text-blue-800 p-4 rounded mb-6">
+          <p className="font-medium">
+            <FontAwesomeIcon icon={faInfoCircle} className="mr-2" />
+            Running in static mode with demo data. Live Supabase connection is not available in this deployment.
+          </p>
+        </div>
+      )}
       
       <div className="bg-white rounded-lg shadow-lg p-4 mb-8">
         <h2 className="text-2xl mb-4">Sample Locations</h2>
@@ -95,7 +121,7 @@ export default function SamplesPage() {
         ) : error ? (
           <div className="error-message">
             <p>{error}</p>
-            <p>Please check your network connection and Supabase configuration.</p>
+            <p>Check your network connection and Supabase configuration, or try the local development version.</p>
           </div>
         ) : samples.length === 0 ? (
           <div className="no-samples-message">
@@ -121,13 +147,15 @@ export default function SamplesPage() {
         </div>
       )}
       
-      {/* Upload Button */}
-      <div className="upload-button-container mt-8">
-        <Link href="/samples/upload" className="btn btn-primary">
-          <FontAwesomeIcon icon={faUpload} className="mr-2" />
-          Upload New Samples
-        </Link>
-      </div>
+      {/* Upload Button - don't show in static mode */}
+      {!isStatic && (
+        <div className="upload-button-container mt-8">
+          <Link href="/samples/upload" className="btn btn-primary">
+            <FontAwesomeIcon icon={faUpload} className="mr-2" />
+            Upload New Samples
+          </Link>
+        </div>
+      )}
     </main>
   );
 }

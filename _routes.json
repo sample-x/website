@@ -53,43 +53,51 @@
     },
     {
       "src": "^/samples/?$",
-      "dest": "/samples.html"
+      "dest": "/samples/index.html"
+    },
+    {
+      "src": "^/samples/upload/?$",
+      "dest": "/samples/upload/index.html"
     },
     {
       "src": "^/team/?$",
-      "dest": "/team.html"
+      "dest": "/team/index.html"
     },
     {
       "src": "^/about/?$",
-      "dest": "/about.html"
+      "dest": "/about/index.html"
     },
     {
       "src": "^/contact/?$",
-      "dest": "/contact.html"
+      "dest": "/contact/index.html"
+    },
+    {
+      "src": "^/debug/?$",
+      "dest": "/debug/index.html"
     },
     {
       "src": "^/login/?$",
-      "dest": "/login.html"
+      "dest": "/login/index.html"
     },
     {
       "src": "^/register/?$",
-      "dest": "/register.html"
+      "dest": "/register/index.html"
     },
     {
       "src": "^/profile/?$",
-      "dest": "/profile.html"
+      "dest": "/profile/index.html"
     },
     {
       "src": "^/upload/?$",
-      "dest": "/upload.html"
-    },
-    {
-      "src": "^/auth/callback/?$",
-      "dest": "/auth/callback.html"
+      "dest": "/upload/index.html"
     },
     {
       "src": "^/$",
       "dest": "/index.html"
+    },
+    {
+      "src": "^/404/?$",
+      "dest": "/404.html"
     },
     {
       "src": "^/.*$",

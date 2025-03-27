@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/app/supabase-provider';
 import { testSupabaseConnection } from '@/app/lib/supabase';
+import { isStaticExport } from '@/app/lib/staticData';
 
 export default function SupabaseConnectionTest() {
   const { supabase } = useSupabase();
@@ -15,8 +16,23 @@ export default function SupabaseConnectionTest() {
     success: false,
     message: 'Not tested yet'
   });
+  const [isStatic, setIsStatic] = useState(false);
 
   useEffect(() => {
+    // Check if we're in static mode
+    const staticMode = isStaticExport();
+    setIsStatic(staticMode);
+
+    // Don't attempt connection test in static mode
+    if (staticMode) {
+      setConnectionStatus({
+        tested: true,
+        success: false,
+        message: 'Static mode - Supabase connection not available'
+      });
+      return;
+    }
+
     async function checkConnection() {
       try {
         const result = await testSupabaseConnection();
@@ -38,6 +54,11 @@ export default function SupabaseConnectionTest() {
 
     checkConnection();
   }, [supabase]);
+
+  // Don't display anything in static mode
+  if (isStatic) {
+    return null;
+  }
 
   return (
     <div className="supabase-connection-test">

@@ -14,7 +14,8 @@
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md,css}\"",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .next out",
-    "deploy": "npm run build && npm run export"
+    "deploy": "npm run build",
+    "cloudflare-build": "./build-static.sh"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
