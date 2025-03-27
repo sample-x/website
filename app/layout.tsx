@@ -51,6 +51,7 @@ export default function RootLayout({
                   <li><Link href="/samples">Samples</Link></li>
                   <li><Link href="/about">Overview</Link></li>
                   <li><Link href="/contact">Contact</Link></li>
+                  <li><Link href="/debug">Debug</Link></li>
                   <li className="auth-links">
                     <Link href="/login" className="btn btn-outline">Login</Link>
                     <Link href="/register" className="btn btn-primary">Sign Up</Link>

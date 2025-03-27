@@ -1,15 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useSupabase } from '@/app/supabase-provider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload, faCheck, faTimes, faTable, faEye, faBan } from '@fortawesome/free-solid-svg-icons';
 import './upload.css';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 interface SampleData {
   name: string;
@@ -67,6 +62,7 @@ function generateSampleHash(sample: Partial<SampleData>): string {
 }
 
 export default function UploadPage() {
+  const { supabase } = useSupabase();
   const [uploadState, setUploadState] = useState<UploadState>({
     status: 'idle',
     message: '',
@@ -368,90 +364,92 @@ export default function UploadPage() {
   };
 
   const handleUpload = async () => {
-    if (!uploadState.data) return;
+    if (!uploadState.data || uploadState.data.length === 0) {
+      setUploadState({
+        ...uploadState,
+        status: 'error',
+        message: 'No data to upload'
+      });
+      return;
+    }
 
     try {
-      // First, fetch existing samples to check for duplicates using composite key
-      const { data: existingSamples, error: fetchError } = await supabase
-        .from('samples')
-        .select('id, name, type, location, collection_date, storage_condition, quantity');
+      setUploadState({
+        ...uploadState,
+        status: 'uploading',
+        message: 'Uploading samples...'
+      });
 
-      if (fetchError) {
-        console.error('Error fetching samples:', fetchError);
-        throw new Error(fetchError.message);
-      }
+      // Prepare data for insertion - for each sample, check if it already exists
+      const preparedSamples = uploadState.data.map(sample => ({
+        ...sample,
+        hash: generateSampleHash(sample)
+      }));
 
-      // Create a map of existing samples using composite key
-      const existingSampleMap = new Map(
-        existingSamples?.map(sample => [
-          generateSampleHash({
-            name: sample.name,
-            type: sample.type,
-            location: sample.location,
-            collection_date: sample.collection_date,
-            storage_condition: sample.storage_condition
-          }),
-          sample
-        ]) || []
-      );
+      // Upload each sample individually for better error handling
+      const results = [];
+      const validationErrors: ValidationError[] = [];
 
-      // Separate new samples and updates
-      const newSamples = [];
-      const updates = [];
-
-      for (const sample of uploadState.data) {
-        // Remove hash from sample data since it's not in the database
-        const { hash, ...sampleWithoutHash } = sample;
-        const sampleQuantity = Number(sample.quantity);
-        
-        // Check for duplicate using composite key
-        const existingSample = existingSampleMap.get(hash || '');
-        
-        if (existingSample) {
-          // Update existing sample quantity
-          updates.push({
-            id: existingSample.id,
-            quantity: existingSample.quantity + sampleQuantity
-          });
-        } else {
-          // Add new sample (without hash field)
-          newSamples.push(sampleWithoutHash);
-        }
-      }
-
-      // Perform updates first
-      if (updates.length > 0) {
-        for (const update of updates) {
-          const { error: updateError } = await supabase
+      for (const sample of preparedSamples) {
+        try {
+          // Check if sample with same hash exists
+          const { data: existingSample } = await supabase
             .from('samples')
-            .update({ quantity: update.quantity })
-            .eq('id', update.id);
+            .select('id, quantity')
+            .eq('hash', sample.hash)
+            .single();
 
-          if (updateError) {
-            console.error('Error updating sample:', updateError);
-            throw new Error(updateError.message);
+          if (existingSample && existingSample.id) {
+            // Update existing sample
+            const { error: updateError } = await supabase
+              .from('samples')
+              .update({
+                quantity: (existingSample.quantity || 0) + (sample.quantity || 0),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existingSample.id);
+
+            if (updateError) throw updateError;
+            results.push({ id: existingSample.id, operation: 'update' });
+          } else {
+            // Insert new sample
+            const { data: newSample, error: insertError } = await supabase
+              .from('samples')
+              .insert({
+                name: sample.name,
+                type: sample.type,
+                location: sample.location,
+                collection_date: sample.collection_date,
+                storage_condition: sample.storage_condition,
+                quantity: sample.quantity,
+                price: sample.price,
+                description: sample.description || '',
+                latitude: sample.latitude,
+                longitude: sample.longitude,
+                hash: sample.hash,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+              .select();
+
+            if (insertError) throw insertError;
+            results.push({ id: newSample?.[0]?.id, operation: 'insert' });
           }
-        }
-      }
-
-      // Insert new samples
-      if (newSamples.length > 0) {
-        const { error: insertError } = await supabase
-          .from('samples')
-          .insert(newSamples)
-          .select();
-
-        if (insertError) {
-          console.error('Error inserting samples:', insertError);
-          throw new Error(insertError.message);
+        } catch (err) {
+          console.error('Error processing sample:', err);
+          validationErrors.push({
+            row: '0', // Using 0 as default row for processing errors
+            field: 'upload',
+            message: `Error with sample ${sample.name}: ${(err as Error).message}`
+          });
         }
       }
 
       setUploadState({
         status: 'success',
-        message: `Upload complete: ${newSamples.length} new samples added, ${updates.length} existing samples updated.`,
+        message: `Upload complete: ${results.length} samples processed, ${validationErrors.length} errors encountered.`,
         data: null,
-        errors: [],
+        errors: validationErrors,
         showPreview: false
       });
     } catch (error: any) {

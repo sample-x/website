@@ -2,7 +2,8 @@
 const path = require('path');
 
 const nextConfig = {
-  output: 'export',
+  // Remove static export to support dynamic features
+  // output: 'export',
   reactStrictMode: true,
   swcMinify: true,
   
