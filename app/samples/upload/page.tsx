@@ -451,9 +451,16 @@ export default function UploadPage() {
         const batch = data.slice(i, Math.min(i + batchSize, data.length));
         console.log(`Processing batch ${Math.floor(i/batchSize) + 1}: ${batch.length} samples`);
         
+        // Remove the hash field from each sample before sending to Supabase
+        const cleanBatch = batch.map(sample => {
+          // Create a new object without the hash field
+          const { hash, ...cleanSample } = sample;
+          return cleanSample;
+        });
+        
         const { error } = await supabase
           .from('samples')
-          .insert(batch);
+          .insert(cleanBatch);
           
         if (error) {
           console.error(`Error uploading batch ${Math.floor(i/batchSize) + 1}:`, error);
