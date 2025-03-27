@@ -219,8 +219,9 @@ export default function ClientSamples() {
 
   // Apply filters when they change
   useEffect(() => {
-    applyFilters()
-  }, [filters, samples])
+    // Apply filters whenever samples or filter values change
+    applyFilters();
+  }, [samples, filters, applyFilters]);
 
   // Get unique sample types for filter dropdown
   const sampleTypes = Array.from(new Set(samples.map(sample => sample.type)))

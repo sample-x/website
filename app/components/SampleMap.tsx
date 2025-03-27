@@ -10,18 +10,7 @@ import 'leaflet/dist/leaflet.css';
 import './SampleMap.css';
 import { useMapEvents } from 'react-leaflet';
 
-// Fix Leaflet default icon issue
-useEffect(() => {
-  // Fix Leaflet's default icon
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  });
-}, []);
-
-// Dynamic import of react-leaflet components with proper loading states
+// Dynamic import of react-leaflet components
 const MapContainer = dynamic(
   () => import('react-leaflet').then(mod => mod.MapContainer),
   {
@@ -91,8 +80,17 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   const mapRef = useRef<Map | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  // Fix Leaflet default icon issue
   useEffect(() => {
     setMounted(true);
+
+    // Fix Leaflet's default icon
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    });
   }, []);
 
   // Calculate center point based on samples
