@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Sample } from '../types/sample';
+import './SampleMap.css';
 
 // Dynamically import the SampleMap component with no SSR
 const SampleMap = dynamic(() => import('./SampleMap'), {
@@ -24,10 +25,13 @@ interface SamplesMapContainerProps {
 export default function SamplesMapContainer({ samples }: SamplesMapContainerProps) {
   const [visibleSampleIds, setVisibleSampleIds] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [mapKey, setMapKey] = useState(0);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Force map re-render when samples change
+    setMapKey(prev => prev + 1);
+  }, [samples]);
 
   if (!mounted) {
     return (
@@ -41,8 +45,9 @@ export default function SamplesMapContainer({ samples }: SamplesMapContainerProp
   }
 
   return (
-    <div>
+    <div className="map-section">
       <SampleMap 
+        key={mapKey}
         samples={samples} 
         onBoundsChange={setVisibleSampleIds} 
       />

@@ -5,11 +5,23 @@
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   overflow: hidden;
+  z-index: 0;
 }
 
 .leaflet-container {
   width: 100%;
   height: 100%;
+  z-index: 0;
+}
+
+/* Fix z-index issues with map controls */
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1000;
+}
+
+.leaflet-control {
+  z-index: 1000;
 }
 
 .map-placeholder {
@@ -125,6 +137,7 @@
 /* Fix Leaflet default styles */
 .leaflet-popup-content-wrapper {
   border-radius: 0.5rem;
+  padding: 0;
 }
 
 .leaflet-popup-content {
@@ -135,4 +148,10 @@
 .leaflet-container a.leaflet-popup-close-button {
   color: #6b7280;
   padding: 8px;
+}
+
+/* Fix marker styles */
+.leaflet-marker-icon {
+  border: none;
+  background: none;
 } 
