@@ -100,33 +100,17 @@ export function getStaticSampleById(id: number): Sample | undefined {
   return staticSamples.find(sample => sample.id === id);
 }
 
-// Check if we are in static export mode
+// Function to check if we're in static export mode
 export function isStaticExport(): boolean {
-  // Check for a working Supabase connection instead of just checking the environment
-  if (typeof window !== 'undefined') {
-    // If we have valid Supabase credentials, don't use static mode
-    const hasValidSupabase = 
-      process.env.NEXT_PUBLIC_SUPABASE_URL && 
-      process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 10;
-      
-    // If we have valid credentials, use dynamic mode
-    if (hasValidSupabase) {
-      return false;
-    }
-    
-    // Check for localStorage override
-    try {
-      const forceDynamic = localStorage.getItem('forceDynamicMode') === 'true';
-      if (forceDynamic) return false;
-    } catch (e) {
-      // Ignore localStorage errors
-    }
-  }
+  // Check if we have Supabase environment variables
+  const hasSupabaseUrl = typeof process.env.NEXT_PUBLIC_SUPABASE_URL !== 'undefined';
+  const hasSupabaseKey = typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'undefined';
   
-  // Otherwise, fall back to the original static mode detection
-  return typeof process.env.STATIC_EXPORT !== 'undefined' || 
-         typeof process.env.NEXT_PUBLIC_STATIC_EXPORT !== 'undefined' ||
-         process.env.npm_lifecycle_event === 'build';
+  // If we have both Supabase environment variables, we're not in static mode
+  if (hasSupabaseUrl && hasSupabaseKey) {
+    return false;
+  }
+
+  // Otherwise, default to static mode
+  return true;
 } 

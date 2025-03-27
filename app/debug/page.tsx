@@ -82,58 +82,26 @@ export default function DebugPage() {
   };
 
   const deleteSamples = async () => {
-    if (isStatic) {
-      toast.error('Cannot delete samples in static mode');
-      return;
-    }
-
-    if (!window.confirm('Are you sure you want to delete all samples? This action cannot be undone.')) {
+    if (!confirm('Are you sure you want to delete ALL samples? This cannot be undone.')) {
       return;
     }
 
     setIsDeleting(true);
     try {
-      // First, get all sample IDs
-      const { data: sampleIds, error: fetchError } = await supabase
+      // Delete all samples
+      const { error } = await supabase
         .from('samples')
-        .select('id');
+        .delete()
+        .neq('id', 0); // This will delete all rows
 
-      if (fetchError) {
-        toast.error(`Failed to fetch samples: ${fetchError.message}`);
-        return;
+      if (error) {
+        throw error;
       }
 
-      if (!sampleIds || sampleIds.length === 0) {
-        toast.info('No samples to delete');
-        return;
-      }
-
-      // Delete samples in batches to avoid timeout
-      const batchSize = 50;
-      const batches = Math.ceil(sampleIds.length / batchSize);
-      let deletedCount = 0;
-
-      for (let i = 0; i < batches; i++) {
-        const batchIds = sampleIds
-          .slice(i * batchSize, (i + 1) * batchSize)
-          .map((s: { id: string }) => s.id);
-
-        const { error: deleteError } = await supabase
-          .from('samples')
-          .delete()
-          .in('id', batchIds);
-
-        if (deleteError) {
-          toast.error(`Failed to delete batch ${i + 1}: ${deleteError.message}`);
-          return;
-        }
-
-        deletedCount += batchIds.length;
-      }
-
-      toast.success(`Successfully deleted ${deletedCount} samples`);
+      toast.success('Successfully deleted all samples');
     } catch (error) {
-      toast.error(`Error deleting samples: ${(error as Error).message}`);
+      console.error('Error deleting samples:', error);
+      toast.error(`Failed to delete samples: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsDeleting(false);
     }
