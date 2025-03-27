@@ -93,16 +93,45 @@ export default function DebugPage() {
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase
+      // First, get all sample IDs
+      const { data: sampleIds, error: fetchError } = await supabase
         .from('samples')
-        .delete()
-        .neq('id', '0'); // Delete all samples (the neq condition ensures we hit all records)
-      
-      if (error) {
-        toast.error(`Failed to delete samples: ${error.message}`);
-      } else {
-        toast.success('Successfully deleted all samples');
+        .select('id');
+
+      if (fetchError) {
+        toast.error(`Failed to fetch samples: ${fetchError.message}`);
+        return;
       }
+
+      if (!sampleIds || sampleIds.length === 0) {
+        toast.info('No samples to delete');
+        return;
+      }
+
+      // Delete samples in batches to avoid timeout
+      const batchSize = 50;
+      const batches = Math.ceil(sampleIds.length / batchSize);
+      let deletedCount = 0;
+
+      for (let i = 0; i < batches; i++) {
+        const batchIds = sampleIds
+          .slice(i * batchSize, (i + 1) * batchSize)
+          .map((s: { id: string }) => s.id);
+
+        const { error: deleteError } = await supabase
+          .from('samples')
+          .delete()
+          .in('id', batchIds);
+
+        if (deleteError) {
+          toast.error(`Failed to delete batch ${i + 1}: ${deleteError.message}`);
+          return;
+        }
+
+        deletedCount += batchIds.length;
+      }
+
+      toast.success(`Successfully deleted ${deletedCount} samples`);
     } catch (error) {
       toast.error(`Error deleting samples: ${(error as Error).message}`);
     } finally {

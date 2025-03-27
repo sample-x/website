@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Sample } from '../types/sample';
 
-// Dynamically import the map component to avoid SSR issues
+// Dynamically import the SampleMap component with no SSR
 const SampleMap = dynamic(() => import('./SampleMap'), {
   ssr: false,
   loading: () => (
@@ -23,21 +23,31 @@ interface SamplesMapContainerProps {
 
 export default function SamplesMapContainer({ samples }: SamplesMapContainerProps) {
   const [visibleSampleIds, setVisibleSampleIds] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  const handleBoundsChange = (ids: string[]) => {
-    setVisibleSampleIds(ids);
-  };
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="map-placeholder">
+        <div style={{textAlign: 'center'}}>
+          <div className="map-loading-spinner"></div>
+          <p>Initializing map...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="map-section">
+    <div>
       <SampleMap 
-        samples={samples}
-        onBoundsChange={handleBoundsChange}
+        samples={samples} 
+        onBoundsChange={setVisibleSampleIds} 
       />
-      <div className="map-info">
-        <p className="text-sm text-gray-600 mt-2">
-          Showing {visibleSampleIds.length} samples in the current view
-        </p>
+      <div className="mt-2 text-sm text-gray-600">
+        {visibleSampleIds.length} samples visible in current view
       </div>
     </div>
   );

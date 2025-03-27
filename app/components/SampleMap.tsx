@@ -1,32 +1,42 @@
 'use client';  // Add this at the top
 
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import { useEffect, useRef, useState } from 'react';
-import 'leaflet/dist/leaflet.css';
-import './SampleMap.css';
 import { Sample } from '../types/sample';
 import type { Map } from 'leaflet';
 import { FaCartPlus } from 'react-icons/fa';
 import dynamic from 'next/dynamic';
+import 'leaflet/dist/leaflet.css';
+import './SampleMap.css';
+import { useMapEvents } from 'react-leaflet';
 
-// Dynamic import of react-leaflet components
-const MapContainerWithNoSSR = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
+// Dynamic import of react-leaflet components with proper loading states
+const MapContainer = dynamic(
+  () => import('react-leaflet').then(mod => mod.MapContainer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="map-placeholder">
+        <div style={{textAlign: 'center'}}>
+          <div className="map-loading-spinner"></div>
+          <p>Loading map component...</p>
+        </div>
+      </div>
+    ),
+  }
+);
+
+const TileLayer = dynamic(
+  () => import('react-leaflet').then(mod => mod.TileLayer),
   { ssr: false }
 );
 
-const TileLayerWithNoSSR = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
+const CircleMarker = dynamic(
+  () => import('react-leaflet').then(mod => mod.CircleMarker),
   { ssr: false }
 );
 
-const CircleMarkerWithNoSSR = dynamic(
-  () => import('react-leaflet').then((mod) => mod.CircleMarker),
-  { ssr: false }
-);
-
-const PopupWithNoSSR = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Popup),
+const Popup = dynamic(
+  () => import('react-leaflet').then(mod => mod.Popup),
   { ssr: false }
 );
 
@@ -37,12 +47,9 @@ interface SampleMapProps {
 
 // BoundsUpdater component to handle map bounds changes
 function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (ids: string[]) => void }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!onChange) return;
-
-    const updateVisibleSamples = () => {
+  const map = useMapEvents({
+    moveend: () => {
+      if (!onChange) return;
       const bounds = map.getBounds();
       const visibleSamples = samples.filter(sample => 
         typeof sample.latitude === 'number' && 
@@ -50,14 +57,19 @@ function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (i
         bounds.contains([sample.latitude, sample.longitude] as [number, number])
       );
       onChange(visibleSamples.map(sample => String(sample.id || '')));
-    };
+    }
+  });
 
-    map.on('moveend', updateVisibleSamples);
-    updateVisibleSamples(); // Initial update
+  useEffect(() => {
+    if (!onChange || !map) return;
 
-    return () => {
-      map.off('moveend', updateVisibleSamples);
-    };
+    const bounds = map.getBounds();
+    const visibleSamples = samples.filter(sample => 
+      typeof sample.latitude === 'number' && 
+      typeof sample.longitude === 'number' && 
+      bounds.contains([sample.latitude, sample.longitude] as [number, number])
+    );
+    onChange(visibleSamples.map(sample => String(sample.id || '')));
   }, [map, samples, onChange]);
 
   return null;
@@ -70,6 +82,23 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Calculate center point based on samples
+  const center = samples.reduce(
+    (acc, sample) => {
+      if (typeof sample.latitude === 'number' && typeof sample.longitude === 'number') {
+        acc[0] += sample.latitude;
+        acc[1] += sample.longitude;
+        acc[2]++;
+      }
+      return acc;
+    },
+    [0, 0, 0]
+  );
+
+  const mapCenter = center[2] > 0
+    ? [center[0] / center[2], center[1] / center[2]] as [number, number]
+    : [20, 0] as [number, number];
 
   if (!mounted) {
     return (
@@ -84,13 +113,14 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
 
   return (
     <div className="map-container">
-      <MapContainerWithNoSSR 
-        center={[20, 0]} 
+      <MapContainer 
+        center={mapCenter}
         zoom={2} 
         className="leaflet-container"
         ref={mapRef}
+        scrollWheelZoom={true}
       >
-        <TileLayerWithNoSSR
+        <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
@@ -99,7 +129,7 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
           typeof sample.latitude === 'number' && 
           typeof sample.longitude === 'number'
         ).map((sample) => (
-          <CircleMarkerWithNoSSR
+          <CircleMarker
             key={sample.id}
             center={[sample.latitude as number, sample.longitude as number]}
             radius={8}
@@ -111,7 +141,7 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
               fillOpacity: 0.9
             }}
           >
-            <PopupWithNoSSR>
+            <Popup>
               <div className="sample-popup">
                 <h3>{sample.name}</h3>
                 <div className="sample-info-grid">
@@ -152,11 +182,11 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
                   <FaCartPlus /> Add to Cart
                 </button>
               </div>
-            </PopupWithNoSSR>
-          </CircleMarkerWithNoSSR>
+            </Popup>
+          </CircleMarker>
         ))}
         <BoundsUpdater samples={samples} onChange={onBoundsChange} />
-      </MapContainerWithNoSSR>
+      </MapContainer>
     </div>
   );
 }
