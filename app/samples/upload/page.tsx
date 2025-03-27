@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSupabase } from '@/app/supabase-provider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload, faCheck, faTimes, faTable, faEye, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faUpload, faCheck, faTimes, faTable, faEye, faBan, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import './upload.css';
+import { isStaticExport } from '@/app/lib/staticData';
 
 interface SampleData {
   name: string;
@@ -63,6 +64,7 @@ function generateSampleHash(sample: Partial<SampleData>): string {
 
 export default function UploadPage() {
   const { supabase } = useSupabase();
+  const [isStatic, setIsStatic] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState>({
     status: 'idle',
     message: '',
@@ -70,6 +72,11 @@ export default function UploadPage() {
     errors: [],
     showPreview: false
   });
+
+  useEffect(() => {
+    // Check if we're in static mode
+    setIsStatic(isStaticExport());
+  }, []);
 
   const validateField = (value: any, field: string, rowNumber: string): ValidationError | null => {
     const strValue = String(value);
@@ -364,103 +371,65 @@ export default function UploadPage() {
   };
 
   const handleUpload = async () => {
+    // In static mode, just show a simulated success message
+    if (isStatic) {
+      setUploadState(prevState => ({
+        ...prevState,
+        status: 'success',
+        message: 'Simulated upload successful in demo mode. Note: In a real deployment, data would be saved to Supabase.'
+      }));
+      return;
+    }
+
     if (!uploadState.data || uploadState.data.length === 0) {
-      setUploadState({
-        ...uploadState,
+      setUploadState(prevState => ({
+        ...prevState,
         status: 'error',
-        message: 'No data to upload'
-      });
+        message: 'No valid data to upload'
+      }));
       return;
     }
 
     try {
-      setUploadState({
-        ...uploadState,
+      setUploadState(prevState => ({
+        ...prevState,
         status: 'uploading',
-        message: 'Uploading samples...'
-      });
-
-      // Prepare data for insertion - for each sample, check if it already exists
-      const preparedSamples = uploadState.data.map(sample => ({
-        ...sample,
-        hash: generateSampleHash(sample)
+        message: 'Uploading samples to database...'
       }));
 
-      // Upload each sample individually for better error handling
-      const results = [];
-      const validationErrors: ValidationError[] = [];
-
-      for (const sample of preparedSamples) {
-        try {
-          // Check if sample with same hash exists
-          const { data: existingSample } = await supabase
-            .from('samples')
-            .select('id, quantity')
-            .eq('hash', sample.hash)
-            .single();
-
-          if (existingSample && existingSample.id) {
-            // Update existing sample
-            const { error: updateError } = await supabase
-              .from('samples')
-              .update({
-                quantity: (existingSample.quantity || 0) + (sample.quantity || 0),
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', existingSample.id);
-
-            if (updateError) throw updateError;
-            results.push({ id: existingSample.id, operation: 'update' });
-          } else {
-            // Insert new sample
-            const { data: newSample, error: insertError } = await supabase
-              .from('samples')
-              .insert({
-                name: sample.name,
-                type: sample.type,
-                location: sample.location,
-                collection_date: sample.collection_date,
-                storage_condition: sample.storage_condition,
-                quantity: sample.quantity,
-                price: sample.price,
-                description: sample.description || '',
-                latitude: sample.latitude,
-                longitude: sample.longitude,
-                hash: sample.hash,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              })
-              .select();
-
-            if (insertError) throw insertError;
-            results.push({ id: newSample?.[0]?.id, operation: 'insert' });
-          }
-        } catch (err) {
-          console.error('Error processing sample:', err);
-          validationErrors.push({
-            row: '0', // Using 0 as default row for processing errors
-            field: 'upload',
-            message: `Error with sample ${sample.name}: ${(err as Error).message}`
-          });
+      // Process in batches to avoid timeout issues
+      const batchSize = 50;
+      const data = uploadState.data;
+      
+      console.log(`Starting upload of ${data.length} samples in batches of ${batchSize}`);
+      
+      for (let i = 0; i < data.length; i += batchSize) {
+        const batch = data.slice(i, Math.min(i + batchSize, data.length));
+        console.log(`Processing batch ${Math.floor(i/batchSize) + 1}: ${batch.length} samples`);
+        
+        const { error } = await supabase
+          .from('samples')
+          .insert(batch);
+          
+        if (error) {
+          console.error(`Error uploading batch ${Math.floor(i/batchSize) + 1}:`, error);
+          throw error;
         }
       }
-
-      setUploadState({
+      
+      setUploadState(prevState => ({
+        ...prevState,
         status: 'success',
-        message: `Upload complete: ${results.length} samples processed, ${validationErrors.length} errors encountered.`,
-        data: null,
-        errors: validationErrors,
-        showPreview: false
-      });
-    } catch (error: any) {
+        message: `Successfully uploaded ${data.length} samples`
+      }));
+      
+    } catch (error) {
       console.error('Upload error:', error);
-      setUploadState({
+      setUploadState(prevState => ({
+        ...prevState,
         status: 'error',
-        message: `Error uploading samples: ${error.message}`,
-        data: uploadState.data,
-        errors: uploadState.errors,
-        showPreview: true
-      });
+        message: error instanceof Error ? error.message : 'Error uploading samples'
+      }));
     }
   };
 
@@ -505,130 +474,155 @@ export default function UploadPage() {
   };
 
   return (
-    <main className="upload-page">
-      <div className="upload-hero">
+    <div className="upload-page">
+      <div className="upload-container">
         <h1>Upload Samples</h1>
-        <p>Upload your sample dataset in CSV format.</p>
-      </div>
-
-      <div className="upload-content">
-        <div className="upload-container">
-          <div className="upload-instructions">
-            <h2>Instructions</h2>
-            <p>Please ensure your CSV file includes the following required fields:</p>
-            <ul>
-              <li>name - Sample name</li>
-              <li>type - Sample type (bacterial, viral, fungal, etc.)</li>
-              <li>location - Collection location</li>
-              <li>collection_date - Date of collection (YYYY-MM-DD)</li>
-              <li>storage_condition - Storage conditions</li>
-              <li>quantity - Number of samples available (positive integer)</li>
-              <li>price - Sample price (positive number)</li>
-            </ul>
-            <p>Optional fields:</p>
-            <ul>
-              <li>description - Detailed sample description</li>
-              <li>latitude - Collection location latitude (-90 to 90)</li>
-              <li>longitude - Collection location longitude (-180 to 180)</li>
-            </ul>
-          </div>
-
-          <div className="upload-section">
-            <div className="upload-box">
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-                id="file-upload"
-                className="hidden"
-              />
-              <label htmlFor="file-upload" className="upload-label">
-                <FontAwesomeIcon icon={faUpload} className="upload-icon" />
-                <span>Choose CSV file or drag & drop</span>
-              </label>
+        
+        {isStatic && (
+          <div className="static-mode-notice">
+            <FontAwesomeIcon icon={faInfoCircle} />
+            <div>
+              <h3>Demo Mode</h3>
+              <p>
+                You are viewing this page in demo mode. Sample uploads will be simulated but not actually stored in the database.
+                In a production environment, uploaded samples would be saved to Supabase.
+              </p>
             </div>
-
-            {uploadState.status !== 'idle' && (
-              <div className={`upload-status ${uploadState.status}`}>
-                <FontAwesomeIcon 
-                  icon={uploadState.status === 'success' ? faCheck : uploadState.status === 'error' ? faTimes : faUpload} 
-                  className="status-icon"
-                />
-                <p>{uploadState.message}</p>
-                
-                {uploadState.errors.length > 0 && (
-                  <div className="validation-errors">
-                    <h3>Validation Errors:</h3>
-                    <ul>
-                      {uploadState.errors.map((error, index) => (
-                        <li key={index}>
-                          Row {error.row}: {error.field} - {error.message}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {uploadState.data && (
-                  <div className="preview-controls">
-                    <button 
-                      className="preview-button"
-                      onClick={() => setUploadState(prev => ({ ...prev, showPreview: false }))}
-                    >
-                      <FontAwesomeIcon icon={faEye} /> Hide Preview
-                    </button>
-
-                    <button 
-                      className="cancel-button"
-                      onClick={handleCancel}
-                    >
-                      <FontAwesomeIcon icon={faBan} />
-                      Cancel
-                    </button>
-
-                    {uploadState.status === 'validating' && uploadState.errors.length === 0 && (
-                      <button 
-                        className="upload-button"
-                        onClick={handleUpload}
-                      >
-                        <FontAwesomeIcon icon={faUpload} /> Upload Data
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Preview Table */}
-            {uploadState.showPreview && uploadState.data && uploadState.data.length > 0 && (
-              <div className="data-preview">
-                <div className="table-container">
-                  {renderPreviewTable(uploadState.data)}
-                </div>
-                <div className="preview-controls">
-                  <button 
-                    className="preview-button" 
-                    onClick={() => setUploadState(prev => ({ ...prev, showPreview: false }))}
-                  >
-                    <FontAwesomeIcon icon={faEye} /> Hide Preview
-                  </button>
-                  <button className="cancel-button" onClick={handleCancel}>
-                    <FontAwesomeIcon icon={faBan} /> Cancel
-                  </button>
-                  {uploadState.status === 'validating' && uploadState.errors.length === 0 && (
-                    <button 
-                      className="upload-button"
-                      onClick={handleUpload}
-                    >
-                      <FontAwesomeIcon icon={faUpload} /> Upload Data
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
+        )}
+
+        <div className="upload-instructions">
+          <h2>How to Upload Samples</h2>
+          <ol>
+            <li>Prepare a CSV file with sample data, including required fields: name, type, location, collection_date, storage_condition, quantity, price.</li>
+            <li>Optional fields: description, latitude, longitude, and any additional metadata.</li>
+            <li>Click "Choose File" to select your CSV file.</li>
+            <li>Review the data preview and validation results.</li>
+            <li>Click "Upload" to save the samples to the database.</li>
+          </ol>
         </div>
+
+        {uploadState.status === 'idle' && (
+          <div className="upload-dropzone">
+            <input
+              type="file"
+              id="csv-upload"
+              accept=".csv"
+              onChange={handleFileUpload}
+              className="file-input"
+            />
+            <label htmlFor="csv-upload" className="file-label">
+              <FontAwesomeIcon icon={faUpload} className="upload-icon" />
+              <span>Choose CSV File</span>
+            </label>
+          </div>
+        )}
+
+        {uploadState.status === 'validating' && (
+          <div className="upload-status">
+            <div className="loading-spinner"></div>
+            <p>Validating CSV data...</p>
+          </div>
+        )}
+
+        {uploadState.status === 'uploading' && (
+          <div className="upload-status">
+            <div className="loading-spinner"></div>
+            <p>{uploadState.message}</p>
+          </div>
+        )}
+
+        {uploadState.status === 'success' && (
+          <div className="upload-result success">
+            <FontAwesomeIcon icon={faCheck} className="result-icon success" />
+            <p>{uploadState.message}</p>
+            <button
+              onClick={() => setUploadState({
+                status: 'idle',
+                message: '',
+                data: null,
+                errors: [],
+                showPreview: false
+              })}
+              className="btn btn-primary"
+            >
+              Upload More Samples
+            </button>
+          </div>
+        )}
+
+        {uploadState.status === 'error' && (
+          <div className="upload-result error">
+            <FontAwesomeIcon icon={faTimes} className="result-icon error" />
+            <p>{uploadState.message}</p>
+            <button
+              onClick={() => setUploadState({
+                status: 'idle',
+                message: '',
+                data: null,
+                errors: [],
+                showPreview: false
+              })}
+              className="btn btn-primary"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {uploadState.data && uploadState.data.length > 0 && (
+          <div className="upload-actions">
+            <button
+              onClick={() => setUploadState(prev => ({ ...prev, showPreview: !prev.showPreview }))}
+              className="btn btn-secondary"
+            >
+              <FontAwesomeIcon icon={uploadState.showPreview ? faEye : faTable} />
+              {uploadState.showPreview ? 'Hide Preview' : 'Show Preview'}
+            </button>
+            
+            <div className="primary-actions">
+              <button
+                onClick={handleCancel}
+                className="btn btn-danger"
+              >
+                <FontAwesomeIcon icon={faBan} />
+                Cancel
+              </button>
+              
+              <button
+                onClick={handleUpload}
+                className="btn btn-success"
+                disabled={uploadState.status === 'uploading'}
+              >
+                <FontAwesomeIcon icon={faUpload} />
+                {isStatic ? 'Simulate Upload' : 'Upload Samples'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {uploadState.errors.length > 0 && (
+          <div className="validation-errors">
+            <h3>Validation Errors</h3>
+            <ul>
+              {uploadState.errors.map((error, index) => (
+                <li key={index} className="error-item">
+                  <span className="error-row">Row {error.row}:</span>
+                  <span className="error-field">{error.field}</span>
+                  <span className="error-message">{error.message}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {uploadState.showPreview && uploadState.data && (
+          <div className="data-preview">
+            <h3>Data Preview</h3>
+            {renderPreviewTable(uploadState.data)}
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
 } 

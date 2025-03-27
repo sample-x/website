@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import LeafletMap from './LeafletMap'
+import { isStaticExport } from '@/app/lib/staticData'
 
 // Sample type definition
 interface Sample {
@@ -59,15 +61,14 @@ const getSampleColor = (type: string): string => {
 
 export default function SamplesMap({ samples, onSampleSelect, onAddToCart, selectedSample }: SamplesMapProps) {
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [isStatic, setIsStatic] = useState(false);
   
   useEffect(() => {
-    // In a real implementation, this would initialize a map library like Leaflet
-    // For this example, we'll just simulate the map loading
-    const timer = setTimeout(() => {
-      setMapLoaded(true);
-    }, 1000);
+    // Check if we're in static mode
+    setIsStatic(isStaticExport());
     
-    return () => clearTimeout(timer);
+    // Mark as loaded
+    setMapLoaded(true);
   }, []);
   
   // Filter samples with valid coordinates
@@ -77,6 +78,32 @@ export default function SamplesMap({ samples, onSampleSelect, onAddToCart, selec
       (typeof sample.latitude === 'number' && typeof sample.longitude === 'number')
     );
   });
+  
+  // Convert samples to marker format for LeafletMap
+  const markers = samplesWithCoordinates.map(sample => {
+    // Use coordinates if available, otherwise use latitude/longitude
+    const position: [number, number] = sample.coordinates 
+      ? sample.coordinates 
+      : [sample.latitude || 0, sample.longitude || 0];
+      
+    return {
+      position,
+      popup: `<strong>${sample.name}</strong><br>${sample.type} sample<br>${sample.location}`
+    };
+  });
+  
+  // Calculate center point based on samples (average lat/lng)
+  let center: [number, number] = [37.7749, -122.4194]; // Default to San Francisco
+  
+  if (markers.length > 0) {
+    const sumLat = markers.reduce((sum, marker) => sum + marker.position[0], 0);
+    const sumLng = markers.reduce((sum, marker) => sum + marker.position[1], 0);
+    
+    center = [
+      sumLat / markers.length,
+      sumLng / markers.length
+    ];
+  }
   
   if (!mapLoaded) {
     return (
@@ -96,25 +123,12 @@ export default function SamplesMap({ samples, onSampleSelect, onAddToCart, selec
   }
   
   return (
-    <div className="map-simulation">
-      <div className="map-container-inner">
-        <div className="map-placeholder">
-          <p>Map Visualization (Placeholder)</p>
-          <p>In a real implementation, this would be an interactive map showing sample locations.</p>
-          <div className="map-markers">
-            {samplesWithCoordinates.map(sample => (
-              <div 
-                key={sample.id} 
-                className="map-marker"
-                style={{ backgroundColor: getSampleColor(sample.type) }}
-                onClick={() => onSampleSelect && onSampleSelect(sample)}
-              >
-                <span className="marker-tooltip">{sample.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+    <div className="map-container">
+      <LeafletMap 
+        markers={markers}
+        center={center}
+        zoom={3}
+      />
       <div className="map-legend">
         <h3>Sample Types</h3>
         <ul>
