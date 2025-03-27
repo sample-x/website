@@ -62,10 +62,21 @@ const getSampleColor = (type: string): string => {
 export default function SamplesMap({ samples, onSampleSelect, onAddToCart, selectedSample }: SamplesMapProps) {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [isStatic, setIsStatic] = useState(false);
+  const [hasLoggedDebug, setHasLoggedDebug] = useState(false);
   
   useEffect(() => {
     // Check if we're in static mode
     setIsStatic(isStaticExport());
+    
+    // Check for localStorage override
+    if (typeof window !== 'undefined') {
+      try {
+        const forceDynamic = localStorage.getItem('forceDynamicMode') === 'true';
+        if (forceDynamic) setIsStatic(false);
+      } catch (e) {
+        // Ignore localStorage errors
+      }
+    }
     
     // Mark as loaded
     setMapLoaded(true);
@@ -73,18 +84,49 @@ export default function SamplesMap({ samples, onSampleSelect, onAddToCart, selec
   
   // Filter samples with valid coordinates
   const samplesWithCoordinates = samples.filter(sample => {
-    return (
-      (sample.coordinates && Array.isArray(sample.coordinates) && sample.coordinates.length === 2) ||
-      (typeof sample.latitude === 'number' && typeof sample.longitude === 'number')
-    );
+    // Extract coordinates if they exist
+    let hasValidCoords = false;
+    
+    // Check for coordinates array
+    if (sample.coordinates && Array.isArray(sample.coordinates) && sample.coordinates.length === 2) {
+      const [lat, lng] = sample.coordinates;
+      hasValidCoords = typeof lat === 'number' && typeof lng === 'number';
+    }
+    
+    // Check for separate lat/lng fields
+    if (!hasValidCoords && typeof sample.latitude === 'number' && typeof sample.longitude === 'number') {
+      hasValidCoords = true;
+    }
+    
+    return hasValidCoords;
   });
+  
+  // Log debug info
+  useEffect(() => {
+    if (mapLoaded && !hasLoggedDebug) {
+      console.log('Map data:', {
+        samplesCount: samples.length,
+        samplesWithCoordinates: samplesWithCoordinates.length,
+        firstSample: samples[0],
+        sampleFormats: samples.slice(0, 3).map(s => ({
+          hasCoordinates: !!s.coordinates,
+          coordFormat: s.coordinates ? typeof s.coordinates : null,
+          hasLat: typeof s.latitude === 'number',
+          hasLong: typeof s.longitude === 'number',
+          latValue: s.latitude,
+          longValue: s.longitude
+        }))
+      });
+      setHasLoggedDebug(true);
+    }
+  }, [mapLoaded, samples, samplesWithCoordinates.length, hasLoggedDebug]);
   
   // Convert samples to marker format for LeafletMap
   const markers = samplesWithCoordinates.map(sample => {
     // Use coordinates if available, otherwise use latitude/longitude
     const position: [number, number] = sample.coordinates 
       ? sample.coordinates 
-      : [sample.latitude || 0, sample.longitude || 0];
+      : [Number(sample.latitude) || 0, Number(sample.longitude) || 0];
       
     return {
       position,
@@ -118,17 +160,51 @@ export default function SamplesMap({ samples, onSampleSelect, onAddToCart, selec
     return (
       <div className="map-no-data">
         <p>No samples with location data available to display on the map.</p>
+        <details style={{marginTop: '10px'}}>
+          <summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#666'}}>Debug Info</summary>
+          <pre style={{
+            background: '#f5f5f5', 
+            padding: '10px', 
+            borderRadius: '4px', 
+            fontSize: '12px',
+            maxHeight: '200px',
+            overflow: 'auto',
+            marginTop: '10px'
+          }}>
+            {JSON.stringify({
+              totalSamples: samples.length,
+              sampleFormats: samples.slice(0, 3).map(s => ({
+                id: s.id,
+                name: s.name,
+                hasCoordinates: !!s.coordinates,
+                coordFormat: s.coordinates ? typeof s.coordinates : null,
+                coordinates: s.coordinates,
+                hasLat: typeof s.latitude === 'number',
+                hasLong: typeof s.longitude === 'number',
+                latValue: s.latitude,
+                longValue: s.longitude
+              }))
+            }, null, 2)}
+          </pre>
+        </details>
       </div>
     );
   }
   
   return (
     <div className="map-container">
-      <LeafletMap 
-        markers={markers}
-        center={center}
-        zoom={3}
-      />
+      {markers.length > 0 && (
+        <>
+          <LeafletMap 
+            markers={markers}
+            center={center}
+            zoom={3}
+          />
+          <div className="map-info" style={{margin: '10px 0', fontSize: '0.875rem', color: '#666'}}>
+            Displaying {markers.length} sample locations
+          </div>
+        </>
+      )}
       <div className="map-legend">
         <h3>Sample Types</h3>
         <ul>

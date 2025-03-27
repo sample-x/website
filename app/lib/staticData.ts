@@ -102,7 +102,31 @@ export function getStaticSampleById(id: number): Sample | undefined {
 
 // Check if we are in static export mode
 export function isStaticExport(): boolean {
-  // In a static export, we don't have server-side database connections
-  // This will be true when deployed on Cloudflare Pages
-  return process.env.NODE_ENV === 'production' && typeof window !== 'undefined';
+  // Check for a working Supabase connection instead of just checking the environment
+  if (typeof window !== 'undefined') {
+    // If we have valid Supabase credentials, don't use static mode
+    const hasValidSupabase = 
+      process.env.NEXT_PUBLIC_SUPABASE_URL && 
+      process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 10;
+      
+    // If we have valid credentials, use dynamic mode
+    if (hasValidSupabase) {
+      return false;
+    }
+    
+    // Check for localStorage override
+    try {
+      const forceDynamic = localStorage.getItem('forceDynamicMode') === 'true';
+      if (forceDynamic) return false;
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+  }
+  
+  // Otherwise, fall back to the original static mode detection
+  return typeof process.env.STATIC_EXPORT !== 'undefined' || 
+         typeof process.env.NEXT_PUBLIC_STATIC_EXPORT !== 'undefined' ||
+         process.env.npm_lifecycle_event === 'build';
 } 

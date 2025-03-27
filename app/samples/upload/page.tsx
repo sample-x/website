@@ -65,6 +65,7 @@ function generateSampleHash(sample: Partial<SampleData>): string {
 export default function UploadPage() {
   const { supabase } = useSupabase();
   const [isStatic, setIsStatic] = useState(false);
+  const [forceDynamicMode, setForceDynamicMode] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState>({
     status: 'idle',
     message: '',
@@ -75,8 +76,20 @@ export default function UploadPage() {
 
   useEffect(() => {
     // Check if we're in static mode
-    setIsStatic(isStaticExport());
-  }, []);
+    const staticMode = isStaticExport();
+    
+    // Override with forceDynamicMode if set
+    setIsStatic(staticMode && !forceDynamicMode);
+    
+    // Persist the setting to localStorage for other components
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('forceDynamicMode', forceDynamicMode ? 'true' : 'false');
+      } catch (e) {
+        // Ignore localStorage errors
+      }
+    }
+  }, [forceDynamicMode]);
 
   const validateField = (value: any, field: string, rowNumber: string): ValidationError | null => {
     const strValue = String(value);
@@ -370,6 +383,37 @@ export default function UploadPage() {
     reader.readAsText(file);
   };
 
+  const handleLoadLocalCSV = async () => {
+    try {
+      setUploadState(prevState => ({
+        ...prevState,
+        status: 'validating',
+        message: 'Loading pre-existing CSV data...'
+      }));
+      
+      // Fetch the CSV file
+      const response = await fetch('/data/samples_combined.csv');
+      if (!response.ok) {
+        throw new Error('Failed to fetch CSV file');
+      }
+      
+      const text = await response.text();
+      
+      // Process it as if it was uploaded
+      const file = new File([text], 'samples_combined.csv', { type: 'text/csv' });
+      
+      // Use the existing validation function
+      validateCSV(file);
+    } catch (error) {
+      console.error('Error loading local CSV:', error);
+      setUploadState(prevState => ({
+        ...prevState,
+        status: 'error',
+        message: 'Failed to load the local CSV file: ' + (error instanceof Error ? error.message : String(error))
+      }));
+    }
+  };
+
   const handleUpload = async () => {
     // In static mode, just show a simulated success message
     if (isStatic) {
@@ -478,7 +522,7 @@ export default function UploadPage() {
       <div className="upload-container">
         <h1>Upload Samples</h1>
         
-        {isStatic && (
+        {isStatic ? (
           <div className="static-mode-notice">
             <FontAwesomeIcon icon={faInfoCircle} />
             <div>
@@ -489,7 +533,53 @@ export default function UploadPage() {
               </p>
             </div>
           </div>
+        ) : (
+          <div className="dynamic-mode-notice" style={{
+            display: 'flex',
+            background: '#d1fae5',
+            color: '#065f46',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '1.5rem',
+            gap: '1rem',
+            alignItems: 'flex-start'
+          }}>
+            <FontAwesomeIcon icon={faCheck} />
+            <div>
+              <h3>Live Mode</h3>
+              <p>
+                You are using live mode. Sample uploads will be stored in your Supabase database.
+              </p>
+            </div>
+          </div>
         )}
+        
+        <div className="mode-toggle" style={{marginBottom: '20px'}}>
+          <button 
+            onClick={() => setForceDynamicMode(!forceDynamicMode)}
+            className="btn btn-primary"
+            style={{
+              background: forceDynamicMode ? '#047857' : '#6b7280',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.375rem',
+              color: 'white',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            {forceDynamicMode ? 'Using Live Mode' : 'Switch to Live Mode'}
+          </button>
+          <p style={{
+            fontSize: '0.875rem',
+            color: '#4b5563',
+            marginTop: '0.5rem'
+          }}>
+            {forceDynamicMode 
+              ? 'Uploads will be saved to your actual Supabase database.' 
+              : 'Click to override demo mode and use your real Supabase connection.'}
+          </p>
+        </div>
 
         <div className="upload-instructions">
           <h2>How to Upload Samples</h2>
@@ -501,6 +591,15 @@ export default function UploadPage() {
             <li>Click "Upload" to save the samples to the database.</li>
           </ol>
         </div>
+        
+        <button 
+          onClick={handleLoadLocalCSV}
+          className="btn btn-secondary"
+          style={{marginBottom: '20px', width: '100%'}}
+        >
+          <FontAwesomeIcon icon={faTable} style={{marginRight: '8px'}} />
+          Load Built-in Sample Data
+        </button>
 
         {uploadState.status === 'idle' && (
           <div className="upload-dropzone">
