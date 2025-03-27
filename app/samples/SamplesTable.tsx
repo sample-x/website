@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faInfoCircle, faCartPlus } from '@fortawesome/free-solid-svg-icons'
 
 // Sample type definition
 interface Sample {
@@ -23,35 +25,21 @@ interface SamplesTableProps {
   onAddToCart?: (sample: Sample) => void;
 }
 
-// Define color mapping for sample types
-const typeColors: Record<string, string> = {
-  'bacterial': '#8BC34A',
-  'tissue': '#E91E63',
-  'cell line': '#E91E63',
-  'environmental': '#795548',
-  'ice core': '#B3E5FC',
-  default: '#757575'
-};
-
-// Get color based on sample type
+// Helper function to get color for sample type
 const getSampleColor = (type: string): string => {
-  if (!type) return typeColors.default;
-  
-  const normalizedType = type.toLowerCase();
-  
-  // Try exact match first
-  if (typeColors[normalizedType]) {
-    return typeColors[normalizedType];
-  }
-  
-  // Try partial matches
-  for (const [key, color] of Object.entries(typeColors)) {
-    if (key !== 'default' && normalizedType.includes(key)) {
-      return color;
-    }
-  }
-  
-  return typeColors.default;
+  const colors: { [key: string]: string } = {
+    'tissue': '#ef4444',
+    'bacterial': '#10b981',
+    'cell line': '#8b5cf6',
+    'environmental': '#3b82f6',
+    'soil': '#92400e',
+    'botanical': '#65a30d',
+    'viral': '#db2777',
+    'dna': '#7c3aed',
+    'water sample': '#0ea5e9',
+    'industrial strain': '#64748b'
+  };
+  return colors[type.toLowerCase()] || '#888888';
 };
 
 export default function SamplesTable({ samples, onSampleSelect, onAddToCart }: SamplesTableProps) {
@@ -128,7 +116,7 @@ export default function SamplesTable({ samples, onSampleSelect, onAddToCart }: S
                 </tr>
               </thead>
               <tbody>
-                {currentSamples.map((sample) => (
+                {currentSamples.map(sample => (
                   <tr key={sample.id}>
                     <td>{sample.name}</td>
                     <td>
@@ -151,19 +139,19 @@ export default function SamplesTable({ samples, onSampleSelect, onAddToCart }: S
                     <td>{formatPrice(sample.price)}</td>
                     <td className="action-buttons">
                       <button 
-                        className="btn-details"
+                        className="action-button details"
                         onClick={() => onSampleSelect && onSampleSelect(sample)}
                         title="View details"
                       >
-                        Details
+                        <FontAwesomeIcon icon={faInfoCircle} />
                       </button>
                       <button 
-                        className="btn-add-cart"
+                        className="action-button add"
                         onClick={() => onAddToCart && onAddToCart(sample)}
                         disabled={!sample.inStock}
                         title="Add to cart"
                       >
-                        Add
+                        <FontAwesomeIcon icon={faCartPlus} />
                       </button>
                     </td>
                   </tr>

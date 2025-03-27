@@ -6,11 +6,12 @@ import { Sample as SupabaseSample } from '@/types/sample';
 import dynamic from 'next/dynamic';
 import './samples.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfoCircle, faCartPlus, faFlask, faFileAlt, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle, faCartPlus, faFlask, faFileAlt, faUpload, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import SupabaseConnectionTest from '@/app/components/SupabaseConnectionTest';
 import SamplesTable from './SamplesTable';
 import { getStaticSamples, isStaticExport } from '@/app/lib/staticData';
+import { toast } from 'react-toastify';
 
 // Define an interface that matches what SamplesTable expects
 interface TableSample {
@@ -38,6 +39,7 @@ export default function SamplesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isStatic, setIsStatic] = useState(false);
+  const [selectedSample, setSelectedSample] = useState<TableSample | null>(null);
 
   useEffect(() => {
     // Check if we're in static export mode (Cloudflare Pages deployment)
@@ -96,6 +98,14 @@ export default function SamplesPage() {
     inStock: sample.quantity > 0
   }));
 
+  const handleSampleSelect = (sample: TableSample) => {
+    setSelectedSample(sample);
+  };
+
+  const handleAddToCart = (sample: TableSample) => {
+    toast.success(`Added ${sample.name} to cart!`);
+  };
+
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Sample Management</h1>
@@ -141,8 +151,8 @@ export default function SamplesPage() {
         <div className="bg-white rounded-lg shadow-lg p-4">
           <SamplesTable 
             samples={tableSamples}
-            onSampleSelect={(sample) => console.log('Sample selected:', sample)}
-            onAddToCart={(sample) => console.log('Adding to cart:', sample)}
+            onSampleSelect={handleSampleSelect}
+            onAddToCart={handleAddToCart}
           />
         </div>
       )}
@@ -156,6 +166,114 @@ export default function SamplesPage() {
           </Link>
         </div>
       )}
+
+      {/* Sample Details Modal */}
+      {selectedSample && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 relative">
+            <button
+              onClick={() => setSelectedSample(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+            
+            <h2 className="text-2xl font-bold mb-4">{selectedSample.name}</h2>
+            
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <p className="text-sm font-semibold text-gray-600">Type</p>
+                <p className="flex items-center gap-2">
+                  <span 
+                    className="w-3 h-3 rounded-full inline-block"
+                    style={{ backgroundColor: getSampleColor(selectedSample.type) }}
+                  ></span>
+                  {selectedSample.type}
+                </p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-semibold text-gray-600">Location</p>
+                <p>{selectedSample.location}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-semibold text-gray-600">Collection Date</p>
+                <p>{selectedSample.collectionDate || 'N/A'}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-semibold text-gray-600">Storage Condition</p>
+                <p>{selectedSample.storageCondition || 'N/A'}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-semibold text-gray-600">Price</p>
+                <p>${selectedSample.price.toFixed(2)}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-semibold text-gray-600">Availability</p>
+                <span className={`inline-block px-2 py-1 rounded-full text-sm ${
+                  selectedSample.inStock
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {selectedSample.availability}
+                </span>
+              </div>
+            </div>
+            
+            {selectedSample.description && (
+              <div className="mb-6">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Description</p>
+                <p className="text-gray-700">{selectedSample.description}</p>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setSelectedSample(null)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  handleAddToCart(selectedSample);
+                  setSelectedSample(null);
+                }}
+                disabled={!selectedSample.inStock}
+                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                  selectedSample.inStock
+                    ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                    : 'bg-gray-300 cursor-not-allowed text-gray-500'
+                }`}
+              >
+                <FontAwesomeIcon icon={faCartPlus} />
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
+
+// Helper function to get color for sample type
+const getSampleColor = (type: string): string => {
+  const colors: { [key: string]: string } = {
+    'tissue': '#ef4444',
+    'bacterial': '#10b981',
+    'cell line': '#8b5cf6',
+    'environmental': '#3b82f6',
+    'soil': '#92400e',
+    'botanical': '#65a30d',
+    'viral': '#db2777',
+    'dna': '#7c3aed',
+    'water sample': '#0ea5e9',
+    'industrial strain': '#64748b'
+  };
+  return colors[type.toLowerCase()] || '#888888';
+};

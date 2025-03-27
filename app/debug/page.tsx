@@ -5,7 +5,8 @@ import { useSupabase } from '@/app/supabase-provider';
 import SupabaseConnectionTest from '@/app/components/SupabaseConnectionTest';
 import { isStaticExport } from '@/app/lib/staticData';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfoCircle, faServer, faCode } from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle, faServer, faCode, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
 
 export default function DebugPage() {
   const { supabase } = useSupabase();
@@ -20,6 +21,7 @@ export default function DebugPage() {
     data: null
   });
   const [isStatic, setIsStatic] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     // Check if we're in static mode
@@ -76,6 +78,35 @@ export default function DebugPage() {
         message: `Exception: ${(error as Error).message}`,
         data: error
       });
+    }
+  };
+
+  const deleteSamples = async () => {
+    if (isStatic) {
+      toast.error('Cannot delete samples in static mode');
+      return;
+    }
+
+    if (!window.confirm('Are you sure you want to delete all samples? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('samples')
+        .delete()
+        .neq('id', '0'); // Delete all samples (the neq condition ensures we hit all records)
+      
+      if (error) {
+        toast.error(`Failed to delete samples: ${error.message}`);
+      } else {
+        toast.success('Successfully deleted all samples');
+      }
+    } catch (error) {
+      toast.error(`Error deleting samples: ${(error as Error).message}`);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -208,6 +239,29 @@ export default function DebugPage() {
             Check browser console for any JavaScript errors
           </li>
         </ol>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 className="text-2xl mb-4">Sample Management</h2>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={deleteSamples}
+            className={`flex items-center gap-2 font-bold py-2 px-4 rounded ${
+              isStatic || isDeleting
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-red-500 hover:bg-red-700 text-white'
+            }`}
+            disabled={isStatic || isDeleting}
+          >
+            <FontAwesomeIcon icon={faTrash} />
+            {isDeleting ? 'Deleting...' : 'Delete All Samples'}
+            {isStatic && ' (Disabled in Static Mode)'}
+          </button>
+          <div className="text-sm text-gray-600">
+            <FontAwesomeIcon icon={faInfoCircle} className="mr-1" />
+            Use this button to delete all samples for testing purposes
+          </div>
+        </div>
       </div>
     </main>
   );
