@@ -31,22 +31,16 @@ npm ci
 echo "Building the Next.js app..."
 NEXT_TELEMETRY_DISABLED=1 npm run build
 
-# Create output directory structure
-echo "Creating output directory structure..."
+# Set up the output directory
+echo "Setting up output directory..."
 rm -rf out
-mkdir -p out/_next/static
+mkdir -p out
 
-# Copy necessary files to output
-echo "Copying build files to output directory..."
-cp -r .next/static/* out/_next/static/
+# Copy the export output
+echo "Copying export output..."
+cp -r out/* ./ || true  # Handle case where out is empty
+cp -r .next/static out/_next/
 cp -r public/* out/
-
-# Copy HTML files
-echo "Copying HTML files..."
-cp -r .next/server/app/* out/
-find out -name "*.json" -type f -delete
-find out -name "*.js" -type f -delete
-find out -name "*.txt" -type f -delete
 
 # Create optimized package.json for deployment
 echo "Creating optimized package.json..."
@@ -73,6 +67,17 @@ cat > out/_headers << EOL
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
   Access-Control-Allow-Headers: Content-Type, Authorization, x-client-info, apikey, X-Client-Info
+
+/_next/static/chunks/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+/_next/static/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+*.js
+  Content-Type: application/javascript
 EOL
 
 # Clean up
@@ -97,10 +102,8 @@ find out -type f -name "*.spec.js" -delete
 find out -type f -name "*.test.ts" -delete
 find out -type f -name "*.spec.ts" -delete
 
-# Compress the output directory
-echo "Compressing output directory..."
-cd out
-find . -type f -name "*.js" ! -name "*.min.js" -exec gzip -k {} \;
-cd ..
+# Compress JavaScript files
+echo "Compressing JavaScript files..."
+find out -type f -name "*.js" ! -name "*.min.js" -exec gzip -k {} \;
 
 echo "Build process completed. Optimized files are in the 'out' directory." 
