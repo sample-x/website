@@ -1,31 +1,34 @@
-import type { Metadata } from 'next';
+import './globals.css';
 import { Inter } from 'next/font/google';
-import './globals.css'
-import Link from 'next/link'
-import Image from 'next/image'
-import SupabaseProvider from './supabase-provider';
+import { Providers } from './providers';
+import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ErrorBoundary from './components/ErrorBoundary';
-import Script from 'next/script';
+import ScriptLoader from './components/ScriptLoader';
+import { Suspense } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Sample Exchange',
-  description: 'A marketplace for scientific samples',
-}
+  description: 'Exchange samples with researchers worldwide',
+};
+
+export const dynamic = 'force-static';
+export const revalidate = 3600; // Revalidate every hour
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
       <head>
-        <link 
-          rel="stylesheet" 
+        <link
+          rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin="anonymous"
@@ -33,103 +36,19 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
-          <SupabaseProvider>
-            <header className="site-header">
-              <div className="container">
-                <div className="logo">
-                  <Link href="/">
-                    <Image 
-                      src="/assets/images/logo.png" 
-                      alt="Sample Exchange Logo" 
-                      width={240} 
-                      height={70} 
-                      priority
-                      className="header-logo"
-                    />
-                  </Link>
-                </div>
-                <nav className="main-nav">
-                  <ul>
-                    <li><Link href="/">Home</Link></li>
-                    <li><Link href="/samples">Samples</Link></li>
-                    <li><Link href="/about">Overview</Link></li>
-                    <li><Link href="/contact">Contact</Link></li>
-                    <li><Link href="/debug">Debug</Link></li>
-                    <li className="auth-links">
-                      <Link href="/login" className="btn btn-outline">Login</Link>
-                      <Link href="/register" className="btn btn-primary">Sign Up</Link>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-            </header>
-            
-            <main>
-              <ErrorBoundary>
+          <Providers>
+            <Navbar />
+            <main className="min-h-screen">
+              <Suspense fallback={<div>Loading...</div>}>
                 {children}
-              </ErrorBoundary>
+              </Suspense>
             </main>
-            
-            <footer className="site-footer">
-              <div className="container">
-                <div className="footer-content">
-                  <div className="footer-logo">
-                    <h2 className="footer-brand">Sample<span className="text-accent">X</span></h2>
-                    <p>
-                      Revolutionizing science collaboration through seamless sample management and exchange.
-                    </p>
-                  </div>
-                  
-                  <div className="footer-links">
-                    <div className="footer-section">
-                      <h3>Explore</h3>
-                      <ul>
-                        <li><Link href="/samples">Browse Samples</Link></li>
-                        <li><Link href="/team">Our Team</Link></li>
-                        <li><Link href="/about">Overview</Link></li>
-                      </ul>
-                    </div>
-                    
-                    <div className="footer-section">
-                      <h3>Resources</h3>
-                      <ul>
-                        <li><Link href="/faq">FAQ</Link></li>
-                        <li><Link href="/terms">Terms of Service</Link></li>
-                        <li><Link href="/privacy">Privacy Policy</Link></li>
-                      </ul>
-                    </div>
-                    
-                    <div className="footer-section">
-                      <h3>Contact</h3>
-                      <ul>
-                        <li><Link href="/contact">Contact Us</Link></li>
-                        <li><a href="mailto:info@sample.exchange">info@sample.exchange</a></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="footer-bottom">
-                  <p className="footer-address">655 Oak Grove Ave. #1417, Menlo Park, California 94025</p>
-                  <p>&copy; {new Date().getFullYear()} SampleX. All rights reserved.</p>
-                </div>
-              </div>
-            </footer>
-            <ToastContainer />
-          </SupabaseProvider>
+            <Footer />
+            <ToastContainer position="bottom-right" />
+            <ScriptLoader />
+          </Providers>
         </ErrorBoundary>
-
-        {/* Load scripts at the end of body */}
-        <Script 
-          src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-          crossOrigin="anonymous"
-          strategy="lazyOnload"
-          onError={(e) => {
-            console.error('Error loading Leaflet:', e);
-          }}
-        />
       </body>
     </html>
-  )
+  );
 }
