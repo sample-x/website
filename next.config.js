@@ -3,7 +3,7 @@ const path = require('path');
 
 const nextConfig = {
   // Enable static export for Cloudflare Pages
-  output: 'standalone',
+  output: 'export',
   reactStrictMode: true,
   swcMinify: true,
   

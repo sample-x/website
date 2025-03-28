@@ -31,13 +31,22 @@ npm ci
 echo "Building the Next.js app..."
 NEXT_TELEMETRY_DISABLED=1 npm run build
 
-# Create output directory if it doesn't exist
-mkdir -p out
+# Create output directory structure
+echo "Creating output directory structure..."
+rm -rf out
+mkdir -p out/_next/static
 
 # Copy necessary files to output
 echo "Copying build files to output directory..."
-cp -r .next/static out/_next/static/
+cp -r .next/static/* out/_next/static/
 cp -r public/* out/
+
+# Copy HTML files
+echo "Copying HTML files..."
+cp -r .next/server/app/* out/
+find out -name "*.json" -type f -delete
+find out -name "*.js" -type f -delete
+find out -name "*.txt" -type f -delete
 
 # Create optimized package.json for deployment
 echo "Creating optimized package.json..."
@@ -69,11 +78,6 @@ EOL
 # Clean up
 echo "Cleaning up..."
 rm -f .env.local
-
-# Optimize the output directory
-echo "Optimizing output directory..."
-find out -name "*.map" -type f -delete
-find out -name "*.txt" -type f -delete
 
 # Remove unnecessary files to reduce size
 echo "Removing unnecessary files..."
