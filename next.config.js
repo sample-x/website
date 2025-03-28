@@ -48,35 +48,25 @@ const nextConfig = {
             priority: 40,
             enforce: true,
           },
-          lib: {
-            test(module) {
-              return module.size() > 160000 &&
-                /node_modules[/\\]/.test(module.identifier());
-            },
-            name(module) {
-              const hash = crypto.createHash('sha1');
-              hash.update(module.identifier());
-              return hash.digest('hex').substring(0, 8);
-            },
-            priority: 30,
-            minChunks: 1,
-            reuseExistingChunk: true,
-          },
           commons: {
             name: 'commons',
             minChunks: 2,
             priority: 20,
           },
-          shared: {
-            name(module, chunks) {
-              return crypto
-                .createHash('sha1')
-                .update(chunks.reduce((acc, chunk) => acc + chunk.name, ''))
-                .digest('hex')
-                .substring(0, 8);
+          lib: {
+            test(module) {
+              return module.size() > 160000 && /node_modules[/\\]/.test(module.identifier());
             },
-            priority: 10,
-            minChunks: 2,
+            name(module) {
+              // Simple hash based on module identifier
+              const moduleId = module.identifier();
+              const hash = Array.from(moduleId).reduce((acc, char) => {
+                return (acc << 5) - acc + char.charCodeAt(0) >>> 0;
+              }, 0);
+              return `chunk-${hash.toString(16).slice(0, 8)}`;
+            },
+            priority: 30,
+            minChunks: 1,
             reuseExistingChunk: true,
           },
         },

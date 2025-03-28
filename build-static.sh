@@ -29,15 +29,14 @@ npm ci
 
 # Build the Next.js app
 echo "Building the Next.js app..."
-npm run build
+NEXT_TELEMETRY_DISABLED=1 npm run build
 
 # Create output directory if it doesn't exist
 mkdir -p out
 
 # Copy necessary files to output
 echo "Copying build files to output directory..."
-cp -r .next/standalone/* out/
-cp -r .next/static out/.next/
+cp -r .next/static out/_next/static/
 cp -r public/* out/
 
 # Create optimized package.json for deployment
@@ -47,9 +46,6 @@ cat > out/package.json << EOL
   "name": "sample-exchange",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "start": "node server.js"
-  },
   "dependencies": {
     "next": "14.0.4",
     "react": "^18",
@@ -81,7 +77,6 @@ find out -name "*.txt" -type f -delete
 
 # Remove unnecessary files to reduce size
 echo "Removing unnecessary files..."
-rm -rf out/.next/cache
 find out -type f -name "*.d.ts" -delete
 find out -type f -name "*.map" -delete
 find out -type d -name "__tests__" -exec rm -rf {} +
