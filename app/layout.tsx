@@ -6,6 +6,8 @@ import Image from 'next/image'
 import SupabaseProvider from './supabase-provider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ErrorBoundary from './components/ErrorBoundary';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,94 +30,105 @@ export default function RootLayout({
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin="anonymous"
         />
-        <script 
+      </head>
+      <body className={inter.className}>
+        <ErrorBoundary>
+          <SupabaseProvider>
+            <header className="site-header">
+              <div className="container">
+                <div className="logo">
+                  <Link href="/">
+                    <Image 
+                      src="/assets/images/logo.png" 
+                      alt="Sample Exchange Logo" 
+                      width={240} 
+                      height={70} 
+                      priority
+                      className="header-logo"
+                    />
+                  </Link>
+                </div>
+                <nav className="main-nav">
+                  <ul>
+                    <li><Link href="/">Home</Link></li>
+                    <li><Link href="/samples">Samples</Link></li>
+                    <li><Link href="/about">Overview</Link></li>
+                    <li><Link href="/contact">Contact</Link></li>
+                    <li><Link href="/debug">Debug</Link></li>
+                    <li className="auth-links">
+                      <Link href="/login" className="btn btn-outline">Login</Link>
+                      <Link href="/register" className="btn btn-primary">Sign Up</Link>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </header>
+            
+            <main>
+              <ErrorBoundary>
+                {children}
+              </ErrorBoundary>
+            </main>
+            
+            <footer className="site-footer">
+              <div className="container">
+                <div className="footer-content">
+                  <div className="footer-logo">
+                    <h2 className="footer-brand">Sample<span className="text-accent">X</span></h2>
+                    <p>
+                      Revolutionizing science collaboration through seamless sample management and exchange.
+                    </p>
+                  </div>
+                  
+                  <div className="footer-links">
+                    <div className="footer-section">
+                      <h3>Explore</h3>
+                      <ul>
+                        <li><Link href="/samples">Browse Samples</Link></li>
+                        <li><Link href="/team">Our Team</Link></li>
+                        <li><Link href="/about">Overview</Link></li>
+                      </ul>
+                    </div>
+                    
+                    <div className="footer-section">
+                      <h3>Resources</h3>
+                      <ul>
+                        <li><Link href="/faq">FAQ</Link></li>
+                        <li><Link href="/terms">Terms of Service</Link></li>
+                        <li><Link href="/privacy">Privacy Policy</Link></li>
+                      </ul>
+                    </div>
+                    
+                    <div className="footer-section">
+                      <h3>Contact</h3>
+                      <ul>
+                        <li><Link href="/contact">Contact Us</Link></li>
+                        <li><a href="mailto:info@sample.exchange">info@sample.exchange</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="footer-bottom">
+                  <p className="footer-address">655 Oak Grove Ave. #1417, Menlo Park, California 94025</p>
+                  <p>&copy; {new Date().getFullYear()} SampleX. All rights reserved.</p>
+                </div>
+              </div>
+            </footer>
+            <ToastContainer />
+          </SupabaseProvider>
+        </ErrorBoundary>
+
+        {/* Load scripts at the end of body */}
+        <Script 
           src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossOrigin="anonymous"
-          defer
-        ></script>
-      </head>
-      <body className={inter.className}>
-        <SupabaseProvider>
-          <header className="site-header">
-            <div className="container">
-              <div className="logo">
-                <Link href="/">
-                  <Image 
-                    src="/assets/images/logo.png" 
-                    alt="Sample Exchange Logo" 
-                    width={240} 
-                    height={70} 
-                    priority
-                    className="header-logo"
-                  />
-                </Link>
-              </div>
-              <nav className="main-nav">
-                <ul>
-                  <li><Link href="/">Home</Link></li>
-                  <li><Link href="/samples">Samples</Link></li>
-                  <li><Link href="/about">Overview</Link></li>
-                  <li><Link href="/contact">Contact</Link></li>
-                  <li><Link href="/debug">Debug</Link></li>
-                  <li className="auth-links">
-                    <Link href="/login" className="btn btn-outline">Login</Link>
-                    <Link href="/register" className="btn btn-primary">Sign Up</Link>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          </header>
-          
-          {children}
-          
-          <footer className="site-footer">
-            <div className="container">
-              <div className="footer-content">
-                <div className="footer-logo">
-                  <h2 className="footer-brand">Sample<span className="text-accent">X</span></h2>
-                  <p>
-                    Revolutionizing science collaboration through seamless sample management and exchange.
-                  </p>
-                </div>
-                
-                <div className="footer-links">
-                  <div className="footer-section">
-                    <h3>Explore</h3>
-                    <ul>
-                      <li><Link href="/samples">Browse Samples</Link></li>
-                      <li><Link href="/team">Our Team</Link></li>
-                      <li><Link href="/about">Overview</Link></li>
-                    </ul>
-                  </div>
-                  
-                  <div className="footer-section">
-                    <h3>Resources</h3>
-                    <ul>
-                      <li><Link href="/faq">FAQ</Link></li>
-                      <li><Link href="/terms">Terms of Service</Link></li>
-                      <li><Link href="/privacy">Privacy Policy</Link></li>
-                    </ul>
-                  </div>
-                  
-                  <div className="footer-section">
-                    <h3>Contact</h3>
-                    <ul>
-                      <li><Link href="/contact">Contact Us</Link></li>
-                      <li><a href="mailto:info@sample.exchange">info@sample.exchange</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="footer-bottom">
-                <p className="footer-address">655 Oak Grove Ave. #1417, Menlo Park, California 94025</p>
-                <p>&copy; {new Date().getFullYear()} SampleX. All rights reserved.</p>
-              </div>
-            </div>
-          </footer>
-          <ToastContainer />
-        </SupabaseProvider>
+          strategy="lazyOnload"
+          onError={(e) => {
+            console.error('Error loading Leaflet:', e);
+          }}
+        />
       </body>
     </html>
   )

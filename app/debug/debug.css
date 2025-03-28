@@ -1,0 +1,48 @@
+.debug-page .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.debug-page .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #9ca3af;
+}
+
+.debug-page .btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.debug-page .btn-primary:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.debug-page .btn-danger {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+}
+
+.debug-page .btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+/* Override any conflicting Tailwind styles */
+.debug-page .btn.py-2,
+.debug-page .btn.px-4,
+.debug-page .btn.text-lg,
+.debug-page .btn.font-bold {
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+} 
