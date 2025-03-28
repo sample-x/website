@@ -3,7 +3,7 @@ const path = require('path');
 
 const nextConfig = {
   // Enable static export for Cloudflare Pages
-  output: 'export',
+  output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
   
@@ -16,7 +16,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'znmkkduvzzmoxzgthwby.supabase.co',
+        hostname: '**',
       },
     ],
     domains: ['tile.openstreetmap.org'],

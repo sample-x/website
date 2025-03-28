@@ -13,17 +13,7 @@ import { useMapEvents } from 'react-leaflet';
 // Dynamic import of react-leaflet components
 const MapContainer = dynamic(
   () => import('react-leaflet').then(mod => mod.MapContainer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="map-placeholder">
-        <div style={{textAlign: 'center'}}>
-          <div className="map-loading-spinner"></div>
-          <p>Loading map component...</p>
-        </div>
-      </div>
-    ),
-  }
+  { ssr: false }
 );
 
 const TileLayer = dynamic(
@@ -61,18 +51,6 @@ function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (i
     }
   });
 
-  useEffect(() => {
-    if (!onChange || !map) return;
-
-    const bounds = map.getBounds();
-    const visibleSamples = samples.filter(sample => 
-      typeof sample.latitude === 'number' && 
-      typeof sample.longitude === 'number' && 
-      bounds.contains([sample.latitude, sample.longitude] as [number, number])
-    );
-    onChange(visibleSamples.map(sample => String(sample.id || '')));
-  }, [map, samples, onChange]);
-
   return null;
 }
 
@@ -80,7 +58,6 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   const mapRef = useRef<Map | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Fix Leaflet default icon issue
   useEffect(() => {
     setMounted(true);
 
@@ -129,7 +106,6 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         className="leaflet-container"
         ref={mapRef}
         scrollWheelZoom={true}
-        style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

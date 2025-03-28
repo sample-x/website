@@ -12,26 +12,31 @@ const SampleMap = dynamic(() => import('./SampleMap'), {
     <div className="map-placeholder">
       <div style={{textAlign: 'center'}}>
         <div className="map-loading-spinner"></div>
-        <p>Loading map...</p>
+        <p>Loading map component...</p>
       </div>
     </div>
-  ),
+  )
 });
 
 interface SamplesMapContainerProps {
   samples: Sample[];
+  onSampleSelect?: (sample: Sample) => void;
+  onAddToCart?: (sample: Sample) => void;
+  selectedSample?: Sample | null;
 }
 
-export default function SamplesMapContainer({ samples }: SamplesMapContainerProps) {
-  const [visibleSampleIds, setVisibleSampleIds] = useState<string[]>([]);
+export default function SamplesMapContainer({
+  samples,
+  onSampleSelect,
+  onAddToCart,
+  selectedSample
+}: SamplesMapContainerProps) {
   const [mounted, setMounted] = useState(false);
-  const [mapKey, setMapKey] = useState(0);
+  const [visibleSampleIds, setVisibleSampleIds] = useState<string[]>([]);
 
   useEffect(() => {
     setMounted(true);
-    // Force map re-render when samples change
-    setMapKey(prev => prev + 1);
-  }, [samples]);
+  }, []);
 
   if (!mounted) {
     return (
@@ -45,15 +50,14 @@ export default function SamplesMapContainer({ samples }: SamplesMapContainerProp
   }
 
   return (
-    <div className="map-section">
-      <SampleMap 
-        key={mapKey}
-        samples={samples} 
-        onBoundsChange={setVisibleSampleIds} 
-      />
-      <div className="mt-2 text-sm text-gray-600">
-        {visibleSampleIds.length} samples visible in current view
+    <div className="map-wrapper">
+      <div className="map-info">
+        <p>Showing {visibleSampleIds.length} samples in current view</p>
       </div>
+      <SampleMap 
+        samples={samples}
+        onBoundsChange={setVisibleSampleIds}
+      />
     </div>
   );
 } 

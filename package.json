@@ -8,14 +8,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "export": "next export",
     "start": "next start",
     "lint": "next lint --fix",
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md,css}\"",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .next out",
-    "deploy": "npm run build",
-    "cloudflare-build": "./build-static.sh"
+    "clean": "rm -rf .next out"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
