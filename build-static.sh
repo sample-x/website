@@ -23,9 +23,9 @@ NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
 NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
 EOL
 
-# Clean install with production dependencies only
-echo "Installing production dependencies..."
-npm ci --omit=dev
+# Install all dependencies (including dev dependencies needed for build)
+echo "Installing dependencies..."
+npm ci
 
 # Build the Next.js app
 echo "Building the Next.js app..."
@@ -53,7 +53,10 @@ cat > out/package.json << EOL
   "dependencies": {
     "next": "14.0.4",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "@supabase/supabase-js": "^2.39.3",
+    "react-leaflet": "^4.2.1",
+    "leaflet": "^1.9.4"
   }
 }
 EOL
@@ -75,5 +78,30 @@ rm -f .env.local
 echo "Optimizing output directory..."
 find out -name "*.map" -type f -delete
 find out -name "*.txt" -type f -delete
+
+# Remove unnecessary files to reduce size
+echo "Removing unnecessary files..."
+rm -rf out/.next/cache
+find out -type f -name "*.d.ts" -delete
+find out -type f -name "*.map" -delete
+find out -type d -name "__tests__" -exec rm -rf {} +
+find out -type d -name "test" -exec rm -rf {} +
+find out -type d -name "tests" -exec rm -rf {} +
+find out -type d -name "docs" -exec rm -rf {} +
+find out -type d -name "doc" -exec rm -rf {} +
+find out -type d -name "example" -exec rm -rf {} +
+find out -type d -name "examples" -exec rm -rf {} +
+
+# Remove development-only files
+find out -type f -name "*.test.js" -delete
+find out -type f -name "*.spec.js" -delete
+find out -type f -name "*.test.ts" -delete
+find out -type f -name "*.spec.ts" -delete
+
+# Compress the output directory
+echo "Compressing output directory..."
+cd out
+find . -type f -name "*.js" ! -name "*.min.js" -exec gzip -k {} \;
+cd ..
 
 echo "Build process completed. Optimized files are in the 'out' directory." 
