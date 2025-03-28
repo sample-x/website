@@ -32,9 +32,15 @@ const nextConfig = {
     appDir: true,
   },
   
-  // Simplified webpack config
+  // Webpack optimization
   webpack: (config, { isServer }) => {
-    // Fix for browser APIs in Node.js environment
+    // Optimize bundle size
+    config.optimization = {
+      ...config.optimization,
+      minimize: true,
+    };
+
+    // Handle browser APIs in Node environment
     if (isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -44,6 +50,7 @@ const nextConfig = {
       };
     }
     
+    // Path aliases
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname),
@@ -51,7 +58,7 @@ const nextConfig = {
       '@components': path.resolve(__dirname, './components'),
       '@lib': path.resolve(__dirname, './lib'),
       '@context': path.resolve(__dirname, './context'),
-    }
+    };
     
     return config;
   },
