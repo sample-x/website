@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to build the Next.js app for Cloudflare Pages with size optimization
+# Script to build the Next.js app for Cloudflare Pages
 set -e
 
 echo "Starting static build process..."
@@ -22,27 +22,21 @@ EOL
 echo "Installing dependencies..."
 npm ci
 
-# Build the Next.js app
+# Build the Next.js app (outputs to 'out/' by default with export config)
 echo "Building the Next.js app..."
 NEXT_TELEMETRY_DISABLED=1 npm run build
 
-echo "Listing root directory contents after build:"
-ls -la
-
-echo "Listing dist directory contents after build:"
-ls -la dist
-
-# Create Cloudflare Pages specific files
-echo "Creating Cloudflare Pages configuration..."
-cat > dist/_headers << EOL
+# Create Cloudflare Pages specific files in 'out' directory
+echo "Creating Cloudflare Pages configuration in out/ directory..."
+cat > out/_headers << EOL
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 EOL
 
-# Create a _redirects file for custom routing
-cat > dist/_redirects << EOL
+# Create a _redirects file for custom routing in 'out' directory
+cat > out/_redirects << EOL
 /* /index.html 200
 EOL
 
@@ -50,4 +44,4 @@ EOL
 echo "Cleaning up..."
 rm .env.local
 
-echo "Static build script finished. Output should be in dist/" 
+echo "Static build completed! Output is in out/" 
