@@ -19,8 +19,8 @@
   z-index: 1;
 }
 
-/* Add this rule for grayscale */
-.grayscale {
+/* Updated rule for grayscale */
+.leaflet-tile-pane.grayscale-map {
   filter: grayscale(100%);
 }
 
