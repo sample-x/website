@@ -41,5 +41,6 @@ next-env.d.ts
 
 # Delete directory if it's not needed
 delete/
-out
-.backup
+
+# tmp directory
+tmp/
