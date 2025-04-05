@@ -108,6 +108,7 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         scrollWheelZoom={true}
       >
         <TileLayer
+          className="grayscale"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}

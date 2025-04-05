@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSupabase } from '@/app/supabase-provider';
 import { Sample as SupabaseSample } from '@/types/sample';
 import dynamic from 'next/dynamic';
@@ -40,6 +40,7 @@ export default function SamplesPage() {
   const [error, setError] = useState<string | null>(null);
   const [isStatic, setIsStatic] = useState(false);
   const [selectedSample, setSelectedSample] = useState<TableSample | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     // Check if we're in static export mode (Cloudflare Pages deployment)
@@ -84,7 +85,7 @@ export default function SamplesPage() {
   }, [supabase]);
 
   // Convert Supabase samples to the format expected by SamplesTable
-  const tableSamples: TableSample[] = samples.map(sample => ({
+  const tableSamples: TableSample[] = useMemo(() => samples.map(sample => ({
     id: sample.id.toString(),
     name: sample.name,
     type: sample.type,
@@ -96,7 +97,21 @@ export default function SamplesPage() {
     storageCondition: sample.storage_condition,
     availability: sample.quantity > 0 ? 'Available' : 'Out of Stock',
     inStock: sample.quantity > 0
-  }));
+  })), [samples]);
+
+  // Filter samples based on search term
+  const filteredTableSamples = useMemo(() => {
+    if (!searchTerm) {
+      return tableSamples;
+    }
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    return tableSamples.filter(sample => 
+      sample.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+      sample.type.toLowerCase().includes(lowerCaseSearchTerm) ||
+      sample.location.toLowerCase().includes(lowerCaseSearchTerm) ||
+      (sample.description && sample.description.toLowerCase().includes(lowerCaseSearchTerm))
+    );
+  }, [tableSamples, searchTerm]);
 
   const handleSampleSelect = (sample: TableSample) => {
     setSelectedSample(sample);
@@ -148,9 +163,18 @@ export default function SamplesPage() {
 
       {/* Sample Table Section */}
       {!loading && !error && samples.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-4">
+        <div className="bg-white rounded-lg shadow-lg p-4 mt-8">
+          <div className="mb-4">
+            <input 
+              type="text"
+              placeholder="Search samples (name, type, location...)"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
           <SamplesTable 
-            samples={tableSamples}
+            samples={filteredTableSamples}
             onSampleSelect={handleSampleSelect}
             onAddToCart={handleAddToCart}
           />
