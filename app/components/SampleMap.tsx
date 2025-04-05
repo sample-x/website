@@ -108,71 +108,78 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         scrollWheelZoom={true}
       >
         <TileLayer
-          className="grayscale"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
+          eventHandlers={{
+            load: (e) => {
+              (e.target as any).getContainer().style.filter = 'grayscale(100%)';
+            }
+          }}
         />
         {samples.filter(sample => 
           typeof sample.latitude === 'number' && 
           typeof sample.longitude === 'number'
-        ).map((sample) => (
-          <CircleMarker
-            key={sample.id}
-            center={[sample.latitude as number, sample.longitude as number]}
-            radius={8}
-            pathOptions={{
-              fillColor: getMarkerColor(sample.type),
-              color: '#fff',
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.9
-            }}
-          >
-            <Popup>
-              <div className="sample-popup">
-                <h3>{sample.name}</h3>
-                <div className="sample-info-grid">
-                  <div className="sample-info-label">Type:</div>
-                  <div className="sample-info-value">
-                    <div className="sample-type-indicator">
+        ).map((sample) => {
+          const color = getMarkerColor(sample.type);
+          return (
+            <CircleMarker
+              key={sample.id}
+              center={[sample.latitude as number, sample.longitude as number]}
+              radius={8}
+              pathOptions={{
+                fillColor: color,
+                color: '#fff',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.9
+              }}
+            >
+              <Popup>
+                <div className="sample-popup">
+                  <h3>{sample.name}</h3>
+                  <div className="sample-info-grid">
+                    <div className="sample-info-label">Type:</div>
+                    <div className="sample-info-value">
+                      <div className="sample-type-indicator">
+                        <span 
+                          className="type-dot"
+                          style={{ backgroundColor: color }}
+                        ></span>
+                        {sample.type}
+                      </div>
+                    </div>
+                    <div className="sample-info-label">Location:</div>
+                    <div className="sample-info-value">{sample.location}</div>
+                    <div className="sample-info-label">Storage:</div>
+                    <div className="sample-info-value">{sample.storage_condition}</div>
+                    <div className="sample-info-label">Price:</div>
+                    <div className="sample-info-value">${(sample.price || 0).toFixed(2)}</div>
+                    <div className="sample-info-label">Quantity:</div>
+                    <div className="sample-info-value">
                       <span 
-                        className="type-dot"
-                        style={{ backgroundColor: getMarkerColor(sample.type) }}
-                      ></span>
-                      {sample.type}
+                        className={`availability-badge ${
+                          (sample.quantity || 0) > 0
+                            ? 'available' 
+                            : 'out-of-stock'
+                        }`}
+                      >
+                        {(sample.quantity || 0) > 0 ? 'Available' : 'Out of Stock'}
+                      </span>
                     </div>
                   </div>
-                  <div className="sample-info-label">Location:</div>
-                  <div className="sample-info-value">{sample.location}</div>
-                  <div className="sample-info-label">Storage:</div>
-                  <div className="sample-info-value">{sample.storage_condition}</div>
-                  <div className="sample-info-label">Price:</div>
-                  <div className="sample-info-value">${(sample.price || 0).toFixed(2)}</div>
-                  <div className="sample-info-label">Quantity:</div>
-                  <div className="sample-info-value">
-                    <span 
-                      className={`availability-badge ${
-                        (sample.quantity || 0) > 0
-                          ? 'available' 
-                          : 'out-of-stock'
-                      }`}
-                    >
-                      {(sample.quantity || 0) > 0 ? 'Available' : 'Out of Stock'}
-                    </span>
-                  </div>
+                  <button 
+                    className="add-to-cart-button"
+                    onClick={() => alert(`Added ${sample.name} to cart!`)}
+                    disabled={(sample.quantity || 0) <= 0}
+                  >
+                    <FaCartPlus /> Add to Cart
+                  </button>
                 </div>
-                <button 
-                  className="add-to-cart-button"
-                  onClick={() => alert(`Added ${sample.name} to cart!`)}
-                  disabled={(sample.quantity || 0) <= 0}
-                >
-                  <FaCartPlus /> Add to Cart
-                </button>
-              </div>
-            </Popup>
-          </CircleMarker>
-        ))}
+              </Popup>
+            </CircleMarker>
+          );
+        })}
         <BoundsUpdater samples={samples} onChange={onBoundsChange} />
       </MapContainer>
     </div>

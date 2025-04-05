@@ -21,7 +21,8 @@ export default function Navbar() {
             <Link href="/contact">Contact</Link>
           </div>
           <div className="auth-buttons">
-            <Link href="/login" className="btn btn-secondary">Sign In</Link>
+            <Link href="/login" className="btn btn-outline">Sign In</Link>
+            <Link href="/register" className="btn btn-primary">Sign Up</Link>
           </div>
         </nav>
       </div>
