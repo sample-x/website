@@ -25,7 +25,8 @@ const nextConfig = {
   // Handle dynamic routes
   trailingSlash: true,
   
-  // Webpack optimization
+  // Webpack optimization - TEMPORARILY COMMENTED OUT FOR DEBUGGING
+  /*
   webpack: (config, { isServer }) => {
     // Optimize bundle size
     config.optimization = {
@@ -95,6 +96,7 @@ const nextConfig = {
     
     return config;
   },
+  */
 
   // Environment variables are now managed through .env.local
   env: {
