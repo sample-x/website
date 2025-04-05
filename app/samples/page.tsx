@@ -8,10 +8,7 @@ import './samples.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle, faCartPlus, faFlask, faFileAlt, faUpload, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
-import SupabaseConnectionTest from '@/app/components/SupabaseConnectionTest';
 import SamplesTable from './SamplesTable';
-import { getStaticSamples, isStaticExport } from '@/app/lib/staticData';
-import { toast } from 'react-toastify';
 
 // Define an interface that matches what SamplesTable expects
 interface TableSample {
@@ -38,44 +35,33 @@ export default function SamplesPage() {
   const [samples, setSamples] = useState<SupabaseSample[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isStatic, setIsStatic] = useState(false);
   const [selectedSample, setSelectedSample] = useState<TableSample | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Check if we're in static export mode (Cloudflare Pages deployment)
-    const staticMode = isStaticExport();
-    setIsStatic(staticMode);
-
     async function fetchSamples() {
+      setLoading(true);
       try {
-        // If in static mode, use our pre-defined static data
-        if (staticMode) {
-          console.log('Using static sample data...');
-          const staticSamples = getStaticSamples();
-          setSamples(staticSamples);
-          setLoading(false);
-          return;
-        }
-
-        // Otherwise, fetch from Supabase
-        console.log('Fetching samples from Supabase...');
-        const { data, error } = await supabase
+        console.log('Fetching samples from Supabase (Client-side)...');
+        const { data, error: fetchError } = await supabase
           .from('samples')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Error fetching samples:', error);
-          setError(`Failed to load samples: ${error.message}`);
-          throw error;
+        if (fetchError) {
+          console.error('Error fetching samples:', fetchError);
+          setError(`Failed to load samples: ${fetchError.message}`);
+          throw fetchError;
         }
         
         console.log(`Fetched ${data?.length || 0} samples`);
         setSamples(data || []);
-      } catch (error) {
-        console.error('Error in fetchSamples:', error);
-        setError(`An unexpected error occurred: ${(error as Error).message}`);
+        setError(null);
+      } catch (catchError) {
+        console.error('Error in fetchSamples:', catchError);
+        if (!error) {
+          setError(`An unexpected error occurred: ${(catchError as Error).message}`);
+        }
       } finally {
         setLoading(false);
       }
@@ -118,43 +104,25 @@ export default function SamplesPage() {
   };
 
   const handleAddToCart = (sample: TableSample) => {
-    toast.success(`Added ${sample.name} to cart!`);
+    // Implementation of handleAddToCart
   };
 
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Sample Management</h1>
       
-      {/* Supabase Connection Test - only show in dynamic mode */}
-      {!isStatic && <SupabaseConnectionTest />}
-      
-      {/* Static mode notice */}
-      {isStatic && (
-        <div className="bg-blue-100 text-blue-800 p-4 rounded mb-6">
-          <p className="font-medium">
-            <FontAwesomeIcon icon={faInfoCircle} className="mr-2" />
-            Running in static mode with demo data. Live Supabase connection is not available in this deployment.
-          </p>
-        </div>
-      )}
-      
       <div className="bg-white rounded-lg shadow-lg p-4 mb-8">
         <h2 className="text-2xl mb-4">Sample Locations</h2>
         
         {loading ? (
-          <div className="loading-spinner">Loading samples...</div>
+          <div className="loading-spinner">Loading map and samples...</div>
         ) : error ? (
           <div className="error-message">
             <p>{error}</p>
-            <p>Check your network connection and Supabase configuration, or try the local development version.</p>
           </div>
-        ) : samples.length === 0 ? (
+        ) : samples.length === 0 && !loading ? (
           <div className="no-samples-message">
-            <p>No samples found. Please upload some samples to get started.</p>
-            <Link href="/samples/upload" className="btn btn-primary mt-4">
-              <FontAwesomeIcon icon={faUpload} className="mr-2" />
-              Upload Samples
-            </Link>
+            <p>No samples found.</p>
           </div>
         ) : (
           <SamplesMapContainer samples={samples} />
@@ -181,15 +149,12 @@ export default function SamplesPage() {
         </div>
       )}
       
-      {/* Upload Button - don't show in static mode */}
-      {!isStatic && (
-        <div className="upload-button-container mt-8">
-          <Link href="/samples/upload" className="btn btn-primary">
-            <FontAwesomeIcon icon={faUpload} className="mr-2" />
-            Upload New Samples
-          </Link>
-        </div>
-      )}
+      <div className="upload-button-container mt-8">
+        <Link href="/samples/upload" className="btn btn-primary">
+          <FontAwesomeIcon icon={faUpload} className="mr-2" />
+          Upload New Samples
+        </Link>
+      </div>
 
       {/* Sample Details Modal */}
       {selectedSample && (
