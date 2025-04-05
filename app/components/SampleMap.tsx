@@ -98,6 +98,9 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
     );
   }
 
+  // Add log here before the map function
+  console.log(`[SampleMap Render Debug] Reached marker rendering. Samples count: ${samples?.length || 0}`);
+
   return (
     <div className="map-container">
       <MapContainer 
