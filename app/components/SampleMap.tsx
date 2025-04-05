@@ -98,8 +98,8 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
     );
   }
 
-  // Add log here before the map function
-  console.log(`[SampleMap Render Debug] Reached marker rendering. Samples count: ${samples?.length || 0}`);
+  // Log before returning the JSX
+  console.log(`[SampleMap Render Debug] Rendering map. Samples received: ${samples?.length || 0}`);
 
   return (
     <div className="map-container">
@@ -115,10 +115,9 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
         />
-        {samples.filter(sample => 
-          typeof sample.latitude === 'number' && 
-          typeof sample.longitude === 'number'
-        ).map((sample) => {
+
+        {/* Render markers for all received samples (assumed pre-filtered by parent) */}
+        {samples.map((sample) => {
           const color = getMarkerColor(sample.type);
           return (
             <CircleMarker
