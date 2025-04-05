@@ -35,10 +35,10 @@ cat > out/_headers << EOL
   Referrer-Policy: strict-origin-when-cross-origin
 EOL
 
-# Create a _redirects file for custom routing in 'out' directory
-cat > out/_redirects << EOL
-/* /index.html 200
-EOL
+# Create a _redirects file for custom routing in 'out' directory - REMOVED
+# cat > out/_redirects << EOL
+# /* /index.html 200
+# EOL
 
 # Clean up
 echo "Cleaning up..."
