@@ -102,15 +102,8 @@ export function getStaticSampleById(id: number): Sample | undefined {
 
 // Function to check if we're in static export mode
 export function isStaticExport(): boolean {
-  // Check if we have Supabase environment variables
-  const hasSupabaseUrl = typeof process.env.NEXT_PUBLIC_SUPABASE_URL !== 'undefined';
-  const hasSupabaseKey = typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'undefined';
-  
-  // If we have both Supabase environment variables, we're not in static mode
-  if (hasSupabaseUrl && hasSupabaseKey) {
-    return false;
-  }
-
-  // Otherwise, default to static mode
-  return true;
+  // Rely on a build-time environment variable baked into the client bundle
+  const isStatic = process.env.NEXT_PUBLIC_IS_STATIC_EXPORT === 'true';
+  // console.log(`isStaticExport check: NEXT_PUBLIC_IS_STATIC_EXPORT is '${process.env.NEXT_PUBLIC_IS_STATIC_EXPORT}', returning ${isStatic}`); // Optional debug log
+  return isStatic;
 } 

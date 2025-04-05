@@ -24,7 +24,7 @@ npm ci
 
 # Build the Next.js app (outputs to 'out/' by default with export config)
 echo "Building the Next.js app..."
-NEXT_TELEMETRY_DISABLED=1 npm run build
+NEXT_PUBLIC_IS_STATIC_EXPORT=true NEXT_TELEMETRY_DISABLED=1 npm run build
 
 # Create Cloudflare Pages specific files in 'out' directory
 echo "Creating Cloudflare Pages configuration in out/ directory..."
@@ -35,13 +35,8 @@ cat > out/_headers << EOL
   Referrer-Policy: strict-origin-when-cross-origin
 EOL
 
-# Create a _redirects file for custom routing in 'out' directory - REMOVED
-# cat > out/_redirects << EOL
-# /* /index.html 200
-# EOL
-
 # Clean up
 echo "Cleaning up..."
 rm .env.local
 
-echo "Static build completed! Output is in out/" 
+echo "Static build completed! Output is in out/"
