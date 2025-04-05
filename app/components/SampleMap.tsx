@@ -108,7 +108,6 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         scrollWheelZoom={true}
       >
         <TileLayer
-          className="leaflet-tile-pane grayscale-map"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
@@ -118,7 +117,6 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
           typeof sample.longitude === 'number'
         ).map((sample) => {
           const color = getMarkerColor(sample.type);
-          console.log(`[Map Marker Debug] Sample: ${sample.name}, Type: '${sample.type.toLowerCase()}', Color: ${color}`);
           return (
             <CircleMarker
               key={sample.id}

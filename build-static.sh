@@ -24,7 +24,7 @@ npm ci
 
 # Build the Next.js app (outputs to 'out/' by default with export config)
 echo "Building the Next.js app..."
-NEXT_PUBLIC_IS_STATIC_EXPORT=true NEXT_TELEMETRY_DISABLED=1 npm run build
+NEXT_TELEMETRY_DISABLED=1 npm run build
 
 # Create Cloudflare Pages specific files in 'out' directory
 echo "Creating Cloudflare Pages configuration in out/ directory..."
