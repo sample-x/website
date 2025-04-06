@@ -9,6 +9,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './SampleMap.css';
 import { useMapEvents } from 'react-leaflet';
+import './SampleMapMarker.css';
 
 // Dynamic import of react-leaflet components
 const MapContainer = dynamic(
@@ -124,13 +125,14 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
             <CircleMarker
               key={sample.id}
               center={[sample.latitude as number, sample.longitude as number]}
-              radius={8}
+              radius={10}
+              className="pulsating-marker"
               pathOptions={{
                 fillColor: color,
-                color: '#fff',
-                weight: 1,
+                color: '#000',
+                weight: 2,
                 opacity: 1,
-                fillOpacity: 0.9
+                fillOpacity: 1.0
               }}
               eventHandlers={{
                 mouseover: () => {
@@ -196,36 +198,36 @@ const getMarkerColor = (type: string | null | undefined): string => {
   // Normalize the type to lowercase for case-insensitive matching
   const normalizedType = type.toLowerCase().trim();
   
-  // Color mapping for different sample types
+  // Color mapping for different sample types - increased saturation for better visibility
   switch (normalizedType) {
     case 'water':
-      return '#4287f5'; // Blue
+      return '#0066FF'; // Brighter blue
     case 'soil':
-      return '#8B4513'; // Brown
+      return '#A52A2A'; // More saturated brown
     case 'air':
-      return '#87CEEB'; // Sky blue
+      return '#00BFFF'; // Deep sky blue
     case 'rock':
-      return '#A9A9A9'; // Dark gray
+      return '#696969'; // Dimgray
     case 'bacterial':
     case 'bacteria':
-      return '#9ACD32'; // Yellow-green
+      return '#ADFF2F'; // Green yellow
     case 'fungal':
     case 'fungi':
-      return '#FFA500'; // Orange
+      return '#FF8C00'; // Dark orange
     case 'viral':
     case 'virus':
-      return '#FF69B4'; // Pink
+      return '#FF1493'; // Deep pink
     case 'tissue':
-      return '#FF6347'; // Tomato red
+      return '#FF4500'; // Orange red
     case 'cell line':
-      return '#BA55D3'; // Medium orchid (purple)
+      return '#9932CC'; // Dark orchid (more vivid purple)
     case 'animal':
-      return '#CD853F'; // Peru (brown)
+      return '#B8860B'; // Dark goldenrod
     case 'plant':
-      return '#228B22'; // Forest green
+      return '#008000'; // Green
     case 'marine':
       return '#00FFFF'; // Cyan
     default:
-      return '#808080'; // Gray for unknown types
+      return '#FFA500'; // Orange for unknown (more visible than gray)
   }
 }; 

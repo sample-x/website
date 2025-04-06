@@ -235,4 +235,19 @@
 .leaflet-tile {
   filter: grayscale(100%) !important;
   -webkit-filter: grayscale(100%) !important;
+}
+
+/* Ensure SVG markers are NOT affected by grayscale */
+.leaflet-overlay-pane {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Enforce marker styling */
+.leaflet-interactive {
+  filter: none !important;
+  -webkit-filter: none !important;
+  /* Make sure marker styling isn't overridden */
+  stroke-opacity: 1 !important;
+  fill-opacity: 1 !important;
 } 
