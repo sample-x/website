@@ -103,7 +103,21 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   console.log(`[SampleMap Render Debug] Rendering map. Samples received: ${samples?.length || 0}`);
 
   return (
-    <div className="map-container">
+    <div className="map-container" style={{
+      height: '400px',
+      position: 'relative',
+      padding: '20px',
+      border: '5px solid red',
+      backgroundColor: '#f0f0f0',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '24px',
+      fontWeight: 'bold'
+    }}>
+      MAP AREA - Testing Deployment
+      {/* 
       <MapContainer 
         center={mapCenter}
         zoom={2} 
@@ -184,47 +198,12 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         })}
         <BoundsUpdater samples={samples} onChange={onBoundsChange} />
       </MapContainer>
+      */}
     </div>
   );
 }
 
-// Sample type colors for markers - EXTREMELY BRIGHT NEON COLORS
+// Sample type colors for markers - EXTREMELY SIMPLE COLORS
 const getMarkerColor = (type: string | null | undefined): string => {
-  if (!type) return '#808080'; // Default gray for unknown types
-  
-  // Normalize the type to lowercase for case-insensitive matching
-  const normalizedType = type.toLowerCase().trim();
-  
-  // EXTREMELY bright neon colors that can't be missed
-  switch (normalizedType) {
-    case 'water':
-      return '#00FFFF'; // Neon cyan
-    case 'soil':
-      return '#FF0000'; // Pure red
-    case 'air':
-      return '#00FFFF'; // Neon cyan
-    case 'rock':
-      return '#FFFFFF'; // Pure white
-    case 'bacterial':
-    case 'bacteria':
-      return '#00FF00'; // Neon green
-    case 'fungal':
-    case 'fungi':
-      return '#FFFF00'; // Neon yellow
-    case 'viral':
-    case 'virus':
-      return '#FF00FF'; // Neon magenta
-    case 'tissue':
-      return '#FF6600'; // Neon orange
-    case 'cell line':
-      return '#FF00FF'; // Neon magenta
-    case 'animal':
-      return '#FFFF00'; // Neon yellow
-    case 'plant':
-      return '#00FF00'; // Neon green
-    case 'marine':
-      return '#00FFFF'; // Neon cyan
-    default:
-      return '#FFFFFF'; // Pure white
-  }
+  return '#FF0000'; // Every marker is bright red
 }; 

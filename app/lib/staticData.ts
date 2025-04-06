@@ -102,6 +102,11 @@ export function getStaticSampleById(id: number): Sample | undefined {
 
 // Function to check if we're in static export mode
 export function isStaticExport(): boolean {
+  // Always return false to force dynamic mode
+  return false;
+  
+  // The original logic below is commented out
+  /*
   // Check if we have Supabase environment variables
   const hasSupabaseUrl = typeof process.env.NEXT_PUBLIC_SUPABASE_URL !== 'undefined';
   const hasSupabaseKey = typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'undefined';
@@ -113,4 +118,5 @@ export function isStaticExport(): boolean {
 
   // Otherwise, default to static mode (shouldn't happen if Supabase keys are always provided)
   return true;
+  */
 } 
