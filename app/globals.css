@@ -926,3 +926,34 @@ footer {
   filter: none !important;
   -webkit-filter: none !important;
 }
+
+/* Map marker styling to override grayscale */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-pane,
+.leaflet-overlay-pane,
+.leaflet-popup-pane,
+.leaflet-popup-content,
+.leaflet-container .leaflet-marker-pane *,
+.leaflet-container .leaflet-overlay-pane *,
+.leaflet-container .leaflet-shadow-pane *,
+.leaflet-container .leaflet-popup-pane * {
+  filter: none !important;
+}
+
+.leaflet-container path.leaflet-interactive {
+  filter: none !important;
+}
+
+/* Apply grayscale only to the map tiles */
+.map-tiles-grayscale {
+  filter: grayscale(100%) !important;
+}
+
+/* Ensure markers are visible with strong colors */
+.no-grayscale {
+  filter: none !important;
+  filter: brightness(1.2) !important;
+}
