@@ -180,9 +180,10 @@
   background: none;
 }
 
-/* Grayscale map styling */
+/* Grayscale map styling - added !important */
 .grayscale-map {
-  filter: grayscale(100%);
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
 }
 
 /* Additional map styling */
@@ -228,4 +229,10 @@
 
 .sample-popup-actions button:hover {
   background: #e0e0e0;
+}
+
+/* Fix for TileLayer */
+.leaflet-tile {
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
 } 

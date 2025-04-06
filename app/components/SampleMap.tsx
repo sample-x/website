@@ -119,7 +119,7 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         
         {samples.map((sample, index) => {
           const color = getMarkerColor(sample.type);
-          console.log(`[Map Marker Debug] Sample: ${sample.name}, Type: '${sample.type?.toLowerCase()}', Color: ${color}`);
+          console.log(`[Map Marker Debug] Sample: ${sample.name}, Type: '${sample.type?.toLowerCase()}', Color: ${color}, Raw type: ${sample.type}`);
           return (
             <CircleMarker
               key={sample.id}
@@ -131,6 +131,11 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
                 weight: 1,
                 opacity: 1,
                 fillOpacity: 0.9
+              }}
+              eventHandlers={{
+                mouseover: () => {
+                  console.log(`Marker hovered: ${sample.name}, Color: ${color}`);
+                }
               }}
             >
               <Popup>

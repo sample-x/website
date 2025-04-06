@@ -827,3 +827,18 @@ footer {
     padding: 1.5rem;
   }
 }
+
+/* Global grayscale map override */
+.leaflet-tile,
+.leaflet-tile-container img,
+.leaflet-layer img {
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
+}
+
+/* Override for Sign Up button */
+.btn-primary[href="/register"] {
+  background-color: #f29415 !important;
+  color: white !important;
+  border-color: #f29415 !important;
+}
