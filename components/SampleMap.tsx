@@ -46,6 +46,19 @@ const getMarkerColor = (type: string): string => {
   }
 };
 
+// After the getMarkerColor function, add a new constant for the legend
+const sampleTypes = [
+  { type: 'bacterial', label: 'Bacterial' },
+  { type: 'viral', label: 'Viral' },
+  { type: 'fungal', label: 'Fungal' },
+  { type: 'cell line', label: 'Cell Line' },
+  { type: 'plant', label: 'Plant' },
+  { type: 'animal', label: 'Animal' },
+  { type: 'water', label: 'Water' },
+  { type: 'soil', label: 'Soil' },
+  { type: 'environmental', label: 'Environmental' }
+];
+
 // BoundsUpdater component to handle map bounds changes
 function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (bounds: L.LatLngBounds) => void }) {
   const map = useMapEvents({
@@ -154,6 +167,35 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         
         <BoundsUpdater samples={samples} onChange={onBoundsChange} />
       </MapContainer>
+      
+      {/* Map Legend */}
+      <div className="map-legend" style={{
+        position: 'absolute',
+        bottom: '20px',
+        right: '20px',
+        backgroundColor: 'white',
+        padding: '10px',
+        borderRadius: '6px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+        zIndex: 1000,
+        maxWidth: '200px'
+      }}>
+        <h4 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>Sample Types</h4>
+        <div style={{ display: 'grid', gridTemplateColumns: '20px 1fr', gap: '6px', alignItems: 'center' }}>
+          {sampleTypes.map(({ type, label }) => (
+            <React.Fragment key={type}>
+              <div style={{ 
+                width: '16px', 
+                height: '16px', 
+                borderRadius: '50%', 
+                backgroundColor: getMarkerColor(type),
+                border: '1px solid rgba(0,0,0,0.2)' 
+              }} />
+              <span style={{ fontSize: '12px' }}>{label}</span>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
     </div>
   );
 } 
