@@ -180,16 +180,53 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
               className="no-grayscale"
             >
               <Popup className="sample-popup" autoPan={true}>
-                <div>
-                  <h3 className="font-bold">{sample.name}</h3>
-                  <p>Type: {sample.type}</p>
-                  <p>ID: {sample.id}</p>
-                  <button 
-                    className="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    onClick={() => router.push(`/samples/${sample.id}`)}
-                  >
-                    View Details
-                  </button>
+                <div className="p-2">
+                  <h3 className="font-bold text-base mb-2">{sample.name}</h3>
+                  <ul className="list-disc pl-4 space-y-1 mb-3">
+                    <li><span className="font-medium">Type:</span> {sample.type}</li>
+                    <li><span className="font-medium">Location:</span> {sample.location}</li>
+                    {sample.collection_date && <li><span className="font-medium">Collection Date:</span> {sample.collection_date}</li>}
+                    {sample.storage_condition && <li><span className="font-medium">Storage:</span> {sample.storage_condition}</li>}
+                    <li><span className="font-medium">Availability:</span> {sample.quantity > 0 ? 'Available' : 'Out of Stock'}</li>
+                    <li><span className="font-medium">Price:</span> ${sample.price}</li>
+                    <li><span className="font-medium">Biosafety Level:</span> <span className="bg-green-100 px-1 rounded text-xs inline-flex items-center">
+                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>BSL1</span>
+                    </li>
+                  </ul>
+                  <div className="flex space-x-2 mt-3">
+                    <button 
+                      className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs flex items-center"
+                      onClick={() => router.push(`/samples/${sample.id}`)}
+                    >
+                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 10-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      Details
+                    </button>
+                    <button 
+                      className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs flex items-center"
+                    >
+                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                      </svg>
+                      Add to Cart
+                    </button>
+                  </div>
+                  
+                  {/* Info section that appears when details button is clicked */}
+                  <div className="mt-3 bg-gray-50 p-2 rounded text-xs border border-gray-200">
+                    <div className="flex justify-between mb-2">
+                      <h4 className="font-bold">Additional Information</h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Permits & Restrictions</button>
+                      <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">References</button>
+                      <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Handling Information</button>
+                      <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Instructions</button>
+                    </div>
+                  </div>
                 </div>
               </Popup>
             </CircleMarker>

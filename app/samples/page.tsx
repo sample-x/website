@@ -161,7 +161,7 @@ export default function SamplesPage() {
     <main className="container mx-auto px-4 py-8">
       
       <div className="bg-white rounded-lg shadow-lg p-4 mb-8">
-        <h2 className="text-2xl mb-4">Sample Locations</h2>
+        <h2 className="text-2xl mb-4">Samples Overview</h2>
         
         {loading ? (
           <div className="loading-spinner">Loading map and samples...</div>
