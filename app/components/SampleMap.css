@@ -11,13 +11,11 @@
   width: 100%;
   height: 100%;
   position: relative;
-  isolation: isolate;
 }
 
 .leaflet-container {
   width: 100%;
   height: 100%;
-  z-index: 1;
 }
 
 /* Re-enabled rule for grayscale - REMOVED AGAIN */
@@ -76,15 +74,14 @@
 
 /* Sample popup styles */
 .sample-popup {
-  min-width: 250px;
   padding: 12px;
+  min-width: 250px;
 }
 
 .sample-popup h3 {
   margin: 0 0 12px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
 }
 
 .sample-info-grid {
@@ -96,7 +93,6 @@
 
 .sample-info-label {
   font-weight: 500;
-  color: #4b5563;
 }
 
 .sample-info-value {
@@ -147,7 +143,6 @@
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .add-to-cart-button:hover:not(:disabled) {
@@ -188,9 +183,8 @@
 }
 
 /* Apply grayscale only to the map tiles */
-.grayscale-map {
-  filter: grayscale(100%) !important;
-  -webkit-filter: grayscale(100%) !important;
+.grayscale-base img.leaflet-tile {
+  filter: grayscale(100%);
 }
 
 /* Ensure the map container allows proper layer stacking */
@@ -281,6 +275,18 @@
   filter: none !important;
   -webkit-filter: none !important;
   /* Make sure marker styling isn't overridden */
+  stroke-opacity: 1 !important;
+  fill-opacity: 1 !important;
+}
+
+/* Ensure markers are colored */
+.leaflet-pane:not(.leaflet-tile-pane) {
+  filter: none !important;
+}
+
+/* Map marker styles */
+path.leaflet-interactive {
+  stroke-width: 3px !important;
   stroke-opacity: 1 !important;
   fill-opacity: 1 !important;
 } 

@@ -867,3 +867,25 @@ footer {
   filter: none !important;
   -webkit-filter: none !important;
 }
+
+/* Add simpler button style without !important */
+.orange-btn {
+  background-color: #f29415;
+  color: white;
+  border-color: #f29415;
+}
+
+.orange-btn:hover {
+  background-color: #e08000;
+  color: white;
+}
+
+/* Cleaner map styles */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.leaflet-tile {
+  filter: grayscale(100%);
+}

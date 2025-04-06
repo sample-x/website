@@ -24,19 +24,10 @@ export default function Navbar() {
             <Link href="/login" className="btn btn-outline">Sign In</Link>
             <a 
               href="/register" 
-              className="btn btn-primary" 
-              style={{ 
-                backgroundColor: '#f29415 !important', 
-                color: 'white !important',
-                borderColor: '#f29415 !important',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.375rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                textDecoration: 'none'
+              className="btn orange-btn"
+              style={{
+                backgroundColor: "#f29415",
+                color: "white"
               }}
             >
               Sign Up

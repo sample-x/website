@@ -1,3 +1,25 @@
+/* Reset the CSS to a simpler approach */
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  filter: none !important;
+}
+
+path.leaflet-interactive {
+  stroke-width: 3px !important;
+  stroke-opacity: 1 !important;
+  fill-opacity: 1 !important;
+}
+
+.leaflet-overlay-pane svg,
+.leaflet-marker-pane,
+.leaflet-overlay-pane {
+  filter: none !important;
+}
+
+.leaflet-overlay-pane svg path {
+  filter: none !important;
+}
+
 /* Pulsating marker effect with stronger animation */
 .pulsating-marker {
   animation: pulse 1.5s infinite !important; /* Faster animation */
@@ -49,8 +71,6 @@ svg.leaflet-zoom-animated path {
 /* Force marker elements to ignore grayscale */
 .leaflet-marker-pane,
 .leaflet-overlay-pane,
-.leaflet-marker-icon,
-.leaflet-marker-shadow,
 .leaflet-popup,
 .leaflet-interactive {
   filter: none !important;

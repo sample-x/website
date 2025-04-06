@@ -107,91 +107,84 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
       <MapContainer 
         center={mapCenter}
         zoom={2} 
-        className="leaflet-container"
-        ref={mapRef}
         scrollWheelZoom={true}
         zoomControl={true}
         doubleClickZoom={true}
+        className="leaflet-container grayscale-base"
+        ref={mapRef}
       >
-        {/* Apply grayscale only to the tile layer div directly */}
-        <div className="tile-layer-container grayscale-map">
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            maxZoom={19}
-          />
-        </div>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          maxZoom={19}
+          className="grayscale-tiles"
+        />
         
-        {/* Render the markers outside the grayscale container */}
         {samples.map((sample, index) => {
           const color = getMarkerColor(sample.type);
           console.log(`[Map Marker Debug] Sample: ${sample.name}, Type: '${sample.type?.toLowerCase()}', Color: ${color}, Raw type: ${sample.type}`);
           
-          // Wrapper for each marker with anti-grayscale class
           return (
-            <div key={`marker-wrapper-${sample.id}`} className="marker-container no-grayscale" style={{filter: 'none !important'}}>
-              <CircleMarker
-                key={sample.id}
-                center={[sample.latitude as number, sample.longitude as number]}
-                radius={12} // Increased size even more
-                className="pulsating-marker"
-                pathOptions={{
-                  fillColor: color,
-                  color: 'black',
-                  weight: 3, // Even thicker border
-                  opacity: 1,
-                  fillOpacity: 1.0
-                }}
-                eventHandlers={{
-                  mouseover: () => {
-                    console.log(`Marker hovered: ${sample.name}, Color: ${color}`);
-                  }
-                }}
-              >
-                <Popup>
-                  <div className="sample-popup">
-                    <h3>{sample.name}</h3>
-                    <div className="sample-info-grid">
-                      <div className="sample-info-label">Type:</div>
-                      <div className="sample-info-value">
-                        <div className="sample-type-indicator">
-                          <span 
-                            className="type-dot"
-                            style={{ backgroundColor: color }}
-                          ></span>
-                          {sample.type}
-                        </div>
-                      </div>
-                      <div className="sample-info-label">Location:</div>
-                      <div className="sample-info-value">{sample.location}</div>
-                      <div className="sample-info-label">Storage:</div>
-                      <div className="sample-info-value">{sample.storage_condition}</div>
-                      <div className="sample-info-label">Price:</div>
-                      <div className="sample-info-value">${(sample.price || 0).toFixed(2)}</div>
-                      <div className="sample-info-label">Quantity:</div>
-                      <div className="sample-info-value">
+            <CircleMarker
+              key={sample.id}
+              center={[sample.latitude as number, sample.longitude as number]}
+              radius={14}
+              pathOptions={{
+                fillColor: color,
+                color: 'black',
+                weight: 4,
+                opacity: 1,
+                fillOpacity: 1
+              }}
+              eventHandlers={{
+                mouseover: () => {
+                  console.log(`Marker hovered: ${sample.name}, Color: ${color}`);
+                }
+              }}
+            >
+              <Popup>
+                <div className="sample-popup">
+                  <h3>{sample.name}</h3>
+                  <div className="sample-info-grid">
+                    <div className="sample-info-label">Type:</div>
+                    <div className="sample-info-value">
+                      <div className="sample-type-indicator">
                         <span 
-                          className={`availability-badge ${
-                            (sample.quantity || 0) > 0
-                              ? 'available' 
-                              : 'out-of-stock'
-                          }`}
-                        >
-                          {(sample.quantity || 0) > 0 ? 'Available' : 'Out of Stock'}
-                        </span>
+                          className="type-dot"
+                          style={{ backgroundColor: color }}
+                        ></span>
+                        {sample.type}
                       </div>
                     </div>
-                    <button 
-                      className="add-to-cart-button"
-                      onClick={() => alert(`Added ${sample.name} to cart!`)}
-                      disabled={(sample.quantity || 0) <= 0}
-                    >
-                      <FaCartPlus /> Add to Cart
-                    </button>
+                    <div className="sample-info-label">Location:</div>
+                    <div className="sample-info-value">{sample.location}</div>
+                    <div className="sample-info-label">Storage:</div>
+                    <div className="sample-info-value">{sample.storage_condition}</div>
+                    <div className="sample-info-label">Price:</div>
+                    <div className="sample-info-value">${(sample.price || 0).toFixed(2)}</div>
+                    <div className="sample-info-label">Quantity:</div>
+                    <div className="sample-info-value">
+                      <span 
+                        className={`availability-badge ${
+                          (sample.quantity || 0) > 0
+                            ? 'available' 
+                            : 'out-of-stock'
+                        }`}
+                      >
+                        {(sample.quantity || 0) > 0 ? 'Available' : 'Out of Stock'}
+                      </span>
+                    </div>
                   </div>
-                </Popup>
-              </CircleMarker>
-            </div>
+                  <button 
+                    className="add-to-cart-button"
+                    onClick={() => alert(`Added ${sample.name} to cart!`)}
+                    disabled={(sample.quantity || 0) <= 0}
+                  >
+                    <FaCartPlus /> Add to Cart
+                  </button>
+                </div>
+              </Popup>
+            </CircleMarker>
           );
         })}
         <BoundsUpdater samples={samples} onChange={onBoundsChange} />
