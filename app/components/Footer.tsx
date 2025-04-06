@@ -10,7 +10,7 @@ export function Footer() {
             <div className="mb-6 transform transition-transform hover:opacity-90">
               <Link href="/">
                 <Image 
-                  src="/assets/images/logo.png" 
+                  src="/assets/images/logo_dark.png" 
                   alt="SampleX" 
                   width={180} 
                   height={60} 

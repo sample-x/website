@@ -45,7 +45,7 @@ export default function Home() {
             <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
               <div className="flex justify-center mb-8 w-full">
                 <Image 
-                  src="/assets/images/logo.png" 
+                  src="/assets/images/logo_dark.png" 
                   alt="Sample Exchange" 
                   width={240} 
                   height={80} 

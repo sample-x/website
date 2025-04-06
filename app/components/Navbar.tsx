@@ -8,19 +8,48 @@ import React, { useEffect, useState } from 'react';
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Check if we're on a specific page
   const isActive = (path: string) => {
     return pathname === path;
   };
 
+  // Detect dark mode
+  useEffect(() => {
+    // Initial check for dark mode
+    const checkDarkMode = () => {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setIsDarkMode(isDark);
+    };
+    
+    checkDarkMode();
+    
+    // Listen for changes in dark mode preference
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleDarkModeChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+    
+    // Add event listener for dark mode changes
+    darkModeMediaQuery.addEventListener('change', handleDarkModeChange);
+    
+    // Clean up event listener
+    return () => {
+      darkModeMediaQuery.removeEventListener('change', handleDarkModeChange);
+    };
+  }, []);
+
+  // Determine which logo to use
+  const logoSrc = isDarkMode ? '/assets/images/logo_light.png' : '/assets/images/logo_dark.png';
+
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm dark:bg-gray-900">
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center">
             <Image 
-              src="/assets/images/logo.png" 
+              src={logoSrc} 
               alt="Sample Exchange" 
               width={160} 
               height={48} 
@@ -32,7 +61,7 @@ export default function Navbar() {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+              className="flex items-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none dark:hover:bg-gray-800"
             >
               <span className="sr-only">Open menu</span>
               <svg
@@ -55,23 +84,23 @@ export default function Navbar() {
 
           {/* Desktop menu */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-gray-700 hover:text-teal-600">
+            <Link href="/" className="text-gray-700 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400">
               Explore
             </Link>
-            <Link href="/samples" className="text-gray-700 hover:text-teal-600">
+            <Link href="/samples" className="text-gray-700 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400">
               Samples
             </Link>
-            <Link href="/#contact" className="text-gray-700 hover:text-teal-600">
+            <Link href="/#contact" className="text-gray-700 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400">
               Contact
             </Link>
-            <Link href="/debug" className="text-gray-700 hover:text-teal-600">
+            <Link href="/debug" className="text-gray-700 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400">
               Debug
             </Link>
             
             <div className="ml-6 flex items-center gap-3">
               <Link 
                 href="/login" 
-                className="px-4 py-2 border rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                 style={{ 
                   color: '#f59e0b', 
                   borderColor: '#f59e0b' 
@@ -99,28 +128,28 @@ export default function Navbar() {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link
               href="/"
-              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
+              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
               onClick={() => setIsOpen(false)}
             >
               Explore
             </Link>
             <Link
               href="/samples"
-              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
+              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
               onClick={() => setIsOpen(false)}
             >
               Samples
             </Link>
             <Link
               href="/#contact"
-              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
+              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
               onClick={() => setIsOpen(false)}
             >
               Contact
             </Link>
             <Link
               href="/debug"
-              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
+              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
               onClick={() => setIsOpen(false)}
             >
               Debug
@@ -128,7 +157,7 @@ export default function Navbar() {
             <div className="flex flex-col space-y-2 mt-4 px-3">
               <Link
                 href="/login"
-                className="px-4 py-2 text-center border rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-center border rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                 style={{ 
                   color: '#f59e0b', 
                   borderColor: '#f59e0b' 
