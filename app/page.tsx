@@ -135,6 +135,68 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* About Section */}
+      <section className="about-section" id="about">
+        <div className="container">
+          <h2>Our Mission</h2>
+          <div className="about-content">
+            <p>At Sample Exchange, we're committed to building a collaborative ecosystem for scientific sample sharing. We believe that by connecting researchers and institutions, we can accelerate scientific discovery and make research more efficient and cost-effective.</p>
+            
+            <h3>The Sample Exchange Story</h3>
+            <p>Scientists are always scrounging around for money. We realized we didn't have enough grant funding to organize yet another expensive sample collection trip to Alaska, to get permafrost samples. A researcher from the U. of Alaska helped us out by collecting samples and sharing them with us for free! How wonderful!</p>
+            <p>You can say with Sample Exchange, we are simply paying it forward!</p>
+            
+            <div className="image-container my-6">
+              <img src="/assets/images/permafrost-core.jpg" alt="Permafrost Core" className="rounded-lg shadow-md" />
+              <p className="text-sm text-gray-600 mt-2 italic">Example of a Permafrost Core<br />Image courtesy: Permafrost Laboratory, U. of Alaska (Fairbanks)</p>
+            </div>
+            
+            <h3>Our Services</h3>
+            <div className="services-grid grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div className="service-card p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-lg mb-2">Environmental Sample Collection</h4>
+                <p className="text-gray-700">Professional collection of environmental samples from diverse ecosystems with proper documentation and handling protocols.</p>
+              </div>
+              
+              <div className="service-card p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-lg mb-2">Strain, Tissue, Culture Collection</h4>
+                <p className="text-gray-700">Specialized collection and preservation of biological strains, tissues, and cultures for research purposes.</p>
+              </div>
+              
+              <div className="service-card p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-lg mb-2">Intelligent Sample Management</h4>
+                <p className="text-gray-700">Advanced framework for tracking, organizing, and managing samples throughout their lifecycle.</p>
+              </div>
+              
+              <div className="service-card p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-lg mb-2">Biological Sample Processing</h4>
+                <p className="text-gray-700">Expert processing of biological samples using state-of-the-art techniques and equipment.</p>
+              </div>
+              
+              <div className="service-card p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-lg mb-2">Custom Analytical Methods</h4>
+                <p className="text-gray-700">Development of tailored analytical methods to meet specific research requirements and objectives.</p>
+              </div>
+              
+              <div className="service-card p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-lg mb-2">Data Interpretation & Reporting</h4>
+                <p className="text-gray-700">Comprehensive analysis and reporting of sample data with clear, actionable insights.</p>
+              </div>
+              
+              <div className="service-card p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-lg mb-2">Sampling Consultation</h4>
+                <p className="text-gray-700">Expert guidance on sampling strategies, protocols, and permit requirements for research projects.</p>
+              </div>
+              
+              <div className="service-card p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-lg mb-2">MTA Support</h4>
+                <p className="text-gray-700">Assistance with Material Transfer Agreements to ensure proper legal and ethical sample sharing.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   )
 }

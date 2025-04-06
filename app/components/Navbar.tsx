@@ -27,7 +27,7 @@ export default function Navbar() {
             href="/" 
             className={`text-sm ${isActive('/') ? 'font-bold' : 'font-medium'} text-gray-700 hover:text-gray-900`}
           >
-            Home
+            Explore
           </Link>
           <Link 
             href="/samples" 
