@@ -197,8 +197,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Sample Acquisition</h3>
-                <p className="text-[#003949]/80">Find and acquire the exact samples you need for your research from our global network of providers.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Environmental Sample Processing</h3>
+                <p className="text-[#003949]/80">Professional services for diverse samples from extreme locations with proper documentation and handling protocols.</p>
               </div>
             </div>
             
@@ -211,8 +211,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Sample Management</h3>
-                <p className="text-[#003949]/80">Comprehensive tools to track, manage, and organize your biological samples and collections.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Strain, Tissue, Culture Processing</h3>
+                <p className="text-[#003949]/80">Specialized extraction and preparation of biological strains, tissues, and cultures for research purposes.</p>
               </div>
             </div>
             
@@ -225,8 +225,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Exchange Platform</h3>
-                <p className="text-[#003949]/80">List samples you can share or sell, facilitating collaboration between researchers globally.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Intelligent Sample Management</h3>
+                <p className="text-[#003949]/80">Automation solutions for tracking, cataloging, and managing samples throughout their lifecycle.</p>
               </div>
             </div>
             
@@ -239,8 +239,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Quality Assurance</h3>
-                <p className="text-[#003949]/80">Rigorous verification processes ensure all samples meet the highest quality standards.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Biological Sample Processing</h3>
+                <p className="text-[#003949]/80">Expert protocols for biological sample using state-of-the-art techniques and equipment.</p>
               </div>
             </div>
             
@@ -254,8 +254,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Storage Solutions</h3>
-                <p className="text-[#003949]/80">Access our network of certified storage facilities for short or long-term sample preservation.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Custom Analytical Methods</h3>
+                <p className="text-[#003949]/80">Development of tailored analytical methods to meet specific research requirements and objectives.</p>
               </div>
             </div>
             
@@ -268,8 +268,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Authentication</h3>
-                <p className="text-[#003949]/80">Verify the origin, type, and quality of samples through our certified authentication process.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Data Interpretation & Reporting</h3>
+                <p className="text-[#003949]/80">Comprehensive analysis and reporting of sample data with insights.</p>
               </div>
             </div>
             
@@ -282,8 +282,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Custom Collection</h3>
-                <p className="text-[#003949]/80">Specialized collection services to gather specific samples according to your research needs.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Sampling Consultation</h3>
+                <p className="text-[#003949]/80">Expert guidance on sampling strategies, protocols, and partner research projects.</p>
               </div>
             </div>
             
@@ -296,8 +296,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#003949]">API Integration</h3>
-                <p className="text-[#003949]/80">Connect your lab systems directly to our platform with our comprehensive API services.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">MTA Support</h3>
+                <p className="text-[#003949]/80">Assistance with Material Transfer Agreements to ensure proper legal and ethical sample usage.</p>
               </div>
             </div>
           </div>

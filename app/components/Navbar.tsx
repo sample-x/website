@@ -44,7 +44,7 @@ export default function Navbar() {
   const logoSrc = isDarkMode ? '/assets/images/logo_light.png' : '/assets/images/logo_dark.png';
 
   return (
-    <header className="bg-white shadow-sm dark:bg-gray-900">
+    <header className="bg-white shadow-sm dark:bg-[#003949]">
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center">
