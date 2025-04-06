@@ -121,9 +121,8 @@ export default function Home() {
 
       {/* About Section */}
       <section className="py-16">
-        {/* Mission Statement - with testimonials background */}
-        <div className="mb-12 py-12 text-white rounded-lg" style={{ background: "url(/assets/images/testimonials.jpg)", backgroundSize: "cover", position: "relative" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.6)" }}></div>
+        {/* Mission Statement - with same background color as testimonials */}
+        <div className="mb-12 py-12 text-white rounded-lg" style={{ backgroundColor: "#21414d" }}>
           <div className="container mx-auto text-center px-6 relative z-10">
             <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
             <p className="text-xl max-w-3xl mx-auto">
@@ -282,9 +281,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contact Section with testimonials background */}
-      <section className="contact-section mt-16 mb-0 py-16 text-white" id="contact" style={{ background: "url(/assets/images/testimonials.jpg)", backgroundSize: "cover", position: "relative" }}>
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.6)" }}></div>
+      {/* Contact Section with testimonials background color */}
+      <section className="contact-section mt-16 mb-0 py-16 text-white" id="contact" style={{ backgroundColor: "#21414d" }}>
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-3xl mx-auto">
             <ContactForm 
