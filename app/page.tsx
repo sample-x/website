@@ -124,58 +124,49 @@ export default function Home() {
         </div>
 
         {/* Sample Exchange Story */}
-        <div className="container mx-auto px-6 mb-24">
-          <h2 className="section-heading text-center text-4xl mb-12 relative">
-            <span className="inline-block relative">
-              The Sample Exchange Story
-              <div className="absolute -bottom-3 left-0 w-1/3 h-1 bg-[#f59e0b]"></div>
-            </span>
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="bg-white p-8 rounded-tl-3xl rounded-br-3xl shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#8BD7D7]/10 transform rotate-45 translate-x-12 -translate-y-12"></div>
-              <p className="text-[#263238] mb-5 text-lg relative z-10">
-                Founded in 2020 by a team of scientists frustrated by the challenges of finding quality biological samples, 
-                Sample Exchange has grown into the leading platform for scientific sample exchange.
-              </p>
-              <p className="text-[#263238] mb-5 text-lg relative z-10">
-                Our platform connects researchers, biobanks, and sample providers globally, enabling 
-                faster discoveries and more efficient resource utilization in the scientific community.
-              </p>
-              <p className="text-[#263238] text-lg relative z-10">
-                With a focus on quality, traceability, and ethical sourcing, we're building the 
-                future of sample management and exchange for scientific research.
-              </p>
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#00757F]">The Sample Exchange Story</h2>
+              <div className="relative h-1 mx-auto bg-[#f59e0b] w-24 rounded"></div>
             </div>
-            <div className="flex justify-center">
-              <div className="bg-white p-6 rounded-tr-3xl rounded-bl-3xl shadow-lg overflow-hidden">
-                <img
-                  src="/assets/images/permafrost-core.jpg"
-                  alt="Permafrost Core Sample"
-                  className="rounded-lg w-full h-auto object-cover"
-                />
-                <p className="text-sm text-[#263238]/80 mt-3 italic text-center">
-                  Example of a Permafrost Core<br />
-                  Image courtesy: Permafrost Laboratory, U. of Alaska (Fairbanks)
+            
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="bg-white rounded-lg shadow-lg p-8">
+                <p className="text-lg text-gray-700 mb-6">
+                  Sample Exchange was born from a simple observation: scientists waste countless hours trying to find the right samples for their research.
                 </p>
+                <p className="text-lg text-gray-700 mb-6">
+                  Our founders, having experienced this frustration firsthand in their academic careers, created a platform that connects researchers who need samples with those who have them.
+                </p>
+                <p className="text-lg text-gray-700">
+                  Today, Sample Exchange is revolutionizing scientific collaboration by breaking down barriers to sample acquisition and fostering a community where sharing resources accelerates discovery.
+                </p>
+              </div>
+              
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <img 
+                  src="/assets/images/permafrost-core.jpg" 
+                  alt="Permafrost Core Sample" 
+                  className="w-full h-auto"
+                />
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Services Section */}
         <div className="container mx-auto px-6">
           <h2 className="section-heading text-center text-4xl mb-12 relative">
             <span className="inline-block relative">
               Our Services
-              <div className="absolute -bottom-3 left-0 w-1/3 h-1 bg-[#f59e0b]"></div>
+              <div className="absolute -bottom-3 left-1/4 right-1/4 h-1 bg-[#f59e0b]"></div>
             </span>
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Service Card 1 */}
-            <div className="bg-white rounded-tl-3xl rounded-br-3xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
               <div className="p-5 flex justify-center relative overflow-hidden" style={{ backgroundColor: "#f59e0b" }}>
                 <div className="absolute top-0 right-0 w-12 h-12 bg-white/10 rounded-full transform translate-x-6 -translate-y-6"></div>
                 <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -189,7 +180,7 @@ export default function Home() {
             </div>
             
             {/* Service Card 2 */}
-            <div className="bg-white rounded-tr-3xl rounded-bl-3xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
               <div className="p-5 flex justify-center relative overflow-hidden" style={{ backgroundColor: "#f59e0b" }}>
                 <div className="absolute top-0 left-0 w-12 h-12 bg-white/10 rounded-full transform -translate-x-6 -translate-y-6"></div>
                 <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -203,7 +194,7 @@ export default function Home() {
             </div>
             
             {/* Service Card 3 */}
-            <div className="bg-white rounded-tl-3xl rounded-br-3xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
               <div className="p-5 flex justify-center relative overflow-hidden" style={{ backgroundColor: "#f59e0b" }}>
                 <div className="absolute top-0 right-0 w-12 h-12 bg-white/10 rounded-full transform translate-x-6 -translate-y-6"></div>
                 <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -217,7 +208,7 @@ export default function Home() {
             </div>
             
             {/* Service Card 4 */}
-            <div className="bg-white rounded-tr-3xl rounded-bl-3xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
               <div className="p-5 flex justify-center relative overflow-hidden" style={{ backgroundColor: "#f59e0b" }}>
                 <div className="absolute top-0 left-0 w-12 h-12 bg-white/10 rounded-full transform -translate-x-6 -translate-y-6"></div>
                 <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -231,7 +222,7 @@ export default function Home() {
             </div>
             
             {/* Service Card 5 */}
-            <div className="bg-white rounded-tl-3xl rounded-br-3xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
               <div className="p-5 flex justify-center relative overflow-hidden" style={{ backgroundColor: "#f59e0b" }}>
                 <div className="absolute top-0 right-0 w-12 h-12 bg-white/10 rounded-full transform translate-x-6 -translate-y-6"></div>
                 <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -246,7 +237,7 @@ export default function Home() {
             </div>
             
             {/* Service Card 6 */}
-            <div className="bg-white rounded-tr-3xl rounded-bl-3xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
               <div className="p-5 flex justify-center relative overflow-hidden" style={{ backgroundColor: "#f59e0b" }}>
                 <div className="absolute top-0 left-0 w-12 h-12 bg-white/10 rounded-full transform -translate-x-6 -translate-y-6"></div>
                 <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -260,7 +251,7 @@ export default function Home() {
             </div>
             
             {/* Service Card 7 */}
-            <div className="bg-white rounded-tl-3xl rounded-br-3xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
               <div className="p-5 flex justify-center relative overflow-hidden" style={{ backgroundColor: "#f59e0b" }}>
                 <div className="absolute top-0 right-0 w-12 h-12 bg-white/10 rounded-full transform translate-x-6 -translate-y-6"></div>
                 <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -274,7 +265,7 @@ export default function Home() {
             </div>
             
             {/* Service Card 8 */}
-            <div className="bg-white rounded-tr-3xl rounded-bl-3xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:translate-y-[-8px]">
               <div className="p-5 flex justify-center relative overflow-hidden" style={{ backgroundColor: "#f59e0b" }}>
                 <div className="absolute top-0 left-0 w-12 h-12 bg-white/10 rounded-full transform -translate-x-6 -translate-y-6"></div>
                 <svg className="w-10 h-10 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -292,66 +283,99 @@ export default function Home() {
       
       <div className="section-divider my-12"></div>
 
-      <section className="testimonials py-16" id="testimonials">
-        <div className="section-background" style={{ backgroundImage: 'url(/assets/images/testimonials.jpg)' }}></div>
-        <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-12 text-white relative">
-            <span className="inline-block relative">
-              What the community is saying...
-              <div className="absolute -bottom-3 left-0 w-1/3 h-1 bg-[#f59e0b]"></div>
-            </span>
-          </h2>
-          <div className="testimonial-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-tl-3xl rounded-br-3xl relative">
-              <div className="absolute top-0 left-0 w-16 h-3 bg-[#f59e0b]"></div>
-              <p className="mb-4 text-white/90 italic">"There is definitely a need in the scientific community for something like Sample Exchange. In the lab, there are always unused samples and machinery that are just collecting dust. It is also extremely hard to find materials from other groups without an already established connection."</p>
-              <cite className="text-white/80 text-sm font-medium block text-right">- Harvard Biology PhD Student</cite>
+      {/* What the community is saying */}
+      <section className="py-16 bg-[#21414d] text-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">What the community is saying...</h2>
+            <div className="relative h-1 mx-auto bg-[#f59e0b] w-24 rounded"></div>
+          </div>
+          
+          <div className="grid gap-8 md:grid-cols-3">
+            {/* Testimonial 1 */}
+            <div className="bg-white/5 p-6 rounded-lg border-l-4 border-[#f59e0b] backdrop-blur-sm">
+              <div className="mb-4">
+                <svg className="h-8 w-8 text-[#f59e0b]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                </svg>
+              </div>
+              <p className="text-white/90 mb-4">Sample Exchange completely transformed how we source materials for our permafrost studies. The platform's efficiency and quality control have allowed us to focus more on our research and less on logistics.</p>
+              <div className="flex items-center">
+                <div className="font-semibold text-white">Dr. Emily Chen</div>
+                <div className="mx-2">•</div>
+                <div className="text-white/70">Arctic Research Institute</div>
+              </div>
             </div>
             
-            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-tr-3xl rounded-bl-3xl relative">
-              <div className="absolute top-0 right-0 w-16 h-3 bg-[#8BD7D7]"></div>
-              <p className="mb-4 text-white/90 italic">"In conversation: You are making me reach for my wallet! Haha! We had the best cell lines. Maybe we should license them out."</p>
-              <cite className="text-white/80 text-sm font-medium block text-right">- Former CSO, Biotech</cite>
+            {/* Testimonial 2 */}
+            <div className="bg-white/5 p-6 rounded-lg border-l-4 border-[#00757F] backdrop-blur-sm">
+              <div className="mb-4">
+                <svg className="h-8 w-8 text-[#00757F]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                </svg>
+              </div>
+              <p className="text-white/90 mb-4">Finding rare soil samples from specific regions used to take months of networking and coordination. With Sample Exchange, I can locate and acquire exactly what I need in days. It's revolutionary for our field.</p>
+              <div className="flex items-center">
+                <div className="font-semibold text-white">Prof. James Rodriguez</div>
+                <div className="mx-2">•</div>
+                <div className="text-white/70">University of Colorado</div>
+              </div>
             </div>
             
-            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-tl-3xl rounded-br-3xl relative">
-              <div className="absolute top-0 left-0 w-16 h-3 bg-[#F9BA48]"></div>
-              <p className="mb-4 text-white/90 italic">"I remember ordering 2nd hand equipment off Ebay and having to beg people for introductions to people with samples we are interested in. I wasted so much time trying to find people. This would have totally made my life easier!"</p>
-              <cite className="text-white/80 text-sm font-medium block text-right">- Harvard Scientist</cite>
-            </div>
-            
-            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-tr-3xl rounded-bl-3xl relative">
-              <div className="absolute top-0 right-0 w-16 h-3 bg-[#f59e0b]"></div>
-              <p className="mb-4 text-white/90 italic">"Sample Exchange sounds like it would make our lives easier tremendously. Having an online marketplace takes away the stress from just emailing random people and hoping for a reply."</p>
-              <cite className="text-white/80 text-sm font-medium block text-right">- Harvard Pathologist/Scientist</cite>
-            </div>
-            
-            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-tl-3xl rounded-br-3xl relative">
-              <div className="absolute top-0 left-0 w-16 h-3 bg-[#8BD7D7]"></div>
-              <p className="mb-4 text-white/90 italic">"P.S. I did look at Sample Exchange last night – really like the idea as we discussed. I hope it flies, cause it should!"</p>
-              <cite className="text-white/80 text-sm font-medium block text-right">- Former CEO, Biotech</cite>
+            {/* Testimonial 3 */}
+            <div className="bg-white/5 p-6 rounded-lg border-l-4 border-green-500 backdrop-blur-sm">
+              <div className="mb-4">
+                <svg className="h-8 w-8 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                </svg>
+              </div>
+              <p className="text-white/90 mb-4">As a conservation biologist, I need diverse samples from protected areas. The ethical sourcing verification on Sample Exchange gives me confidence that all materials are obtained responsibly and legally.</p>
+              <div className="flex items-center">
+                <div className="font-semibold text-white">Dr. Sarah Nguyen</div>
+                <div className="mx-2">•</div>
+                <div className="text-white/70">Wildlife Conservation Society</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
       
-      <div className="section-divider my-12"></div>
+      <div className="section-divider my-16"></div>
 
-      <section className="showcase py-16" id="demo">
-        <div className="showcase-background">
-          <div className="showcase-overlay"></div>
-        </div>
-        <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-12 text-white relative">
-            <span className="inline-block relative">
-              Showcase lab!!
-              <div className="absolute -bottom-3 left-0 w-1/3 h-1 bg-[#f59e0b]"></div>
-            </span>
-          </h2>
-          <div className="showcase-content bg-white/10 backdrop-blur-sm p-8 rounded-tl-3xl rounded-br-3xl shadow-lg max-w-3xl mx-auto">
-            <p className="italic text-white mb-4 text-lg">"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
-            <p className="italic text-white mb-6 text-lg">I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>
-            <cite className="text-white font-medium block text-right">Jean-Marie Volland, Ph.D.<br />Group Leader (Marine Microbiology)<br />LRC & JGI</cite>
+      {/* Showcase lab!! */}
+      <section className="py-16 bg-[#21414d] text-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Showcase lab!!</h2>
+            <div className="relative h-1 mx-auto bg-[#f59e0b] w-24 rounded"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <img 
+                src="/assets/images/lab-equipment.jpg" 
+                alt="Modern Laboratory Equipment" 
+                className="rounded-lg shadow-lg w-full h-auto"
+              />
+            </div>
+            
+            <div className="bg-white/10 p-8 rounded-lg backdrop-blur-sm">
+              <h3 className="text-2xl font-semibold mb-4 text-white">Harvard Systems Biology</h3>
+              <p className="text-white/90 mb-6">
+                The Systems Biology Department at Harvard Medical School has revolutionized their approach to sample management since joining Sample Exchange. Their lab now efficiently shares rare cell lines and tissue samples with researchers worldwide.
+              </p>
+              <p className="text-white/90 mb-6">
+                By implementing our platform, they've reduced sample acquisition time by 60% and increased collaborative research projects by 45% in just one year.
+              </p>
+              <div className="flex space-x-4 mt-6">
+                <a href="#" className="bg-[#f59e0b] text-white py-2 px-6 rounded-md hover:bg-[#f59e0b]/80 transition-all">
+                  Read Case Study
+                </a>
+                <a href="#" className="bg-transparent text-white py-2 px-6 rounded-md border border-white hover:bg-white/10 transition-all">
+                  Contact Lab
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -69,55 +69,67 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
       )}
       
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name" className="text-gray-700 font-medium mb-2 block">Name</label>
+        <div className="mb-4">
+          <label htmlFor="name" className="block text-white font-semibold mb-2">
+            Name
+          </label>
           <input
             type="text"
             id="name"
             name="name"
             value={formData.name}
             onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f59e0b]"
+            placeholder="Your name"
             required
-            className="text-gray-800 bg-white w-full p-3 rounded-md"
           />
         </div>
         
-        <div className="form-group">
-          <label htmlFor="email" className="text-gray-700 font-medium mb-2 block">Email</label>
+        <div className="mb-4">
+          <label htmlFor="email" className="block text-white font-semibold mb-2">
+            Email
+          </label>
           <input
             type="email"
             id="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f59e0b]"
+            placeholder="Your email"
             required
-            className="text-gray-800 bg-white w-full p-3 rounded-md"
           />
         </div>
         
-        <div className="form-group">
-          <label htmlFor="subject" className="text-gray-700 font-medium mb-2 block">Subject</label>
+        <div className="mb-4">
+          <label htmlFor="subject" className="block text-white font-semibold mb-2">
+            Subject
+          </label>
           <input
             type="text"
             id="subject"
             name="subject"
             value={formData.subject}
             onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f59e0b]"
+            placeholder="Subject"
             required
-            className="text-gray-800 bg-white w-full p-3 rounded-md"
           />
         </div>
         
-        <div className="form-group">
-          <label htmlFor="message" className="text-gray-700 font-medium mb-2 block">Message</label>
+        <div className="mb-6">
+          <label htmlFor="message" className="block text-white font-semibold mb-2">
+            Message
+          </label>
           <textarea
             id="message"
             name="message"
+            rows={4}
             value={formData.message}
             onChange={handleChange}
-            rows={5}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f59e0b]"
+            placeholder="Your message"
             required
-            className="text-gray-800 bg-white w-full p-3 rounded-md"
           ></textarea>
         </div>
         
