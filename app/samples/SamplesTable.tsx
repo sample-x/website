@@ -138,18 +138,22 @@ export default function SamplesTable({ samples, onSampleSelect, onAddToCart }: S
                     </td>
                     <td>{formatPrice(sample.price)}</td>
                     <td className="action-buttons">
-                      <button 
-                        className="action-button details"
+                      <button
                         onClick={() => onSampleSelect && onSampleSelect(sample)}
-                        title="View details"
+                        className="p-1.5 text-blue-600 hover:text-blue-800 relative z-10"
+                        title="View Details"
                       >
                         <FontAwesomeIcon icon={faInfoCircle} />
                       </button>
-                      <button 
-                        className="action-button add"
+                      <button
                         onClick={() => onAddToCart && onAddToCart(sample)}
                         disabled={!sample.inStock}
-                        title="Add to cart"
+                        className={`p-1.5 relative z-10 ${
+                          sample.inStock 
+                            ? 'text-orange-500 hover:text-orange-700' 
+                            : 'text-gray-400 cursor-not-allowed'
+                        }`}
+                        title={sample.inStock ? "Add to Cart" : "Out of Stock"}
                       >
                         <FontAwesomeIcon icon={faCartPlus} />
                       </button>

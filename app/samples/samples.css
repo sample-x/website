@@ -528,3 +528,36 @@
   background-color: #ea580c;
   transform: translateY(-1px);
 }
+
+/* Fix z-index issues */
+.leaflet-container {
+  z-index: 1;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  z-index: 1001 !important;
+}
+
+.map-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.modal-overlay {
+  z-index: 9999;
+}
+
+/* Info buttons need to be above map */
+button[title], 
+.info-button,
+.action-button {
+  position: relative;
+  z-index: 5;
+}
+
+/* Table should be above map */
+table {
+  position: relative;
+  z-index: 2;
+}

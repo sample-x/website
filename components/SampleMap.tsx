@@ -149,11 +149,11 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
   const remainingCount = usedTypes.length - 5;
 
   return (
-    <div className="map-container" style={{ height: '100%', width: '100%', position: 'relative' }}>
+    <div className="map-container" style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden', borderRadius: '8px' }}>
       <MapContainer 
         center={mapCenter}
         zoom={2} 
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: '100%', width: '100%', zIndex: 1 }}
         scrollWheelZoom={true}
       >
         <TileLayer
@@ -164,7 +164,6 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
         
         {samples.map((sample) => {
           const color = getMarkerColor(sample.type);
-          console.log(`[Map Marker Debug] Rendering sample: ${sample.name}, Type: ${sample.type}, Color: ${color}`);
           
           return (
             <CircleMarker
@@ -180,7 +179,7 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
               }}
               className="no-grayscale"
             >
-              <Popup>
+              <Popup className="sample-popup" autoPan={true}>
                 <div>
                   <h3 className="font-bold">{sample.name}</h3>
                   <p>Type: {sample.type}</p>
@@ -203,15 +202,16 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
       {/* Map Legend */}
       <div className="map-legend" style={{
         position: 'absolute',
-        bottom: '20px',
-        right: '20px',
+        top: '10px',
+        right: '10px',
         backgroundColor: 'white',
-        padding: '6px',
+        padding: '8px',
         borderRadius: '6px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
         zIndex: 1000,
+        minWidth: '120px',
         maxWidth: '150px',
-        maxHeight: 'calc(100% - 40px)',
+        maxHeight: '200px',
         overflowY: 'auto',
         fontSize: '11px'
       }}>
@@ -219,7 +219,7 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
           display: 'flex', 
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '4px' 
+          marginBottom: '6px' 
         }}>
           <h4 style={{ fontSize: '12px', fontWeight: 'bold', margin: 0 }}>Sample Types</h4>
           {activeFilter && (
@@ -241,7 +241,8 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '12px 1fr', 
-          gap: '2px', 
+          gap: '4px',
+          rowGap: '6px', 
           alignItems: 'center',
           fontSize: '10px'
         }}>
@@ -271,6 +272,19 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
           ))}
         </div>
       </div>
+
+      {/* Add global styling for Leaflet popups to fix z-index issues */}
+      <style jsx global>{`
+        .leaflet-popup {
+          z-index: 1000 !important;
+        }
+        .leaflet-popup-content-wrapper {
+          z-index: 1001 !important;
+        }
+        .leaflet-popup-tip {
+          z-index: 1001 !important;
+        }
+      `}</style>
     </div>
   );
 } 

@@ -148,24 +148,13 @@ export default function SamplesMapContainer({
   };
 
   return (
-    <div className="map-wrapper" style={{ position: 'relative', height: '500px', borderRadius: '8px', overflow: 'hidden' }}>
-      <div className="map-info" style={{ 
-        position: 'absolute', 
-        top: '10px', 
-        right: '10px', 
-        zIndex: 1000, 
-        backgroundColor: 'rgba(255,255,255,0.8)',
-        padding: '5px 10px',
-        borderRadius: '4px',
-        fontSize: '12px'
-      }}>
-        <p>
-          {activeTypeFilter 
-            ? `Showing ${filteredSamples.length} ${activeTypeFilter} samples` 
-            : `Showing ${filteredSamples.length} samples`
-          }
-        </p>
-      </div>
+    <div className="map-wrapper" style={{ 
+      position: 'relative', 
+      height: '100%', 
+      width: '100%',
+      borderRadius: '8px', 
+      overflow: 'hidden' 
+    }}>
       <SampleMap 
         samples={filteredSamples}
         onBoundsChange={handleBoundsChange}
