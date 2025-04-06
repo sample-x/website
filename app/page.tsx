@@ -155,11 +155,12 @@ export default function Home() {
                 </p>
               </div>
               
-              <div className="rounded-lg overflow-hidden shadow-lg">
+              <div className="rounded-lg overflow-hidden shadow-lg relative z-20">
                 <img 
-                  src="/assets/images/permafrost-core.jpg" 
+                  src="/assets/images/permafrost-image.jpeg" 
                   alt="Permafrost Core Sample" 
-                  className="w-full h-auto"
+                  className="w-full h-auto block"
+                  style={{ display: 'block' }}
                 />
               </div>
             </div>
