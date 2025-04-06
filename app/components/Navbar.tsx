@@ -36,12 +36,6 @@ export default function Navbar() {
             Samples
           </Link>
           <Link 
-            href="/overview" 
-            className={`text-sm ${isActive('/overview') ? 'font-bold' : 'font-medium'} text-gray-700 hover:text-gray-900`}
-          >
-            Overview
-          </Link>
-          <Link 
             href="/contact" 
             className={`text-sm ${isActive('/contact') ? 'font-bold' : 'font-medium'} text-gray-700 hover:text-gray-900`}
           >

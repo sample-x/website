@@ -120,6 +120,43 @@ export default function SamplesPage() {
     setSearchTerm('');
   };
 
+  // Helper function to calculate sample type distribution
+  const calculateSampleTypeDistribution = () => {
+    const typeCount: Record<string, number> = {};
+    let total = 0;
+    
+    // Count occurrences of each type
+    samples.forEach(sample => {
+      const type = sample.type.toLowerCase();
+      typeCount[type] = (typeCount[type] || 0) + 1;
+      total++;
+    });
+    
+    // Convert to percentage and format
+    const result = Object.entries(typeCount)
+      .map(([type, count]) => ({
+        type,
+        label: type.charAt(0).toUpperCase() + type.slice(1),
+        count,
+        percentage: Math.round((count / total) * 100)
+      }))
+      .sort((a, b) => b.percentage - a.percentage)
+      .slice(0, 5); // Top 5 types
+    
+    // If there are other types, group them
+    const sumPercentage = result.reduce((sum, item) => sum + item.percentage, 0);
+    if (sumPercentage < 100) {
+      result.push({
+        type: 'other',
+        label: 'Other',
+        count: total - result.reduce((sum, item) => sum + item.count, 0),
+        percentage: 100 - sumPercentage
+      });
+    }
+    
+    return result;
+  };
+
   return (
     <main className="container mx-auto px-4 py-8">
       
@@ -162,6 +199,79 @@ export default function SamplesPage() {
             onSampleSelect={handleSampleSelect}
             onAddToCart={handleAddToCart}
           />
+        </div>
+      )}
+      
+      {/* Overview Section */}
+      {!loading && !error && samples.length > 0 && (
+        <div className="bg-white rounded-lg shadow-lg p-6 mt-8">
+          <h2 className="text-2xl font-semibold mb-4">Platform Statistics</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-blue-600 font-medium">Total Samples</p>
+              <p className="text-3xl font-bold">{samples.length}</p>
+              <p className="text-xs text-gray-500 mt-1">+12% from last month</p>
+            </div>
+            
+            <div className="bg-green-50 p-4 rounded-lg">
+              <p className="text-sm text-green-600 font-medium">Active Users</p>
+              <p className="text-3xl font-bold">347</p>
+              <p className="text-xs text-gray-500 mt-1">+8% from last month</p>
+            </div>
+            
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <p className="text-sm text-purple-600 font-medium">Exchanges</p>
+              <p className="text-3xl font-bold">89</p>
+              <p className="text-xs text-gray-500 mt-1">+15% from last month</p>
+            </div>
+          </div>
+          
+          <h2 className="text-2xl font-semibold mb-4">Sample Distribution</h2>
+          <div className="bg-gray-50 p-4 rounded-lg mb-8">
+            <p className="text-gray-600 mb-4">Distribution of samples by type:</p>
+            
+            <div className="space-y-3">
+              {calculateSampleTypeDistribution().map(item => (
+                <div key={item.type}>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-medium">{item.label}</span>
+                    <span className="text-sm font-medium">{item.percentage}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="h-2 rounded-full" 
+                      style={{ 
+                        width: `${item.percentage}%`, 
+                        backgroundColor: getSampleColor(item.type) 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <h2 className="text-2xl font-semibold mb-4">Platform Updates</h2>
+          <div className="space-y-4">
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <p className="font-semibold">New Filtering Options</p>
+              <p className="text-sm text-gray-600">Added advanced filtering for samples based on collection date and storage conditions.</p>
+              <p className="text-xs text-gray-400 mt-1">June 15, 2023</p>
+            </div>
+            
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <p className="font-semibold">Improved Map Visualization</p>
+              <p className="text-sm text-gray-600">Enhanced the map with better visual indicators and filtering capabilities.</p>
+              <p className="text-xs text-gray-400 mt-1">May 28, 2023</p>
+            </div>
+            
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <p className="font-semibold">API Access</p>
+              <p className="text-sm text-gray-600">Released the beta version of our API for developers and research partners.</p>
+              <p className="text-xs text-gray-400 mt-1">April 10, 2023</p>
+            </div>
+          </div>
         </div>
       )}
       
