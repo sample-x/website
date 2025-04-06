@@ -70,7 +70,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name" className="text-white font-medium mb-2 block">Name</label>
+          <label htmlFor="name" className="text-gray-700 font-medium mb-2 block">Name</label>
           <input
             type="text"
             id="name"
@@ -83,7 +83,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
         </div>
         
         <div className="form-group">
-          <label htmlFor="email" className="text-white font-medium mb-2 block">Email</label>
+          <label htmlFor="email" className="text-gray-700 font-medium mb-2 block">Email</label>
           <input
             type="email"
             id="email"
@@ -96,7 +96,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
         </div>
         
         <div className="form-group">
-          <label htmlFor="subject" className="text-white font-medium mb-2 block">Subject</label>
+          <label htmlFor="subject" className="text-gray-700 font-medium mb-2 block">Subject</label>
           <input
             type="text"
             id="subject"
@@ -109,7 +109,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
         </div>
         
         <div className="form-group">
-          <label htmlFor="message" className="text-white font-medium mb-2 block">Message</label>
+          <label htmlFor="message" className="text-gray-700 font-medium mb-2 block">Message</label>
           <textarea
             id="message"
             name="message"

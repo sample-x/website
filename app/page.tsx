@@ -34,6 +34,7 @@ export default function Home() {
             loop 
             playsInline
             key="hero-video"
+            className="absolute object-cover w-full h-full"
           >
             <source src="/assets/videos/start.mp4" type="video/mp4" />
             Your browser does not support the video tag.
