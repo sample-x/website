@@ -278,8 +278,8 @@ export default function Home() {
       <section className="testimonials py-16" id="testimonials">
         <div className="section-background" style={{ backgroundImage: 'url(/assets/images/testimonials.jpg)' }}></div>
         <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-12 text-white relative">
-            <span className="inline-block relative">
+          <h2 className="section-heading text-center text-4xl mb-12 relative z-20">
+            <span className="inline-block relative text-white">
               What the community is saying...
               <div className="absolute -bottom-3 left-1/4 right-1/4 h-1 bg-[#f59e0b]"></div>
             </span>
@@ -324,8 +324,8 @@ export default function Home() {
           <div className="showcase-overlay bg-[#21414d]"></div>
         </div>
         <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-12 text-white relative">
-            <span className="inline-block relative">
+          <h2 className="section-heading text-center text-4xl mb-12 relative z-20">
+            <span className="inline-block relative text-white">
               Showcase lab!!
               <div className="absolute -bottom-3 left-1/4 right-1/4 h-1 bg-[#f59e0b]"></div>
             </span>

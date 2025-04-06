@@ -68,9 +68,9 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
         </div>
       )}
       
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="relative z-20">
         <div className="mb-4">
-          <label htmlFor="name" className="block text-white font-semibold mb-2">
+          <label htmlFor="name" className="block text-[#00757F] font-bold mb-2 px-2 py-1 bg-white/90 rounded">
             Name
           </label>
           <input
@@ -86,7 +86,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
         </div>
         
         <div className="mb-4">
-          <label htmlFor="email" className="block text-white font-semibold mb-2">
+          <label htmlFor="email" className="block text-[#00757F] font-bold mb-2 px-2 py-1 bg-white/90 rounded">
             Email
           </label>
           <input
@@ -102,7 +102,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
         </div>
         
         <div className="mb-4">
-          <label htmlFor="subject" className="block text-white font-semibold mb-2">
+          <label htmlFor="subject" className="block text-[#00757F] font-bold mb-2 px-2 py-1 bg-white/90 rounded">
             Subject
           </label>
           <input
@@ -118,7 +118,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
         </div>
         
         <div className="mb-6">
-          <label htmlFor="message" className="block text-white font-semibold mb-2">
+          <label htmlFor="message" className="block text-[#00757F] font-bold mb-2 px-2 py-1 bg-white/90 rounded">
             Message
           </label>
           <textarea
