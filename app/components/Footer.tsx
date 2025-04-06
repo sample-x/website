@@ -7,12 +7,13 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
-            <div className="mb-4">
+            <div className="mb-6">
               <Image 
                 src="/assets/images/samplex.png" 
                 alt="SampleX Logo" 
                 width={150} 
                 height={50} 
+                className="object-contain"
               />
             </div>
             <p className="text-gray-300">
@@ -21,7 +22,7 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Explore</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">Explore</h3>
             <ul className="space-y-2">
               <li><Link href="/samples" className="text-gray-300 hover:text-white">Browse Samples</Link></li>
               <li><Link href="/team" className="text-gray-300 hover:text-white">Our Team</Link></li>
@@ -30,7 +31,7 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">Resources</h3>
             <ul className="space-y-2">
               <li><Link href="/faq" className="text-gray-300 hover:text-white">FAQ</Link></li>
               <li><Link href="/terms" className="text-gray-300 hover:text-white">Terms of Service</Link></li>
@@ -39,7 +40,7 @@ export function Footer() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">Contact</h3>
             <ul className="space-y-2">
               <li><Link href="/contact" className="text-gray-300 hover:text-white">Contact Us</Link></li>
               <li><a href="mailto:info@sample.exchange" className="text-gray-300 hover:text-white">info@sample.exchange</a></li>

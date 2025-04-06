@@ -41,9 +41,7 @@ export default function Home() {
           <div className="overlay bg-gradient-to-br from-[#00757F]/30 to-[#f59e0b]/40"></div>
         </div>
         
-        {/* Geometric shapes for midcentury modern styling */}
-        <div className="absolute top-[15%] left-[10%] w-24 h-24 rounded-full bg-[#8BD7D7]/20 z-10"></div>
-        <div className="absolute bottom-[20%] right-[15%] w-32 h-32 transform rotate-45 bg-[#F9BA48]/20 z-10"></div>
+        {/* Removed geometric shapes as requested */}
         
         <div className="hero-container relative z-20">
           <div className="hero-content max-w-4xl mx-auto px-6 md:px-8">
@@ -115,8 +113,8 @@ export default function Home() {
             <div className="absolute bottom-[15%] right-[15%] w-48 h-48 transform rotate-45 bg-[#8BD7D7]/10"></div>
           </div>
           <div className="container mx-auto text-center px-6 relative z-10">
-            <h2 className="uppercase tracking-wider text-4xl font-light mb-8">Our Mission</h2>
-            <p className="text-2xl max-w-3xl mx-auto font-light leading-relaxed">
+            <h2 className="uppercase tracking-wider text-4xl font-light mb-8 text-white">Our Mission</h2>
+            <p className="text-2xl max-w-3xl mx-auto font-light leading-relaxed text-white">
               To accelerate research by connecting scientists with the right 
               biological samples, empowering discoveries that improve human 
               and environmental health.
@@ -125,7 +123,7 @@ export default function Home() {
         </div>
 
         {/* Sample Exchange Story */}
-        <div className="container mx-auto px-6 mb-16">
+        <div className="container mx-auto px-6 mb-24">
           <h2 className="section-heading text-center text-4xl mb-12 relative">
             <span className="inline-block relative">
               The Sample Exchange Story
@@ -343,16 +341,16 @@ export default function Home() {
           <div className="showcase-overlay"></div>
         </div>
         <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-12 relative">
+          <h2 className="section-heading text-center text-4xl mb-12 text-white relative">
             <span className="inline-block relative">
               Showcase lab!!
               <div className="absolute -bottom-3 left-0 w-1/3 h-1 bg-[#f59e0b]"></div>
             </span>
           </h2>
-          <div className="showcase-content bg-white p-8 rounded-tl-3xl rounded-br-3xl shadow-lg max-w-3xl mx-auto">
-            <p className="italic text-[#263238] mb-4 text-lg">"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
-            <p className="italic text-[#263238] mb-6 text-lg">I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>
-            <cite className="text-[#00757F] font-medium block text-right">Jean-Marie Volland, Ph.D.<br />Group Leader (Marine Microbiology)<br />LRC & JGI</cite>
+          <div className="showcase-content bg-white/10 backdrop-blur-sm p-8 rounded-tl-3xl rounded-br-3xl shadow-lg max-w-3xl mx-auto">
+            <p className="italic text-white mb-4 text-lg">"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
+            <p className="italic text-white mb-6 text-lg">I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>
+            <cite className="text-white font-medium block text-right">Jean-Marie Volland, Ph.D.<br />Group Leader (Marine Microbiology)<br />LRC & JGI</cite>
           </div>
         </div>
       </section>
