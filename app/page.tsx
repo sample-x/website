@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import ContactForm from './components/ContactForm'
 import Head from 'next/head'
+import Image from 'next/image'
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -42,6 +43,16 @@ export default function Home() {
         <div className="relative z-20 h-full flex items-center">
           <div className="container mx-auto px-6 md:px-8">
             <div className="max-w-4xl">
+              <div className="flex justify-center mb-8">
+                <Image 
+                  src="/assets/images/logo.png" 
+                  alt="Sample Exchange" 
+                  width={240} 
+                  height={80} 
+                  className="mb-6" 
+                  priority
+                />
+              </div>
               <p className="uppercase tracking-[0.2em] text-base font-light mb-4 text-white">Redefining Scientific Exchange</p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl mb-8 text-white font-bold">The world's first marketplace for science</h1>
               <div className="hero-text mb-10 bg-white/10 backdrop-blur-sm p-6 rounded-lg">
