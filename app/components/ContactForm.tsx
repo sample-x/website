@@ -70,7 +70,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name">Name</label>
+          <label htmlFor="name" className="text-white">Name</label>
           <input
             type="text"
             id="name"
@@ -78,11 +78,12 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
             value={formData.name}
             onChange={handleChange}
             required
+            className="text-gray-800 bg-white"
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email" className="text-white">Email</label>
           <input
             type="email"
             id="email"
@@ -90,11 +91,12 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
             value={formData.email}
             onChange={handleChange}
             required
+            className="text-gray-800 bg-white"
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="subject">Subject</label>
+          <label htmlFor="subject" className="text-white">Subject</label>
           <input
             type="text"
             id="subject"
@@ -102,11 +104,12 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
             value={formData.subject}
             onChange={handleChange}
             required
+            className="text-gray-800 bg-white"
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="message">Message</label>
+          <label htmlFor="message" className="text-white">Message</label>
           <textarea
             id="message"
             name="message"
@@ -114,6 +117,7 @@ export default function ContactForm({ title, subtitle, compact = false }: Contac
             onChange={handleChange}
             rows={5}
             required
+            className="text-gray-800 bg-white"
           ></textarea>
         </div>
         
