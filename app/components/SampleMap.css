@@ -178,4 +178,54 @@
 .leaflet-marker-icon {
   border: none;
   background: none;
+}
+
+/* Grayscale map styling */
+.grayscale-map {
+  filter: grayscale(100%);
+}
+
+/* Additional map styling */
+.leaflet-container {
+  z-index: 1;
+}
+
+/* Fix for missing popup styles */
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.sample-popup {
+  padding: 8px 12px;
+}
+
+.sample-popup h3 {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.sample-popup p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.sample-popup-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.sample-popup-actions button {
+  padding: 4px 8px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.sample-popup-actions button:hover {
+  background: #e0e0e0;
 } 

@@ -99,8 +99,7 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   }
 
   // Log before returning the JSX
-  console.log(`[SampleMap Render Debug v${Date.now()}] Rendering map. Samples received: ${samples?.length || 0}`);
-  console.log(`[TIMESTAMP_CACHE_BUSTER] ${new Date().toISOString()}`);
+  console.log(`[SampleMap Render Debug] Rendering map. Samples received: ${samples?.length || 0}`);
 
   return (
     <div className="map-container">
@@ -115,10 +114,10 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
+          className="grayscale-map"
         />
         
         {samples.map((sample, index) => {
-          console.log(`[DEBUG CRITICAL] INSIDE MAP FUNCTION. INDEX: ${index}, SAMPLE ID: ${sample.id}, NAME: ${sample.name}`);
           const color = getMarkerColor(sample.type);
           console.log(`[Map Marker Debug] Sample: ${sample.name}, Type: '${sample.type?.toLowerCase()}', Color: ${color}`);
           return (
@@ -186,19 +185,42 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
 }
 
 // Sample type colors for markers
-const sampleTypeColors: { [key: string]: string } = {
-  'tissue': '#ef4444',
-  'bacterial': '#10b981',
-  'cell line': '#8b5cf6',
-  'environmental': '#3b82f6',
-  'soil': '#92400e',
-  'botanical': '#65a30d',
-  'viral': '#db2777',
-  'dna': '#7c3aed',
-  'water sample': '#0ea5e9',
-  'industrial strain': '#64748b'
-};
-
-const getMarkerColor = (sampleType: string): string => {
-  return sampleTypeColors[sampleType.toLowerCase()] || '#888888';
+const getMarkerColor = (type: string | null | undefined): string => {
+  if (!type) return '#808080'; // Default gray for unknown types
+  
+  // Normalize the type to lowercase for case-insensitive matching
+  const normalizedType = type.toLowerCase().trim();
+  
+  // Color mapping for different sample types
+  switch (normalizedType) {
+    case 'water':
+      return '#4287f5'; // Blue
+    case 'soil':
+      return '#8B4513'; // Brown
+    case 'air':
+      return '#87CEEB'; // Sky blue
+    case 'rock':
+      return '#A9A9A9'; // Dark gray
+    case 'bacterial':
+    case 'bacteria':
+      return '#9ACD32'; // Yellow-green
+    case 'fungal':
+    case 'fungi':
+      return '#FFA500'; // Orange
+    case 'viral':
+    case 'virus':
+      return '#FF69B4'; // Pink
+    case 'tissue':
+      return '#FF6347'; // Tomato red
+    case 'cell line':
+      return '#BA55D3'; // Medium orchid (purple)
+    case 'animal':
+      return '#CD853F'; // Peru (brown)
+    case 'plant':
+      return '#228B22'; // Forest green
+    case 'marine':
+      return '#00FFFF'; // Cyan
+    default:
+      return '#808080'; // Gray for unknown types
+  }
 }; 

@@ -12,8 +12,8 @@ import { Suspense } from 'react';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Sample Exchange - MODIFIED BUILD',
-  description: 'Modified build with timestamp 2024-04-06',
+  title: 'Sample Exchange',
+  description: 'Exchange samples with researchers worldwide',
 };
 
 export const dynamic = 'force-static';
@@ -36,19 +36,6 @@ export default function RootLayout({
         {/* Leaflet CSS is imported within SampleMap component */}
       </head>
       <body className={inter.className}>
-        <div style={{ 
-          backgroundColor: 'red', 
-          color: 'white', 
-          textAlign: 'center', 
-          padding: '5px',
-          fontWeight: 'bold',
-          position: 'fixed',
-          bottom: '0',
-          width: '100%',
-          zIndex: '9999'
-        }}>
-          BUILD VERIFICATION BANNER - TIMESTAMP: 2024-04-06
-        </div>
         <ErrorBoundary>
           <Providers>
             <Navbar />
