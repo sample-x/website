@@ -120,22 +120,38 @@ const SamplesMapContainer: React.FC<SamplesMapContainerProps> = ({
   // Add log here
   console.log(`[SamplesMapContainer Debug] Passing ${samplesWithCoordinates.length} samples with coordinates to SampleMap.`);
 
+  // Debug banner to verify if this component is being updated
+  console.log(`[MAP CONTAINER EXTREME DEBUG] Timestamp: ${new Date().toISOString()}`);
+
   return (
-    <div className="relative w-full h-[400px]">
-      {samplesWithCoordinates.length > 0 ? (
-        <SampleMap
-          samples={samplesWithCoordinates}
-          center={[20, 0]}
-          zoom={2}
-          interactive={true}
-          onBoundsChange={handleBoundsChange}
-        />
-      ) : (
-        <div className="flex items-center justify-center h-full bg-gray-100 rounded">
-          <p className="text-gray-500">No samples with location data available.</p>
-        </div>
-      )}
-      {/* Optional: Add a legend or other map controls here */}
+    <div className="samples-map-container">
+      <div style={{
+        background: 'purple',
+        color: 'yellow',
+        padding: '10px',
+        textAlign: 'center',
+        fontWeight: 'bold',
+        marginBottom: '10px',
+        border: '5px dashed green'
+      }}>
+        MAP CONTAINER VERIFICATION - TIMESTAMP: 2024-04-06
+      </div>
+      <div className="relative w-full h-[400px]">
+        {samplesWithCoordinates.length > 0 ? (
+          <SampleMap
+            samples={samplesWithCoordinates}
+            center={[20, 0]}
+            zoom={2}
+            interactive={true}
+            onBoundsChange={handleBoundsChange}
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full bg-gray-100 rounded">
+            <p className="text-gray-500">No samples with location data available.</p>
+          </div>
+        )}
+        {/* Optional: Add a legend or other map controls here */}
+      </div>
     </div>
   );
 };
