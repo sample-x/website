@@ -41,7 +41,7 @@ export default function Navbar() {
   }, []);
 
   // Determine which logo to use
-  const logoSrc = isDarkMode ? '/assets/images/logo_light.png' : '/assets/images/logo_dark.png';
+  const logoSrc = isDarkMode ? '/assets/images/logo_dark.png' : '/assets/images/logo_light.png';
 
   return (
     <header className="bg-white shadow-sm dark:bg-[#003949]">

@@ -561,3 +561,25 @@ table {
   position: relative;
   z-index: 2;
 }
+
+/* Add or update this CSS to ensure all text on the Samples page is #003949 */
+.samples-page h1,
+.samples-page h2,
+.samples-page h3,
+.samples-page h4,
+.samples-page h5,
+.samples-page h6,
+.samples-page p,
+.samples-page label,
+.samples-page table th,
+.samples-page table td,
+.samples-page input,
+.samples-page select,
+.samples-page .page-header p,
+.samples-page .filter-control label {
+  color: #003949 !important;
+}
+
+.samples-page .search-box input::placeholder {
+  color: rgba(0, 57, 73, 0.6) !important;
+}

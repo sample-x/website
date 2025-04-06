@@ -85,7 +85,7 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
   margin-bottom: 1rem;
   letter-spacing: -0.5px;
-  color: var(--color-dark);
+  color: #003949;
 }
 
 h1 {
