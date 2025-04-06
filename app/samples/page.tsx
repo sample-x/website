@@ -122,7 +122,6 @@ export default function SamplesPage() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Sample Management</h1>
       
       <div className="bg-white rounded-lg shadow-lg p-4 mb-8">
         <h2 className="text-2xl mb-4">Sample Locations</h2>

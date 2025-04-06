@@ -17,32 +17,32 @@ L.Icon.Default.mergeOptions({
   shadowUrl: '/marker-shadow.png',
 });
 
-// Sample type colors for markers
+// Sample type colors for markers - mid-century modern palette
 const getMarkerColor = (type: string): string => {
   console.log(`[Map Marker Debug] Sample type: ${type}`);
   
-  // Highly saturated colors for better visibility
+  // Mid-century modern inspired color palette
   switch (type.toLowerCase()) {
     case 'bacterial':
-      return '#ADFF2F'; // Bright Green
+      return '#7FB685'; // Sage green
     case 'viral':
-      return '#FF1493'; // Deep Pink
+      return '#FF6B6B'; // Coral red
     case 'fungal':
-      return '#FFD700'; // Gold
+      return '#F9C74F'; // Mustard yellow
     case 'cell line':
-      return '#9932CC'; // Dark Orchid
+      return '#886AB5'; // Lavender purple
     case 'plant':
-      return '#32CD32'; // Lime Green
+      return '#4D9078'; // Teal
     case 'animal':
-      return '#FF8C00'; // Dark Orange
+      return '#E07A5F'; // Terracotta
     case 'water':
-      return '#0066FF'; // Bright Blue
+      return '#4A7ABC'; // Mid-century blue
     case 'soil':
-      return '#8B4513'; // Saddle Brown
+      return '#967259'; // Walnut brown
     case 'environmental':
-      return '#2E8B57'; // Sea Green
+      return '#599E94'; // Turquoise
     default:
-      return '#FF0000'; // Red (default for unspecified types)
+      return '#D62828'; // Red (default for unspecified types)
   }
 };
 
@@ -58,6 +58,20 @@ const sampleTypes = [
   { type: 'soil', label: 'Soil' },
   { type: 'environmental', label: 'Environmental' }
 ];
+
+// Function to get actually used sample types to display in legend
+const getUsedSampleTypes = (samples: Sample[]) => {
+  const usedTypes = new Set<string>();
+  samples.forEach(sample => {
+    if (sample.type) {
+      usedTypes.add(sample.type.toLowerCase());
+    }
+  });
+  
+  return sampleTypes.filter(({ type }) => 
+    usedTypes.has(type.toLowerCase())
+  );
+};
 
 // BoundsUpdater component to handle map bounds changes
 function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (bounds: L.LatLngBounds) => void }) {
@@ -130,6 +144,8 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
     return <div>Loading map...</div>;
   }
 
+  const usedTypes = getUsedSampleTypes(samples);
+
   return (
     <div className="map-container" style={{ height: '100%', width: '100%', position: 'relative' }}>
       <MapContainer 
@@ -152,13 +168,13 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
             <CircleMarker
               key={sample.id}
               center={[sample.latitude as number, sample.longitude as number]}
-              radius={14}
+              radius={7}
               pathOptions={{
                 fillColor: color,
                 color: 'black',
-                weight: 3,
-                opacity: 1,
-                fillOpacity: 1
+                weight: 2,
+                opacity: 0.9,
+                fillOpacity: 0.7
               }}
               className="no-grayscale"
             >
@@ -188,20 +204,20 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
         bottom: '20px',
         right: '20px',
         backgroundColor: 'white',
-        padding: '8px',
+        padding: '6px',
         borderRadius: '6px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
         zIndex: 1000,
-        maxWidth: '160px',
-        fontSize: '12px'
+        maxWidth: '150px',
+        fontSize: '11px'
       }}>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '6px' 
+          marginBottom: '4px' 
         }}>
-          <h4 style={{ fontSize: '13px', fontWeight: 'bold', margin: 0 }}>Sample Types</h4>
+          <h4 style={{ fontSize: '12px', fontWeight: 'bold', margin: 0 }}>Sample Types</h4>
           {activeFilter && (
             <button 
               onClick={() => handleTypeClick(activeFilter)}
@@ -220,16 +236,16 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
         </div>
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: '14px 1fr', 
-          gap: '4px', 
+          gridTemplateColumns: '12px 1fr', 
+          gap: '3px', 
           alignItems: 'center',
-          fontSize: '11px'
+          fontSize: '10px'
         }}>
-          {sampleTypes.map(({ type, label }) => (
+          {usedTypes.map(({ type, label }) => (
             <React.Fragment key={type}>
               <div style={{ 
-                width: '14px', 
-                height: '14px', 
+                width: '10px', 
+                height: '10px', 
                 borderRadius: '50%', 
                 backgroundColor: getMarkerColor(type),
                 border: '1px solid rgba(0,0,0,0.2)',
@@ -239,7 +255,7 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
               />
               <span 
                 style={{ 
-                  fontSize: '11px',
+                  fontSize: '10px',
                   cursor: 'pointer',
                   fontWeight: activeFilter === type ? 'bold' : 'normal'
                 }} 

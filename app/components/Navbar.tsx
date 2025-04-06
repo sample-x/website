@@ -3,48 +3,53 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import React, { useEffect } from 'react';
 
 export default function Navbar() {
   const pathname = usePathname();
+
+  // Check if we're on a specific page
+  const isActive = (path: string) => {
+    return pathname === path;
+  };
 
   return (
     <header className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
-            <Image src="/assets/images/logo.png" alt="SampleX Logo" width={40} height={40} className="mr-2" />
-            <span className="text-xl font-bold text-gray-800">SampleX</span>
+            <Image src="/assets/images/logo.png" alt="SampleX Logo" width={40} height={40} />
           </Link>
         </div>
         
         <nav className="hidden md:flex space-x-6 items-center">
           <Link 
             href="/" 
-            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/' ? 'font-bold' : ''}`}
+            className={`text-sm ${isActive('/') ? 'font-bold' : 'font-medium'} text-gray-700 hover:text-gray-900`}
           >
             Home
           </Link>
           <Link 
             href="/samples" 
-            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/samples' ? 'font-bold' : ''}`}
+            className={`text-sm ${isActive('/samples') ? 'font-bold' : 'font-medium'} text-gray-700 hover:text-gray-900`}
           >
             Samples
           </Link>
           <Link 
             href="/overview" 
-            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/overview' ? 'font-bold' : ''}`}
+            className={`text-sm ${isActive('/overview') ? 'font-bold' : 'font-medium'} text-gray-700 hover:text-gray-900`}
           >
             Overview
           </Link>
           <Link 
             href="/contact" 
-            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/contact' ? 'font-bold' : ''}`}
+            className={`text-sm ${isActive('/contact') ? 'font-bold' : 'font-medium'} text-gray-700 hover:text-gray-900`}
           >
             Contact
           </Link>
           <Link 
             href="/debug" 
-            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/debug' ? 'font-bold' : ''}`}
+            className={`text-sm ${isActive('/debug') ? 'font-bold' : 'font-medium'} text-gray-700 hover:text-gray-900`}
           >
             Debug
           </Link>
@@ -52,7 +57,11 @@ export default function Navbar() {
           <div className="ml-6 flex items-center space-x-2">
             <Link 
               href="/login" 
-              className="px-4 py-2 text-sm font-medium text-gray-800 bg-white border border-gray-800 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-sm font-medium bg-white border rounded-md hover:bg-gray-50"
+              style={{ 
+                color: '#f29415', 
+                borderColor: '#f29415' 
+              }}
             >
               Login
             </Link>
