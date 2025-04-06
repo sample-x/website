@@ -211,6 +211,8 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
         boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
         zIndex: 1000,
         maxWidth: '150px',
+        maxHeight: 'calc(100% - 40px)',
+        overflowY: 'auto',
         fontSize: '11px'
       }}>
         <div style={{ 
@@ -239,11 +241,11 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '12px 1fr', 
-          gap: '3px', 
+          gap: '2px', 
           alignItems: 'center',
           fontSize: '10px'
         }}>
-          {visibleTypes.map(({ type, label }) => (
+          {usedTypes.map(({ type, label }) => (
             <React.Fragment key={type}>
               <div style={{ 
                 width: '10px', 
@@ -267,14 +269,6 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
               </span>
             </React.Fragment>
           ))}
-          {remainingCount > 0 && (
-            <React.Fragment>
-              <div style={{ width: '10px', height: '1px' }} />
-              <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>
-                +{remainingCount} more...
-              </span>
-            </React.Fragment>
-          )}
         </div>
       </div>
     </div>

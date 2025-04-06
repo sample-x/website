@@ -49,7 +49,7 @@ export default function Home() {
                   alt="Sample Exchange" 
                   width={240} 
                   height={80} 
-                  className="mb-6" 
+                  className="w-[240px] md:w-[480px] mb-6" 
                   priority
                 />
               </div>

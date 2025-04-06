@@ -184,7 +184,6 @@ export default function SamplesPage() {
       {/* Sample Table Section */}
       {!loading && !error && samples.length > 0 && (
         <div className="bg-white rounded-lg shadow-lg p-4 mt-8">
-          <h2 className="text-2xl mb-4">Available Samples ({filteredTableSamples.length})</h2>
           <div className="mb-4">
             <input 
               type="text"
@@ -199,6 +198,13 @@ export default function SamplesPage() {
             onSampleSelect={handleSampleSelect}
             onAddToCart={handleAddToCart}
           />
+          
+          <div className="upload-button-container mt-4 flex justify-end">
+            <Link href="/samples/upload" className="btn btn-primary">
+              <FontAwesomeIcon icon={faUpload} className="mr-2" />
+              Upload New Samples
+            </Link>
+          </div>
         </div>
       )}
       
@@ -275,13 +281,6 @@ export default function SamplesPage() {
         </div>
       )}
       
-      <div className="upload-button-container mt-8">
-        <Link href="/samples/upload" className="btn btn-primary">
-          <FontAwesomeIcon icon={faUpload} className="mr-2" />
-          Upload New Samples
-        </Link>
-      </div>
-
       {/* Sample Details Modal */}
       {selectedSample && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
