@@ -117,6 +117,9 @@ const SamplesMapContainer: React.FC<SamplesMapContainerProps> = ({
     );
   }
 
+  // Add log here
+  console.log(`[SamplesMapContainer Debug] Passing ${samplesWithCoordinates.length} samples with coordinates to SampleMap.`);
+
   return (
     <div className="relative w-full h-[400px]">
       {samplesWithCoordinates.length > 0 ? (

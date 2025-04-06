@@ -19,10 +19,12 @@
   z-index: 1;
 }
 
-/* Re-enabled rule for grayscale */
+/* Re-enabled rule for grayscale - REMOVED AGAIN */
+/*
 .leaflet-tile-pane.grayscale-map {
   filter: grayscale(100%);
 }
+*/
 
 /* Fix z-index issues with map controls */
 .leaflet-top,
