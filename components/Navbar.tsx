@@ -42,7 +42,14 @@ export default function Navbar() {
             </Link>
             
             <div className="ml-6 flex items-center gap-3">
-              <Link href="/login" className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+              <Link 
+                href="/login" 
+                className="px-4 py-2 border rounded-md hover:bg-gray-50"
+                style={{ 
+                  color: '#f59e0b', 
+                  borderColor: '#f59e0b' 
+                }}
+              >
                 Login
               </Link>
               <Link href="/register" className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md">
