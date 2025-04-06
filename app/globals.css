@@ -907,3 +907,22 @@ footer {
 .leaflet-interactive {
   filter: none !important;
 }
+
+/* Ensure map markers are colored */
+.no-grayscale {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Make sure SVG circle markers aren't affected by grayscale */
+.leaflet-interactive {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Extra insurance for map markers */
+.leaflet-marker-pane,
+.leaflet-overlay-pane {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
