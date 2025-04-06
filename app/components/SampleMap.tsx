@@ -110,36 +110,31 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         scrollWheelZoom={true}
         zoomControl={true}
         doubleClickZoom={true}
-        className="leaflet-container grayscale-base"
+        className="leaflet-container"
         ref={mapRef}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
-          className="grayscale-tiles"
         />
         
         {samples.map((sample, index) => {
+          // Get color based on sample type
           const color = getMarkerColor(sample.type);
-          console.log(`[Map Marker Debug] Sample: ${sample.name}, Type: '${sample.type?.toLowerCase()}', Color: ${color}, Raw type: ${sample.type}`);
+          console.log(`[Map Marker Debug] Sample: ${sample.name}, Type: '${sample.type?.toLowerCase()}', Color: ${color}`);
           
           return (
             <CircleMarker
               key={sample.id}
               center={[sample.latitude as number, sample.longitude as number]}
-              radius={14}
+              radius={16}
               pathOptions={{
                 fillColor: color,
                 color: 'black',
-                weight: 4,
+                weight: 3,
                 opacity: 1,
                 fillOpacity: 1
-              }}
-              eventHandlers={{
-                mouseover: () => {
-                  console.log(`Marker hovered: ${sample.name}, Color: ${color}`);
-                }
               }}
             >
               <Popup>
@@ -193,43 +188,43 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   );
 }
 
-// Sample type colors for markers
+// Sample type colors for markers - SIMPLIFIED with brighter colors
 const getMarkerColor = (type: string | null | undefined): string => {
   if (!type) return '#808080'; // Default gray for unknown types
   
   // Normalize the type to lowercase for case-insensitive matching
   const normalizedType = type.toLowerCase().trim();
   
-  // Color mapping for different sample types - increased saturation for better visibility
+  // Brighter colors for better visibility against grayscale
   switch (normalizedType) {
     case 'water':
-      return '#0066FF'; // Brighter blue
+      return '#0088FF'; // Bright blue
     case 'soil':
-      return '#A52A2A'; // More saturated brown
+      return '#CC3300'; // Bright brown-red
     case 'air':
-      return '#00BFFF'; // Deep sky blue
+      return '#00DDFF'; // Bright cyan
     case 'rock':
-      return '#696969'; // Dimgray
+      return '#888888'; // Gray
     case 'bacterial':
     case 'bacteria':
-      return '#ADFF2F'; // Green yellow
+      return '#88FF00'; // Bright green-yellow
     case 'fungal':
     case 'fungi':
-      return '#FF8C00'; // Dark orange
+      return '#FF9900'; // Bright orange
     case 'viral':
     case 'virus':
-      return '#FF1493'; // Deep pink
+      return '#FF3399'; // Pink
     case 'tissue':
-      return '#FF4500'; // Orange red
+      return '#FF5500'; // Orange-red
     case 'cell line':
-      return '#9932CC'; // Dark orchid (more vivid purple)
+      return '#CC00FF'; // Bright purple
     case 'animal':
-      return '#B8860B'; // Dark goldenrod
+      return '#DDAA00'; // Gold
     case 'plant':
-      return '#008000'; // Green
+      return '#00CC00'; // Bright green
     case 'marine':
       return '#00FFFF'; // Cyan
     default:
-      return '#FFA500'; // Orange for unknown (more visible than gray)
+      return '#FF5500'; // Bright orange for unknown
   }
 }; 

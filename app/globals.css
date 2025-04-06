@@ -889,3 +889,21 @@ footer {
 .leaflet-tile {
   filter: grayscale(100%);
 }
+
+/* Global map styles - SIMPLIFIED */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Plain grayscale for map */
+.leaflet-tile,
+.leaflet-tile-loaded {
+  filter: grayscale(100%);
+}
+
+/* Ensure SVG markers are visible and not affected by filters */
+.leaflet-marker-icon,
+.leaflet-interactive {
+  filter: none !important;
+}
