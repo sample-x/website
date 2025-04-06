@@ -100,6 +100,7 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
 
   // Log before returning the JSX
   console.log(`[SampleMap Render Debug] Rendering map. Samples received: ${samples?.length || 0}`);
+  console.log(`[DEBUG CRITICAL] BEFORE MAP FUNCTION. SAMPLE COUNT: ${samples.length}`);
 
   return (
     <div className="map-container">
@@ -115,9 +116,9 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
         />
-
-        {/* Render markers for all received samples (assumed pre-filtered by parent) */}
-        {samples.map((sample) => {
+        
+        {samples.map((sample, index) => {
+          console.log(`[DEBUG CRITICAL] INSIDE MAP FUNCTION. INDEX: ${index}, SAMPLE ID: ${sample.id}, NAME: ${sample.name}`);
           const color = getMarkerColor(sample.type);
           console.log(`[Map Marker Debug] Sample: ${sample.name}, Type: '${sample.type?.toLowerCase()}', Color: ${color}`);
           return (

@@ -23,10 +23,10 @@ const nextConfig = {
   },
   
   // Handle dynamic routes
-  trailingSlash: true,
+  // trailingSlash: true, // Temporarily removed
   
-  // Webpack optimization - TEMPORARILY COMMENTED OUT FOR DEBUGGING
-  /*
+  // Webpack optimization
+  // /* // Re-enabled
   webpack: (config, { isServer }) => {
     // Optimize bundle size
     config.optimization = {
@@ -45,7 +45,7 @@ const nextConfig = {
           framework: {
             chunks: 'all',
             name: 'framework',
-            test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
+            test: /(?<!node_modules.*)[\/]node_modules[\/](react|react-dom|scheduler|prop-types|use-subscription)[\/]/,
             priority: 40,
             enforce: true,
           },
@@ -96,7 +96,7 @@ const nextConfig = {
     
     return config;
   },
-  */
+  // */ // Re-enabled
 
   // Environment variables are now managed through .env.local
   env: {

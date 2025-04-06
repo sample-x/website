@@ -22,7 +22,7 @@ export default function Navbar() {
           </div>
           <div className="auth-buttons">
             <Link href="/login" className="btn btn-outline">Sign In</Link>
-            <Link href="/register" className="btn btn-primary" style={{ backgroundColor: '#f29415' }}>Sign Up</Link>
+            <Link href="/register" className="btn btn-primary" style={{ backgroundColor: '#ff0000 !important' }}>Sign Up</Link>
           </div>
         </nav>
       </div>

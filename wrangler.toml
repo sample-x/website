@@ -1,0 +1,7 @@
+# Static site configuration
+name = "sample-exchange"
+compatibility_date = "2024-03-28"
+
+# Static assets configuration
+[site]
+bucket = "./dist" 
