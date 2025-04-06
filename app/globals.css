@@ -842,3 +842,28 @@ footer {
   color: white !important;
   border-color: #f29415 !important;
 }
+
+/* Add this more specific selector to force the orange button */
+.auth-buttons a.btn-primary[href="/register"],
+.auth-buttons a.btn-primary[href="/register"]:hover,
+.auth-buttons a.btn-primary[href="/register"]:focus,
+.auth-buttons a.btn-primary[href="/register"]:active {
+  background-color: #f29415 !important;
+  color: white !important;
+  border-color: #f29415 !important;
+  box-shadow: none !important;
+}
+
+/* Apply stronger fix for leaflet elements */
+.leaflet-overlay-pane svg path {
+  filter: none !important;
+  -webkit-filter: none !important;
+  mix-blend-mode: normal !important;
+  isolation: isolate !important;
+}
+
+/* Override any styles that might apply grayscale to non-tile elements */
+.leaflet-pane:not(.leaflet-tile-pane) {
+  filter: none !important;
+  -webkit-filter: none !important;
+}

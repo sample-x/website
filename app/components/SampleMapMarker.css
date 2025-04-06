@@ -1,29 +1,52 @@
-/* Pulsating marker effect */
+/* Pulsating marker effect with stronger animation */
 .pulsating-marker {
-  animation: pulse 2s infinite;
+  animation: pulse 1.5s infinite !important; /* Faster animation */
+  transform-origin: center center !important;
+  z-index: 1000 !important; /* Ensure markers are on top */
 }
 
 @keyframes pulse {
   0% {
-    opacity: 1;
     transform: scale(1);
+    opacity: 1;
+    stroke-width: 3;
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.1);
+    transform: scale(1.2);
+    opacity: 0.9;
+    stroke-width: 4;
   }
   100% {
-    opacity: 1;
     transform: scale(1);
+    opacity: 1;
+    stroke-width: 3;
   }
 }
 
-/* Override any potential CSS that might interfere with marker colors */
-.leaflet-interactive {
-  pointer-events: auto !important;
+/* SVG styling to ensure colors are visible */
+svg.leaflet-zoom-animated path {
+  filter: none !important;
+  -webkit-filter: none !important;
 }
 
-/* Ensure marker is not affected by the grayscale filter */
+/* Anti-grayscale container for markers */
+.no-grayscale {
+  filter: none !important;
+  -webkit-filter: none !important;
+  z-index: 1000 !important;
+  isolation: isolate !important;
+  mix-blend-mode: normal !important;
+}
+
+/* Extreme measures to prevent grayscale on markers */
+.marker-container {
+  filter: none !important;
+  -webkit-filter: none !important;
+  mix-blend-mode: normal !important;
+  isolation: isolate !important;
+}
+
+/* Force marker elements to ignore grayscale */
 .leaflet-marker-pane,
 .leaflet-overlay-pane,
 .leaflet-marker-icon,
@@ -31,10 +54,27 @@
 .leaflet-popup,
 .leaflet-interactive {
   filter: none !important;
+  -webkit-filter: none !important;
+  position: relative !important;
+  z-index: 1000 !important;
+  isolation: isolate !important;
+  mix-blend-mode: normal !important;
 }
 
 /* Make sure SVG circle markers keep their colors */
 .leaflet-interactive {
   stroke-opacity: 1 !important;
+  fill-opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Direct path styling for SVG elements */
+path.leaflet-interactive {
+  filter: none !important;
+  isolation: isolate !important;
+  mix-blend-mode: normal !important;
+  /* Force stroke and fill to be visible */
+  stroke-width: 3 !important;
+  stroke: black !important;
   fill-opacity: 1 !important;
 } 

@@ -11,6 +11,7 @@
   width: 100%;
   height: 100%;
   position: relative;
+  isolation: isolate;
 }
 
 .leaflet-container {
@@ -180,15 +181,47 @@
   background: none;
 }
 
-/* Grayscale map styling - added !important */
+/* Tile layer container with grayscale */
+.tile-layer-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Apply grayscale only to the map tiles */
 .grayscale-map {
   filter: grayscale(100%) !important;
   -webkit-filter: grayscale(100%) !important;
 }
 
-/* Additional map styling */
-.leaflet-container {
-  z-index: 1;
+/* Ensure the map container allows proper layer stacking */
+.map-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Fix z-index for marker layers to be above tiles */
+.leaflet-marker-pane,
+.leaflet-overlay-pane {
+  z-index: 600 !important;
+  isolation: isolate;
+  mix-blend-mode: normal;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Grayscale only specific tiles layer - direct selector */
+.leaflet-tile-container img.leaflet-tile {
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
+}
+
+/* Direct selector for SVG markers to force colors */
+.leaflet-overlay-pane svg.leaflet-zoom-animated path.leaflet-interactive {
+  filter: none !important;
+  -webkit-filter: none !important;
+  mix-blend-mode: normal !important;
 }
 
 /* Fix for missing popup styles */
