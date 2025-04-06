@@ -1,0 +1,5 @@
+BUILD TIMESTAMP: 
+Created: ${new Date().toISOString()}
+Random ID: ${Math.random().toString(36).substring(2)}
+
+This file exists to verify new deployments are happening correctly. 
