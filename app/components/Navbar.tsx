@@ -79,7 +79,13 @@ export default function Navbar() {
               >
                 Login
               </Link>
-              <Link href="/register" className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md">
+              <Link 
+                href="/register" 
+                className="px-4 py-2 text-white rounded-md hover:opacity-90"
+                style={{ 
+                  backgroundColor: '#f59e0b' 
+                }}
+              >
                 Sign Up
               </Link>
             </div>
