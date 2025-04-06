@@ -62,12 +62,15 @@ export default function Home() {
       <section id="overview" className="features py-8">
         <div className="section-background opacity-20" style={{ backgroundImage: 'url(/assets/images/boxes.jpg)' }}></div>
         <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-12 relative">
+          <h2 className="section-heading text-center text-4xl mb-4 relative">
             <span className="inline-block relative">
               Why Sample Exchange?
-              <div className="absolute -bottom-3 left-0 w-1/3 h-1 bg-[#f59e0b]"></div>
             </span>
           </h2>
+          <div className="flex justify-center space-x-6 mb-8">
+            <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+            <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+          </div>
           
           <div className="feature-grid grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <div className="feature bg-white p-6 rounded-tl-3xl rounded-br-3xl shadow-lg transition-transform duration-300 hover:translate-y-[-8px] cursor-pointer relative overflow-hidden" onClick={() => window.location.href='/samples'}>
@@ -108,6 +111,10 @@ export default function Home() {
           </div>
           <div className="container mx-auto text-center px-6 relative z-10">
             <h2 className="uppercase tracking-wider text-4xl font-light mb-8 text-white">Our Mission</h2>
+            <div className="flex justify-center space-x-6 mb-6">
+              <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+              <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+            </div>
             <p className="text-2xl max-w-3xl mx-auto font-light leading-relaxed text-white">
               To accelerate research by connecting scientists with the right 
               biological samples, empowering discoveries that improve human 
@@ -121,7 +128,10 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#00757F]">The Sample Exchange Story</h2>
-              <div className="relative h-1 mx-auto bg-[#f59e0b] w-24 rounded"></div>
+              <div className="flex justify-center space-x-6 mt-2">
+                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+              </div>
             </div>
             
             <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -150,12 +160,15 @@ export default function Home() {
 
         {/* Services Section */}
         <div className="container mx-auto px-6">
-          <h2 className="section-heading text-center text-4xl mb-12 relative">
+          <h2 className="section-heading text-center text-4xl mb-4 relative">
             <span className="inline-block relative">
               Our Services
-              <div className="absolute -bottom-3 left-1/4 right-1/4 h-1 bg-[#f59e0b]"></div>
             </span>
           </h2>
+          <div className="flex justify-center space-x-6 mb-8">
+            <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+            <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Service Card 1 */}
@@ -281,7 +294,10 @@ export default function Home() {
           <h2 className="section-heading text-center text-4xl mb-12 relative z-20">
             <span className="inline-block relative text-white">
               What the community is saying...
-              <div className="absolute -bottom-3 left-1/4 right-1/4 h-1 bg-[#f59e0b]"></div>
+              <div className="flex justify-center space-x-6 mt-4">
+                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+              </div>
             </span>
           </h2>
           <div className="testimonial-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -327,7 +343,10 @@ export default function Home() {
           <h2 className="section-heading text-center text-4xl mb-12 relative z-20">
             <span className="inline-block relative text-white">
               Showcase lab!!
-              <div className="absolute -bottom-3 left-1/4 right-1/4 h-1 bg-[#f59e0b]"></div>
+              <div className="flex justify-center space-x-6 mt-4">
+                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+              </div>
             </span>
           </h2>
           <div className="showcase-content bg-white/10 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
