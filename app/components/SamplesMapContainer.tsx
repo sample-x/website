@@ -1,22 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import { Sample } from '../types/sample';
-import './SampleMap.css';
-
-// Dynamically import the SampleMap component with no SSR
-const SampleMap = dynamic(() => import('./SampleMap'), {
-  ssr: false,
-  loading: () => (
-    <div className="map-placeholder">
-      <div style={{textAlign: 'center'}}>
-        <div className="map-loading-spinner"></div>
-        <p>Loading map component...</p>
-      </div>
-    </div>
-  )
-});
 
 interface SamplesMapContainerProps {
   samples: Sample[];
@@ -31,33 +16,33 @@ export default function SamplesMapContainer({
   onAddToCart,
   selectedSample
 }: SamplesMapContainerProps) {
-  const [mounted, setMounted] = useState(false);
-  const [visibleSampleIds, setVisibleSampleIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div className="map-placeholder">
-        <div style={{textAlign: 'center'}}>
-          <div className="map-loading-spinner"></div>
-          <p>Initializing map...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="map-wrapper">
-      <div className="map-info">
-        <p>Showing {visibleSampleIds.length} samples in current view</p>
+    <div style={{
+      height: '500px',
+      border: '5px solid red',
+      backgroundColor: '#f0f0f0',
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '20px',
+      fontWeight: 'bold',
+      padding: '20px',
+      margin: '20px 0'
+    }}>
+      <h2 style={{ color: 'red', marginBottom: '20px' }}>MAP TEST CONTAINER</h2>
+      <p>This is a test container that replaces the actual map</p>
+      <p>Samples count: {samples.length}</p>
+      <div style={{ 
+        marginTop: '20px',
+        backgroundColor: 'black',
+        color: 'white',
+        padding: '10px 20px',
+        borderRadius: '5px'
+      }}>
+        TIMESTAMP: {new Date().toISOString()}
       </div>
-      <SampleMap 
-        samples={samples}
-        onBoundsChange={setVisibleSampleIds}
-      />
     </div>
   );
 } 
