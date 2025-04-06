@@ -38,16 +38,31 @@ export default function SamplesPage() {
   const [selectedSample, setSelectedSample] = useState<TableSample | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [mapFilteredSamples, setMapFilteredSamples] = useState<SupabaseSample[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filterType, setFilterType] = useState<string | null>(null);
+  const [minPrice, setMinPrice] = useState<number | null>(null);
+  const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [storageCondition, setStorageCondition] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchSamples() {
       setLoading(true);
       try {
         console.log('Fetching samples from Supabase (Client-side)...');
+        
+        // Use the search_samples function with pagination
         const { data, error: fetchError } = await supabase
-          .from('samples')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .rpc('search_samples', {
+            search_term: searchTerm || null,
+            sample_type: filterType,
+            min_price: minPrice,
+            max_price: maxPrice,
+            storage: storageCondition,
+            page_size: pageSize,
+            page_number: page
+          });
 
         if (fetchError) {
           console.error('Error fetching samples:', fetchError);
@@ -55,7 +70,16 @@ export default function SamplesPage() {
           throw fetchError;
         }
         
-        console.log(`Fetched ${data?.length || 0} samples`);
+        // Extract samples and total count
+        if (data && data.length > 0) {
+          const totalCountValue = data[0].total_count;
+          setTotalCount(totalCountValue);
+          console.log(`Fetched ${data.length} samples out of ${totalCountValue} total`);
+        } else {
+          setTotalCount(0);
+          console.log('No samples found');
+        }
+        
         setSamples(data || []);
         setError(null);
       } catch (catchError) {
@@ -69,7 +93,7 @@ export default function SamplesPage() {
     }
 
     fetchSamples();
-  }, [supabase]);
+  }, [supabase, page, pageSize, searchTerm, filterType, minPrice, maxPrice, storageCondition]);
 
   // Convert Supabase samples to the format expected by SamplesTable
   const tableSamples: TableSample[] = useMemo(() => {
@@ -157,6 +181,56 @@ export default function SamplesPage() {
     return result;
   };
 
+  // Add pagination controls component
+  const Pagination = () => {
+    const totalPages = Math.ceil(totalCount / pageSize);
+    
+    return (
+      <div className="pagination-controls flex justify-between items-center mt-4">
+        <div className="flex items-center">
+          <span className="text-sm text-gray-600">
+            Showing {samples.length} of {totalCount} samples
+          </span>
+          <select 
+            className="ml-4 p-1 border rounded text-sm"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPage(1); // Reset to first page when changing page size
+            }}
+          >
+            <option value="10">10 per page</option>
+            <option value="25">25 per page</option>
+            <option value="50">50 per page</option>
+            <option value="100">100 per page</option>
+          </select>
+        </div>
+        
+        <div className="flex">
+          <button
+            onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+            className="px-3 py-1 bg-gray-200 rounded-l disabled:opacity-50"
+          >
+            Previous
+          </button>
+          
+          <div className="px-4 py-1 bg-gray-100 flex items-center">
+            Page {page} of {totalPages || 1}
+          </div>
+          
+          <button
+            onClick={() => setPage(prev => (prev < totalPages ? prev + 1 : prev))}
+            disabled={page >= totalPages}
+            className="px-3 py-1 bg-gray-200 rounded-r disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <main className="container mx-auto px-4 py-8">
       
@@ -183,23 +257,89 @@ export default function SamplesPage() {
         )}
       </div>
 
-      {/* Sample Table Section */}
-      {!loading && !error && samples.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-4 mt-8">
-          <div className="mb-4">
+      {/* Advanced Filters */}
+      <div className="bg-white rounded-lg shadow-lg p-4 mb-8">
+        <h3 className="text-xl mb-4">Advanced Filters</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sample Type</label>
+            <select
+              className="w-full p-2 border border-gray-300 rounded-md"
+              value={filterType || ''}
+              onChange={(e) => {
+                const value = e.target.value || null;
+                setFilterType(value);
+                setPage(1); // Reset to first page when changing filters
+              }}
+            >
+              <option value="">All Types</option>
+              <option value="bacterial">Bacterial</option>
+              <option value="cell line">Cell Line</option>
+              <option value="tissue">Tissue</option>
+              <option value="soil">Soil</option>
+              <option value="water">Water</option>
+              <option value="botanical">Botanical</option>
+              <option value="viral">Viral</option>
+              <option value="environmental">Environmental</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+            <input
+              type="number"
+              className="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Min Price"
+              value={minPrice || ''}
+              onChange={(e) => {
+                const value = e.target.value ? Number(e.target.value) : null;
+                setMinPrice(value);
+                setPage(1);
+              }}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+            <input
+              type="number"
+              className="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Max Price"
+              value={maxPrice || ''}
+              onChange={(e) => {
+                const value = e.target.value ? Number(e.target.value) : null;
+                setMaxPrice(value);
+                setPage(1);
+              }}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
             <input 
               type="text"
-              placeholder="Search samples (name, type, location...)"
+              placeholder="Search samples (name, description...)"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
               className="w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Sample Table Section */}
+      {!loading && !error && samples.length > 0 && (
+        <div className="bg-white rounded-lg shadow-lg p-4 mt-8">
           <SamplesTable 
             samples={filteredTableSamples}
             onSampleSelect={handleSampleSelect}
             onAddToCart={handleAddToCart}
           />
+          
+          <Pagination />
           
           <div className="upload-button-container mt-4 flex justify-end">
             <Link href="/samples/upload" className="btn btn-primary">

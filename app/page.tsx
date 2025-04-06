@@ -27,17 +27,17 @@ export default function Home() {
 
       {/* Hero Section with fixed video background */}
       <section className="hero relative h-screen" id="top">
-        <video 
-          ref={videoRef}
-          autoPlay 
-          muted 
-          loop 
-          playsInline
+          <video 
+            ref={videoRef}
+            autoPlay 
+            muted 
+            loop 
+            playsInline
           className="absolute inset-0 object-cover w-full h-full z-0"
-        >
-          <source src="/assets/videos/start.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+          >
+            <source src="/assets/videos/start.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
         <div className="absolute inset-0 bg-gradient-to-b from-[#00757F]/60 to-[#f59e0b]/40 z-10"></div>
         
         <div className="relative z-20 h-full flex items-center justify-center w-full">
@@ -110,7 +110,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* About Section */}
       <section className="py-16">
         {/* Mission Statement - with midcentury styling */}
@@ -303,7 +303,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* What the community is saying */}
       <section className="testimonials py-16" id="testimonials">
         <div className="section-background" style={{ backgroundImage: 'url(/assets/images/testimonials.jpg)' }}></div>
@@ -349,7 +349,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* Showcase lab!! */}
       <section className="showcase py-16" id="demo">
         <div className="showcase-background">
