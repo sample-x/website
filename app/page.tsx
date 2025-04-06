@@ -76,49 +76,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="testimonials" id="testimonials">
-        <div className="section-background" style={{ backgroundImage: 'url(/assets/images/testimonials.jpg)' }}></div>
-        <div className="container">
-          <h2>What the community is saying...</h2>
-          <div className="testimonial-grid">
-            <div className="testimonial-card">
-              <p>"There is definitely a need in the scientific community for something like Sample Exchange. In the lab, there are always unused samples and machinery that are just collecting dust. It is also extremely hard to find materials from other groups without an already established connection."</p>
-              <cite>- Harvard Biology PhD Student</cite>
-            </div>
-            <div className="testimonial-card">
-              <p>"In conversation: You are making me reach for my wallet! Haha! We had the best cell lines. Maybe we should license them out."</p>
-              <cite>- Former CSO, Biotech</cite>
-            </div>
-            <div className="testimonial-card">
-              <p>"I remember ordering 2nd hand equipment off Ebay and having to beg people for introductions to people with samples we are interested in. I wasted so much time trying to find people. This would have totally made my life easier!"</p>
-              <cite>- Harvard Scientist</cite>
-            </div>
-            <div className="testimonial-card">
-              <p>"Sample Exchange sounds like it would make our lives easier tremendously. Having an online marketplace takes away the stress from just emailing random people and hoping for a reply."</p>
-              <cite>- Harvard Pathologist/Scientist</cite>
-            </div>
-            <div className="testimonial-card">
-              <p>"P.S. I did look at Sample Exchange last night – really like the idea as we discussed. I hope it flies, cause it should!"</p>
-              <cite>- Former CEO, Biotech</cite>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="showcase" id="demo">
-        <div className="showcase-background">
-          <div className="showcase-overlay"></div>
-        </div>
-        <div className="container">
-          <h2>Showcase lab!!</h2>
-          <div className="showcase-content">
-            <p>"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
-            <p>I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>
-            <cite>Jean-Marie Volland, Ph.D.<br />Group Leader (Marine Microbiology)<br />LRC & JGI</cite>
-          </div>
-        </div>
-      </section>
-
       {/* About Section */}
       <section className="py-16">
         {/* Mission Statement - with same background color as testimonials */}
@@ -277,6 +234,49 @@ export default function Home() {
                 <p className="text-gray-600">Connect your lab systems directly to our platform with our comprehensive API services.</p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="testimonials" id="testimonials">
+        <div className="section-background" style={{ backgroundImage: 'url(/assets/images/testimonials.jpg)' }}></div>
+        <div className="container">
+          <h2>What the community is saying...</h2>
+          <div className="testimonial-grid">
+            <div className="testimonial-card">
+              <p>"There is definitely a need in the scientific community for something like Sample Exchange. In the lab, there are always unused samples and machinery that are just collecting dust. It is also extremely hard to find materials from other groups without an already established connection."</p>
+              <cite>- Harvard Biology PhD Student</cite>
+            </div>
+            <div className="testimonial-card">
+              <p>"In conversation: You are making me reach for my wallet! Haha! We had the best cell lines. Maybe we should license them out."</p>
+              <cite>- Former CSO, Biotech</cite>
+            </div>
+            <div className="testimonial-card">
+              <p>"I remember ordering 2nd hand equipment off Ebay and having to beg people for introductions to people with samples we are interested in. I wasted so much time trying to find people. This would have totally made my life easier!"</p>
+              <cite>- Harvard Scientist</cite>
+            </div>
+            <div className="testimonial-card">
+              <p>"Sample Exchange sounds like it would make our lives easier tremendously. Having an online marketplace takes away the stress from just emailing random people and hoping for a reply."</p>
+              <cite>- Harvard Pathologist/Scientist</cite>
+            </div>
+            <div className="testimonial-card">
+              <p>"P.S. I did look at Sample Exchange last night – really like the idea as we discussed. I hope it flies, cause it should!"</p>
+              <cite>- Former CEO, Biotech</cite>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="showcase" id="demo">
+        <div className="showcase-background">
+          <div className="showcase-overlay"></div>
+        </div>
+        <div className="container">
+          <h2>Showcase lab!!</h2>
+          <div className="showcase-content">
+            <p>"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
+            <p>I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>
+            <cite>Jean-Marie Volland, Ph.D.<br />Group Leader (Marine Microbiology)<br />LRC & JGI</cite>
           </div>
         </div>
       </section>
