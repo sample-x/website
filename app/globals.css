@@ -3,15 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --color-bg: #F5F2EB;
-  --color-primary: #f29415;
-  --color-secondary: #2A9D8F;
-  --color-accent: #F8B83C;
-  --color-dark: #264653;
+  --color-bg: #F9F5EB; /* Background Cream: warm paper texture */
+  --color-primary: #f59e0b; /* Primary Orange from the navbar Sign up button */
+  --color-secondary: #00757F; /* Secondary Teal: deeper turquoise */
+  --color-accent: #F9BA48; /* Accent Gold: warm mustard accent */
+  --color-light-accent: #8BD7D7; /* Accent Light Blue: soft retro aqua */
+  --color-dark: #263238; /* Dark Charcoal: for text and accents */
   --color-light: #FFFFFF;
   --color-error: #e74c3c;
   --color-success: #27ae60;
-  --font-primary: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-primary: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 * {
@@ -60,25 +61,29 @@ img {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
   margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+  color: var(--color-dark);
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 3rem;
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
 }
 
 h3 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
 }
 
 p {
   margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--color-dark);
 }
 
 /* Header Styles */
@@ -131,6 +136,7 @@ header, .site-header {
   color: var(--color-dark);
   font-weight: 500;
   transition: color 0.3s;
+  letter-spacing: 0.5px;
 }
 
 .main-nav a:hover {
@@ -146,36 +152,43 @@ header, .site-header {
 .btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  border-radius: 4px;
   font-weight: 600;
   transition: all 0.3s;
   cursor: pointer;
   text-align: center;
   border: none;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary {
   background-color: var(--color-primary);
   color: white;
+  border-radius: 2rem 0.25rem 0.25rem 2rem;
 }
 
 .btn-primary:hover {
   background-color: #e08000;
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
   background-color: var(--color-secondary);
   color: white;
+  border-radius: 0.25rem 2rem 2rem 0.25rem;
 }
 
 .btn-secondary:hover {
-  background-color: #238a7d;
+  background-color: #005e6a;
+  transform: translateY(-2px);
 }
 
 .btn-outline {
   background-color: transparent;
   color: var(--color-primary);
   border: 2px solid var(--color-primary);
+  border-radius: 2rem 0.25rem 0.25rem 2rem;
 }
 
 .btn-outline:hover {
@@ -186,6 +199,14 @@ header, .site-header {
 .btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* Section dividers */
+.section-divider {
+  height: 4px;
+  background-color: var(--color-primary);
+  margin: 3rem auto;
+  width: 80px;
 }
 
 /* Hero Section */
