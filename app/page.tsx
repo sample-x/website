@@ -43,7 +43,7 @@ export default function Home() {
           <div className="container mx-auto px-6 md:px-8">
             <div className="max-w-4xl">
               <p className="uppercase tracking-[0.2em] text-base font-light mb-4 text-white">Redefining Scientific Exchange</p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl mb-8 text-white font-light">The world's first marketplace for science</h1>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl mb-8 text-white font-bold">The world's first marketplace for science</h1>
               <div className="hero-text mb-10 bg-white/10 backdrop-blur-sm p-6 rounded-lg">
                 <p className="text-white/90 text-lg mb-4 font-light">Individual researchers, organizations and companies can share, monetize and out-license research assets which would otherwise remain locked up in storage and freezers.</p>
                 <p className="text-white/90 text-lg mb-4 font-light">Sharing preliminary and intermediate products, hard-to-obtain samples, and difficult-to-produce libraries and reagents reduces resource use, while also helping cut down on research time and effort.</p>
@@ -58,10 +58,8 @@ export default function Home() {
         </div>
       </section>
       
-      <div className="section-divider my-8"></div>
-
       {/* Features Section */}
-      <section id="overview" className="features py-16">
+      <section id="overview" className="features py-8">
         <div className="section-background opacity-20" style={{ backgroundImage: 'url(/assets/images/boxes.jpg)' }}></div>
         <div className="container">
           <h2 className="section-heading text-center text-4xl mb-12 relative">
@@ -100,8 +98,6 @@ export default function Home() {
         </div>
       </section>
       
-      <div className="section-divider my-12"></div>
-
       {/* About Section */}
       <section className="py-16">
         {/* Mission Statement - with midcentury styling */}
@@ -278,8 +274,6 @@ export default function Home() {
         </div>
       </section>
       
-      <div className="section-divider my-12"></div>
-
       {/* What the community is saying */}
       <section className="testimonials py-16" id="testimonials">
         <div className="section-background" style={{ backgroundImage: 'url(/assets/images/testimonials.jpg)' }}></div>
@@ -324,8 +318,6 @@ export default function Home() {
         </div>
       </section>
       
-      <div className="section-divider my-16"></div>
-
       {/* Showcase lab!! */}
       <section className="showcase py-16" id="demo">
         <div className="showcase-background">
