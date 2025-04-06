@@ -12,7 +12,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="SampleX Logo" width={40} height={40} className="mr-2" />
+            <Image src="/assets/images/logo.png" alt="SampleX Logo" width={40} height={40} className="mr-2" />
             <span className="text-xl font-bold text-gray-800">SampleX</span>
           </Link>
         </div>
@@ -20,31 +20,31 @@ export default function Navbar() {
         <nav className="hidden md:flex space-x-6 items-center">
           <Link 
             href="/" 
-            className={`text-sm font-medium ${pathname === '/' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/' ? 'font-bold' : ''}`}
           >
             Home
           </Link>
           <Link 
             href="/samples" 
-            className={`text-sm font-medium ${pathname === '/samples' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/samples' ? 'font-bold' : ''}`}
           >
             Samples
           </Link>
           <Link 
             href="/overview" 
-            className={`text-sm font-medium ${pathname === '/overview' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/overview' ? 'font-bold' : ''}`}
           >
             Overview
           </Link>
           <Link 
             href="/contact" 
-            className={`text-sm font-medium ${pathname === '/contact' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/contact' ? 'font-bold' : ''}`}
           >
             Contact
           </Link>
           <Link 
             href="/debug" 
-            className={`text-sm font-medium ${pathname === '/debug' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+            className={`text-sm font-medium text-gray-700 hover:text-gray-900 ${pathname === '/debug' ? 'font-bold' : ''}`}
           >
             Debug
           </Link>
@@ -52,7 +52,7 @@ export default function Navbar() {
           <div className="ml-6 flex items-center space-x-2">
             <Link 
               href="/login" 
-              className="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50"
+              className="px-4 py-2 text-sm font-medium text-gray-800 bg-white border border-gray-800 rounded-md hover:bg-gray-50"
             >
               Login
             </Link>

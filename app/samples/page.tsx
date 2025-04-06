@@ -37,6 +37,7 @@ export default function SamplesPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSample, setSelectedSample] = useState<TableSample | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [mapFilteredSamples, setMapFilteredSamples] = useState<SupabaseSample[]>([]);
 
   useEffect(() => {
     async function fetchSamples() {
@@ -71,19 +72,24 @@ export default function SamplesPage() {
   }, [supabase]);
 
   // Convert Supabase samples to the format expected by SamplesTable
-  const tableSamples: TableSample[] = useMemo(() => samples.map(sample => ({
-    id: sample.id.toString(),
-    name: sample.name,
-    type: sample.type,
-    description: sample.description || '',
-    location: sample.location,
-    price: sample.price,
-    coordinates: sample.latitude && sample.longitude ? [sample.latitude, sample.longitude] : undefined,
-    collectionDate: sample.collection_date,
-    storageCondition: sample.storage_condition,
-    availability: sample.quantity > 0 ? 'Available' : 'Out of Stock',
-    inStock: sample.quantity > 0
-  })), [samples]);
+  const tableSamples: TableSample[] = useMemo(() => {
+    // Use mapFilteredSamples if they exist, otherwise use all samples
+    const sourceArray = mapFilteredSamples.length > 0 ? mapFilteredSamples : samples;
+    
+    return sourceArray.map(sample => ({
+      id: sample.id.toString(),
+      name: sample.name,
+      type: sample.type,
+      description: sample.description || '',
+      location: sample.location,
+      price: sample.price,
+      coordinates: sample.latitude && sample.longitude ? [sample.latitude, sample.longitude] : undefined,
+      collectionDate: sample.collection_date,
+      storageCondition: sample.storage_condition,
+      availability: sample.quantity > 0 ? 'Available' : 'Out of Stock',
+      inStock: sample.quantity > 0
+    }));
+  }, [samples, mapFilteredSamples]);
 
   // Filter samples based on search term
   const filteredTableSamples = useMemo(() => {
@@ -107,6 +113,13 @@ export default function SamplesPage() {
     // Implementation of handleAddToCart
   };
 
+  // Handler for map filter changes
+  const handleMapFilterChange = (filteredSamples: SupabaseSample[]) => {
+    setMapFilteredSamples(filteredSamples);
+    // Clear search term when filtering by map
+    setSearchTerm('');
+  };
+
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Sample Management</h1>
@@ -125,7 +138,10 @@ export default function SamplesPage() {
             <p>No samples found.</p>
           </div>
         ) : (
-          <SamplesMapContainer samples={samples} />
+          <SamplesMapContainer 
+            samples={samples} 
+            onFilterChange={handleMapFilterChange} 
+          />
         )}
       </div>
 

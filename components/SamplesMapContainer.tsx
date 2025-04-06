@@ -36,14 +36,17 @@ const SampleMap = dynamic(() => import('./SampleMap'), {
 interface SamplesMapContainerProps {
   samples: Sample[];
   onSampleSelect?: (sample: Sample) => void;
+  onFilterChange?: (filteredSamples: Sample[]) => void;
 }
 
 export default function SamplesMapContainer({
   samples,
   onSampleSelect,
+  onFilterChange,
 }: SamplesMapContainerProps) {
   const [mounted, setMounted] = useState(false);
   const [visibleSampleIds, setVisibleSampleIds] = useState<string[]>([]);
+  const [activeTypeFilter, setActiveTypeFilter] = useState<string | null>(null);
 
   // Add a global style for the spinner animation
   useEffect(() => {
@@ -62,6 +65,24 @@ export default function SamplesMapContainer({
       document.head.removeChild(style);
     };
   }, []);
+
+  // Handle type filter change
+  const handleTypeFilter = (type: string | null) => {
+    setActiveTypeFilter(type);
+    
+    if (onFilterChange) {
+      // If type is null, clear the filter
+      if (type === null) {
+        onFilterChange(samples);
+      } else {
+        // Filter samples by type
+        const filteredSamples = samples.filter(
+          sample => sample.type && sample.type.toLowerCase() === type.toLowerCase()
+        );
+        onFilterChange(filteredSamples);
+      }
+    }
+  };
 
   if (!mounted) {
     return (
@@ -94,14 +115,21 @@ export default function SamplesMapContainer({
     sample => typeof sample.latitude === 'number' && typeof sample.longitude === 'number'
   );
   
-  console.log(`[SamplesMapContainer Debug] Passing ${samplesWithCoordinates.length} samples with coordinates to SampleMap`);
+  // Apply type filter if active
+  const filteredSamples = activeTypeFilter
+    ? samplesWithCoordinates.filter(
+        sample => sample.type && sample.type.toLowerCase() === activeTypeFilter.toLowerCase()
+      )
+    : samplesWithCoordinates;
+  
+  console.log(`[SamplesMapContainer Debug] Passing ${filteredSamples.length} samples with coordinates to SampleMap${activeTypeFilter ? ` (filtered by ${activeTypeFilter})` : ''}`);
 
   // Add an adapter function to convert bounds to sample IDs
   const handleBoundsChange = (bounds: any) => {
     if (bounds && typeof bounds.contains === 'function') {
       // This is a Leaflet bounds object
       try {
-        const visibleIds = samplesWithCoordinates
+        const visibleIds = filteredSamples
           .filter(sample => 
             sample.latitude && 
             sample.longitude && 
@@ -131,11 +159,17 @@ export default function SamplesMapContainer({
         borderRadius: '4px',
         fontSize: '12px'
       }}>
-        <p>Showing {samplesWithCoordinates.length} samples</p>
+        <p>
+          {activeTypeFilter 
+            ? `Showing ${filteredSamples.length} ${activeTypeFilter} samples` 
+            : `Showing ${filteredSamples.length} samples`
+          }
+        </p>
       </div>
       <SampleMap 
-        samples={samplesWithCoordinates}
+        samples={filteredSamples}
         onBoundsChange={handleBoundsChange}
+        onTypeFilter={handleTypeFilter}
       />
     </div>
   );

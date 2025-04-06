@@ -75,10 +75,12 @@ function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (b
 interface SampleMapProps {
   samples: Sample[];
   onBoundsChange?: (bounds: L.LatLngBounds) => void;
+  onTypeFilter?: (type: string | null) => void;
 }
 
-export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
+export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: SampleMapProps) {
   const [mounted, setMounted] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const router = useRouter();
 
@@ -111,6 +113,18 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   const mapCenter = center[2] > 0
     ? [center[0] / center[2], center[1] / center[2]] as [number, number]
     : [20, 0] as [number, number];
+
+  // Function to handle clicking on a sample type in the legend
+  const handleTypeClick = (type: string) => {
+    // If already active, clear the filter
+    const newFilter = activeFilter === type ? null : type;
+    setActiveFilter(newFilter);
+    
+    // Call parent component to filter samples
+    if (onTypeFilter) {
+      onTypeFilter(newFilter);
+    }
+  };
 
   if (!mounted) {
     return <div>Loading map...</div>;
@@ -174,24 +188,65 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
         bottom: '20px',
         right: '20px',
         backgroundColor: 'white',
-        padding: '10px',
+        padding: '8px',
         borderRadius: '6px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
         zIndex: 1000,
-        maxWidth: '200px'
+        maxWidth: '160px',
+        fontSize: '12px'
       }}>
-        <h4 style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>Sample Types</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: '20px 1fr', gap: '6px', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '6px' 
+        }}>
+          <h4 style={{ fontSize: '13px', fontWeight: 'bold', margin: 0 }}>Sample Types</h4>
+          {activeFilter && (
+            <button 
+              onClick={() => handleTypeClick(activeFilter)}
+              style={{ 
+                fontSize: '10px', 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer',
+                color: '#666',
+                padding: '2px'
+              }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '14px 1fr', 
+          gap: '4px', 
+          alignItems: 'center',
+          fontSize: '11px'
+        }}>
           {sampleTypes.map(({ type, label }) => (
             <React.Fragment key={type}>
               <div style={{ 
-                width: '16px', 
-                height: '16px', 
+                width: '14px', 
+                height: '14px', 
                 borderRadius: '50%', 
                 backgroundColor: getMarkerColor(type),
-                border: '1px solid rgba(0,0,0,0.2)' 
-              }} />
-              <span style={{ fontSize: '12px' }}>{label}</span>
+                border: '1px solid rgba(0,0,0,0.2)',
+                cursor: 'pointer'
+              }} 
+              onClick={() => handleTypeClick(type)}
+              />
+              <span 
+                style={{ 
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  fontWeight: activeFilter === type ? 'bold' : 'normal'
+                }} 
+                onClick={() => handleTypeClick(type)}
+              >
+                {label}
+              </span>
             </React.Fragment>
           ))}
         </div>
