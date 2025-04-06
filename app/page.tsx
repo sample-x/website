@@ -137,176 +137,155 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section className="about-section" id="about">
-        {/* Mission Statement with gradient background */}
-        <div className="py-12 text-center" style={{ 
-          background: 'linear-gradient(135deg, #6B8F50 0%, #8D7B43 100%)',
-          color: 'white'
-        }}>
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
-            <p className="max-w-3xl mx-auto">
-              At Sample Exchange, we're committed to building a collaborative ecosystem for scientific sample sharing. We believe that by connecting researchers and institutions, we can accelerate scientific discovery and make research more efficient and cost-effective.
+      <section className="py-16">
+        {/* Mission Statement - with gradient background */}
+        <div className="mb-12 py-12 bg-gradient-to-r from-green-600 to-green-400 text-white rounded-lg">
+          <div className="container mx-auto text-center px-6">
+            <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
+            <p className="text-xl max-w-3xl mx-auto">
+              To accelerate research by connecting scientists with the right 
+              biological samples, empowering discoveries that improve human 
+              and environmental health.
             </p>
           </div>
         </div>
-        
+
         {/* Sample Exchange Story */}
-        <div className="bg-gray-50 py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold mb-8 text-center">The Sample Exchange Story</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <p className="mb-4">Scientists are always scrounging around for money. We realized we didn't have enough grant funding to organize yet another expensive sample collection trip to Alaska, to get permafrost samples. A researcher from the U. of Alaska helped us out by collecting samples and sharing them with us for free! How wonderful!</p>
-                  <p className="mb-4">You can say with Sample Exchange, we are simply paying it forward!</p>
-                </div>
-                
-                <div className="order-first md:order-last">
-                  <div className="bg-white p-4 rounded-lg shadow-md">
-                    <img 
-                      src="/assets/images/permafrost-core.jpg" 
-                      alt="Permafrost Core" 
-                      className="w-full h-auto rounded-lg"
-                    />
-                    <p className="text-sm text-gray-600 mt-2 italic text-center">
-                      Example of a Permafrost Core<br />
-                      Image courtesy: Permafrost Laboratory, U. of Alaska (Fairbanks)
-                    </p>
-                  </div>
-                </div>
-              </div>
+        <div className="container mx-auto px-6 mb-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">The Sample Exchange Story</h2>
+          
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <p className="text-gray-700 mb-4">
+                Founded in 2020 by a team of scientists frustrated by the challenges of finding quality biological samples, 
+                Sample Exchange has grown into the leading platform for scientific sample exchange.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Our platform connects researchers, biobanks, and sample providers globally, enabling 
+                faster discoveries and more efficient resource utilization in the scientific community.
+              </p>
+              <p className="text-gray-700">
+                With a focus on quality, traceability, and ethical sourcing, we're building the 
+                future of sample management and exchange for scientific research.
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <img
+                src="/images/permafrost-core.jpg"
+                alt="Permafrost Core Sample"
+                className="rounded-lg shadow-xl max-h-80 object-cover"
+              />
             </div>
           </div>
         </div>
-        
+
         {/* Services Section */}
-        <div className="bg-gray-100 py-16">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-12 text-center">Our Services</h2>
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold mb-8 text-center">Our Services</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Service Card 1 */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-700 p-4 flex justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">Sample Acquisition</h3>
+                <p className="text-gray-600">Find and acquire the exact samples you need for your research from our global network of providers.</p>
+              </div>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-              {/* Environmental Sample Collection */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-16 flex items-center justify-center" style={{ 
-                  background: 'linear-gradient(90deg, #6B8F50 0%, #8D7B43 100%)'
-                }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 3.5a6.5 6.5 0 00-6.5 6.5c0 3.59 2.91 6.5 6.5 6.5s6.5-2.91 6.5-6.5-2.91-6.5-6.5-6.5zm0 12A5.51 5.51 0 014.5 10 5.51 5.51 0 0110 4.5 5.51 5.51 0 0115.5 10 5.51 5.51 0 0110 15.5z" />
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-1.5a6.5 6.5 0 100-13 6.5 6.5 0 000 13z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-lg mb-2">Environmental Sample Collection</h4>
-                  <p className="text-gray-700">Professional collection of environmental samples from diverse ecosystems with proper documentation and handling protocols.</p>
-                </div>
+            {/* Service Card 2 */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-purple-700 p-4 flex justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                </svg>
               </div>
-              
-              {/* Strain, Tissue, Culture Collection */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-16 flex items-center justify-center" style={{ 
-                  background: 'linear-gradient(90deg, #6B8F50 0%, #8D7B43 100%)'
-                }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14.5a6.5 6.5 0 110-13 6.5 6.5 0 010 13z" />
-                    <path d="M6 10a1 1 0 112 0v2a1 1 0 11-2 0v-2zm6 0a1 1 0 112 0v2a1 1 0 11-2 0v-2zm-3-4a1 1 0 112 0v6a1 1 0 11-2 0V6z" />
-                  </svg>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-lg mb-2">Strain, Tissue, Culture Collection</h4>
-                  <p className="text-gray-700">Specialized collection and preservation of biological strains, tissues, and cultures for research purposes.</p>
-                </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">Sample Management</h3>
+                <p className="text-gray-600">Comprehensive tools to track, manage, and organize your biological samples and collections.</p>
               </div>
-              
-              {/* Intelligent Sample Management */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-16 flex items-center justify-center" style={{ 
-                  background: 'linear-gradient(90deg, #6B8F50 0%, #8D7B43 100%)'
-                }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" />
-                  </svg>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-lg mb-2">Intelligent Sample Management</h4>
-                  <p className="text-gray-700">Advanced framework for tracking, organizing, and managing samples throughout their lifecycle.</p>
-                </div>
+            </div>
+            
+            {/* Service Card 3 */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-green-500 to-green-700 p-4 flex justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z" />
+                </svg>
               </div>
-              
-              {/* Biological Sample Processing */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-16 flex items-center justify-center" style={{ 
-                  background: 'linear-gradient(90deg, #6B8F50 0%, #8D7B43 100%)'
-                }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-lg mb-2">Biological Sample Processing</h4>
-                  <p className="text-gray-700">Expert processing of biological samples using state-of-the-art techniques and equipment.</p>
-                </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">Exchange Platform</h3>
+                <p className="text-gray-600">List samples you can share or sell, facilitating collaboration between researchers globally.</p>
               </div>
-              
-              {/* Custom Analytical Methods */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-16 flex items-center justify-center" style={{ 
-                  background: 'linear-gradient(90deg, #6B8F50 0%, #8D7B43 100%)'
-                }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-lg mb-2">Custom Analytical Methods</h4>
-                  <p className="text-gray-700">Development of tailored analytical methods to meet specific research requirements and objectives.</p>
-                </div>
+            </div>
+            
+            {/* Service Card 4 */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-red-500 to-red-700 p-4 flex justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
               </div>
-              
-              {/* Data Interpretation & Reporting */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-16 flex items-center justify-center" style={{ 
-                  background: 'linear-gradient(90deg, #6B8F50 0%, #8D7B43 100%)'
-                }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-lg mb-2">Data Interpretation & Reporting</h4>
-                  <p className="text-gray-700">Comprehensive analysis and reporting of sample data with clear, actionable insights.</p>
-                </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">Quality Assurance</h3>
+                <p className="text-gray-600">Rigorous verification processes ensure all samples meet the highest quality standards.</p>
               </div>
-              
-              {/* Sampling Consultation */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-16 flex items-center justify-center" style={{ 
-                  background: 'linear-gradient(90deg, #6B8F50 0%, #8D7B43 100%)'
-                }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-lg mb-2">Sampling Consultation</h4>
-                  <p className="text-gray-700">Expert guidance on sampling strategies, protocols, and permit requirements for research projects.</p>
-                </div>
+            </div>
+            
+            {/* Service Card 5 */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-yellow-500 to-yellow-700 p-4 flex justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H5.5z" />
+                  <path d="M9 13h2v5a1 1 0 11-2 0v-5z" />
+                </svg>
               </div>
-              
-              {/* MTA Support */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-16 flex items-center justify-center" style={{ 
-                  background: 'linear-gradient(90deg, #6B8F50 0%, #8D7B43 100%)'
-                }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-bold text-lg mb-2">MTA Support</h4>
-                  <p className="text-gray-700">Assistance with Material Transfer Agreements to ensure proper legal and ethical sample sharing.</p>
-                </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">Storage Solutions</h3>
+                <p className="text-gray-600">Access our network of certified storage facilities for short or long-term sample preservation.</p>
+              </div>
+            </div>
+            
+            {/* Service Card 6 */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-indigo-500 to-indigo-700 p-4 flex justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">Authentication</h3>
+                <p className="text-gray-600">Verify the origin, type, and quality of samples through our certified authentication process.</p>
+              </div>
+            </div>
+            
+            {/* Service Card 7 */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-pink-500 to-pink-700 p-4 flex justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6.672 1.911a1 1 0 10-1.932.518l.259.966a1 1 0 001.932-.518l-.26-.966zM2.429 4.74a1 1 0 10-.517 1.932l.966.259a1 1 0 00.517-1.932l-.966-.26zm8.814-.569a1 1 0 00-1.415-1.414l-.707.707a1 1 0 101.415 1.415l.707-.708zm-7.071 7.072l.707-.707A1 1 0 003.465 9.12l-.708.707a1 1 0 001.415 1.415zm3.2-5.171a1 1 0 00-1.3 1.3l4 10a1 1 0 001.823.075l1.38-2.759 3.018 3.02a1 1 0 001.414-1.415l-3.019-3.02 2.76-1.379a1 1 0 00-.076-1.822l-10-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">Custom Collection</h3>
+                <p className="text-gray-600">Specialized collection services to gather specific samples according to your research needs.</p>
+              </div>
+            </div>
+            
+            {/* Service Card 8 */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-teal-500 to-teal-700 p-4 flex justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2">API Integration</h3>
+                <p className="text-gray-600">Connect your lab systems directly to our platform with our comprehensive API services.</p>
               </div>
             </div>
           </div>
