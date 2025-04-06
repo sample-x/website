@@ -342,6 +342,18 @@ header, .site-header {
   margin: 1rem auto 0;
 }
 
+.section-heading::after {
+  display: none !important;
+}
+
+h2 + .flex.justify-center.space-x-6 {
+  display: none !important;
+}
+
+.section-heading + .flex.justify-center > div:not(:first-child) {
+  display: none !important;
+}
+
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
