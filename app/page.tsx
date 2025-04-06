@@ -24,44 +24,41 @@ export default function Home() {
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
 
-      {/* Hero Section */}
-      <section className="hero relative" id="top">
-        <div className="video-background">
-          <video 
-            ref={videoRef}
-            autoPlay 
-            muted 
-            loop 
-            playsInline
-            key="hero-video"
-            className="absolute object-cover w-full h-full"
-          >
-            <source src="/assets/videos/start.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          <div className="overlay bg-gradient-to-br from-[#00757F]/30 to-[#f59e0b]/40"></div>
-        </div>
+      {/* Hero Section with fixed video background */}
+      <section className="hero relative h-screen" id="top">
+        <video 
+          ref={videoRef}
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="absolute inset-0 object-cover w-full h-full z-0"
+        >
+          <source src="/assets/videos/start.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#00757F]/60 to-[#f59e0b]/40 z-10"></div>
         
-        {/* Removed geometric shapes as requested */}
-        
-        <div className="hero-container relative z-20">
-          <div className="hero-content max-w-4xl mx-auto px-6 md:px-8">
-            <p className="uppercase tracking-[0.2em] text-base font-light mb-4 text-white">Redefining Scientific Exchange</p>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl mb-8 text-white font-semibold">The world's first marketplace for science</h1>
-            <div className="hero-text mb-10 bg-white/10 backdrop-blur-sm p-6 rounded-lg">
-              <p className="text-white/90 text-lg mb-4">Individual researchers, organizations and companies can share, monetize and out-license research assets which would otherwise remain locked up in storage and freezers.</p>
-              <p className="text-white/90 text-lg mb-4">Sharing preliminary and intermediate products, hard-to-obtain samples, and difficult-to-produce libraries and reagents reduces resource use, while also helping cut down on research time and effort.</p>
-              <p className="text-white/90 text-lg">Blurring the boundary between physical and digital, SE allows scientists to create any and all kind of sales and licensing arrangements for research assets and data, be they MTAs or NFTs.</p>
-            </div>
-            <div className="hero-buttons flex flex-wrap gap-4">
-              <Link href="/samples" className="btn btn-primary text-lg">Browse Samples</Link>
-              <Link href="/about" className="btn btn-secondary text-lg">Learn More</Link>
+        <div className="relative z-20 h-full flex items-center">
+          <div className="container mx-auto px-6 md:px-8">
+            <div className="max-w-4xl">
+              <p className="uppercase tracking-[0.2em] text-base font-light mb-4 text-white">Redefining Scientific Exchange</p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl mb-8 text-white font-light">The world's first marketplace for science</h1>
+              <div className="hero-text mb-10 bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+                <p className="text-white/90 text-lg mb-4 font-light">Individual researchers, organizations and companies can share, monetize and out-license research assets which would otherwise remain locked up in storage and freezers.</p>
+                <p className="text-white/90 text-lg mb-4 font-light">Sharing preliminary and intermediate products, hard-to-obtain samples, and difficult-to-produce libraries and reagents reduces resource use, while also helping cut down on research time and effort.</p>
+                <p className="text-white/90 text-lg font-light">Blurring the boundary between physical and digital, SE allows scientists to create any and all kind of sales and licensing arrangements for research assets and data, be they MTAs or NFTs.</p>
+              </div>
+              <div className="hero-buttons flex flex-wrap gap-4">
+                <Link href="/samples" className="btn btn-primary text-lg">Browse Samples</Link>
+                <Link href="/about" className="btn btn-secondary text-lg">Learn More</Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
       
-      <div className="section-divider my-12"></div>
+      <div className="section-divider my-8"></div>
 
       {/* Features Section */}
       <section id="overview" className="features py-16">
@@ -284,57 +281,44 @@ export default function Home() {
       <div className="section-divider my-12"></div>
 
       {/* What the community is saying */}
-      <section className="py-16 bg-[#21414d] text-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">What the community is saying...</h2>
-            <div className="relative h-1 mx-auto bg-[#f59e0b] w-24 rounded"></div>
-          </div>
-          
-          <div className="grid gap-8 md:grid-cols-3">
-            {/* Testimonial 1 */}
-            <div className="bg-white/5 p-6 rounded-lg border-l-4 border-[#f59e0b] backdrop-blur-sm">
-              <div className="mb-4">
-                <svg className="h-8 w-8 text-[#f59e0b]" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-              </div>
-              <p className="text-white/90 mb-4">Sample Exchange completely transformed how we source materials for our permafrost studies. The platform's efficiency and quality control have allowed us to focus more on our research and less on logistics.</p>
-              <div className="flex items-center">
-                <div className="font-semibold text-white">Dr. Emily Chen</div>
-                <div className="mx-2">•</div>
-                <div className="text-white/70">Arctic Research Institute</div>
-              </div>
+      <section className="testimonials py-16" id="testimonials">
+        <div className="section-background" style={{ backgroundImage: 'url(/assets/images/testimonials.jpg)' }}></div>
+        <div className="container">
+          <h2 className="section-heading text-center text-4xl mb-12 text-white relative">
+            <span className="inline-block relative">
+              What the community is saying...
+              <div className="absolute -bottom-3 left-1/4 right-1/4 h-1 bg-[#f59e0b]"></div>
+            </span>
+          </h2>
+          <div className="testimonial-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-lg relative shadow-md">
+              <div className="absolute top-0 left-0 w-20 h-3 bg-[#f59e0b]"></div>
+              <p className="mb-4 text-white/90 italic">"There is definitely a need in the scientific community for something like Sample Exchange. In the lab, there are always unused samples and machinery that are just collecting dust. It is also extremely hard to find materials from other groups without an already established connection."</p>
+              <cite className="text-white/80 text-sm font-medium block text-right">- Harvard Biology PhD Student</cite>
             </div>
             
-            {/* Testimonial 2 */}
-            <div className="bg-white/5 p-6 rounded-lg border-l-4 border-[#00757F] backdrop-blur-sm">
-              <div className="mb-4">
-                <svg className="h-8 w-8 text-[#00757F]" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-              </div>
-              <p className="text-white/90 mb-4">Finding rare soil samples from specific regions used to take months of networking and coordination. With Sample Exchange, I can locate and acquire exactly what I need in days. It's revolutionary for our field.</p>
-              <div className="flex items-center">
-                <div className="font-semibold text-white">Prof. James Rodriguez</div>
-                <div className="mx-2">•</div>
-                <div className="text-white/70">University of Colorado</div>
-              </div>
+            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-lg relative shadow-md">
+              <div className="absolute top-0 right-0 w-20 h-3 bg-[#8BD7D7]"></div>
+              <p className="mb-4 text-white/90 italic">"In conversation: You are making me reach for my wallet! Haha! We had the best cell lines. Maybe we should license them out."</p>
+              <cite className="text-white/80 text-sm font-medium block text-right">- Former CSO, Biotech</cite>
             </div>
             
-            {/* Testimonial 3 */}
-            <div className="bg-white/5 p-6 rounded-lg border-l-4 border-green-500 backdrop-blur-sm">
-              <div className="mb-4">
-                <svg className="h-8 w-8 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-              </div>
-              <p className="text-white/90 mb-4">As a conservation biologist, I need diverse samples from protected areas. The ethical sourcing verification on Sample Exchange gives me confidence that all materials are obtained responsibly and legally.</p>
-              <div className="flex items-center">
-                <div className="font-semibold text-white">Dr. Sarah Nguyen</div>
-                <div className="mx-2">•</div>
-                <div className="text-white/70">Wildlife Conservation Society</div>
-              </div>
+            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-lg relative shadow-md">
+              <div className="absolute top-0 left-0 w-20 h-3 bg-[#F9BA48]"></div>
+              <p className="mb-4 text-white/90 italic">"I remember ordering 2nd hand equipment off Ebay and having to beg people for introductions to people with samples we are interested in. I wasted so much time trying to find people. This would have totally made my life easier!"</p>
+              <cite className="text-white/80 text-sm font-medium block text-right">- Harvard Scientist</cite>
+            </div>
+            
+            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-lg relative shadow-md">
+              <div className="absolute top-0 right-0 w-20 h-3 bg-[#f59e0b]"></div>
+              <p className="mb-4 text-white/90 italic">"Sample Exchange sounds like it would make our lives easier tremendously. Having an online marketplace takes away the stress from just emailing random people and hoping for a reply."</p>
+              <cite className="text-white/80 text-sm font-medium block text-right">- Harvard Pathologist/Scientist</cite>
+            </div>
+            
+            <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-lg relative shadow-md">
+              <div className="absolute top-0 left-0 w-20 h-3 bg-[#8BD7D7]"></div>
+              <p className="mb-4 text-white/90 italic">"P.S. I did look at Sample Exchange last night – really like the idea as we discussed. I hope it flies, cause it should!"</p>
+              <cite className="text-white/80 text-sm font-medium block text-right">- Former CEO, Biotech</cite>
             </div>
           </div>
         </div>
@@ -343,39 +327,21 @@ export default function Home() {
       <div className="section-divider my-16"></div>
 
       {/* Showcase lab!! */}
-      <section className="py-16 bg-[#21414d] text-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Showcase lab!!</h2>
-            <div className="relative h-1 mx-auto bg-[#f59e0b] w-24 rounded"></div>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <img 
-                src="/assets/images/lab-equipment.jpg" 
-                alt="Modern Laboratory Equipment" 
-                className="rounded-lg shadow-lg w-full h-auto"
-              />
-            </div>
-            
-            <div className="bg-white/10 p-8 rounded-lg backdrop-blur-sm">
-              <h3 className="text-2xl font-semibold mb-4 text-white">Harvard Systems Biology</h3>
-              <p className="text-white/90 mb-6">
-                The Systems Biology Department at Harvard Medical School has revolutionized their approach to sample management since joining Sample Exchange. Their lab now efficiently shares rare cell lines and tissue samples with researchers worldwide.
-              </p>
-              <p className="text-white/90 mb-6">
-                By implementing our platform, they've reduced sample acquisition time by 60% and increased collaborative research projects by 45% in just one year.
-              </p>
-              <div className="flex space-x-4 mt-6">
-                <a href="#" className="bg-[#f59e0b] text-white py-2 px-6 rounded-md hover:bg-[#f59e0b]/80 transition-all">
-                  Read Case Study
-                </a>
-                <a href="#" className="bg-transparent text-white py-2 px-6 rounded-md border border-white hover:bg-white/10 transition-all">
-                  Contact Lab
-                </a>
-              </div>
-            </div>
+      <section className="showcase py-16" id="demo">
+        <div className="showcase-background">
+          <div className="showcase-overlay bg-[#21414d]"></div>
+        </div>
+        <div className="container">
+          <h2 className="section-heading text-center text-4xl mb-12 text-white relative">
+            <span className="inline-block relative">
+              Showcase lab!!
+              <div className="absolute -bottom-3 left-1/4 right-1/4 h-1 bg-[#f59e0b]"></div>
+            </span>
+          </h2>
+          <div className="showcase-content bg-white/10 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
+            <p className="italic text-white mb-4 text-lg font-light">"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
+            <p className="italic text-white mb-6 text-lg font-light">I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>
+            <cite className="text-white font-medium block text-right">Jean-Marie Volland, Ph.D.<br />Group Leader (Marine Microbiology)<br />LRC & JGI</cite>
           </div>
         </div>
       </section>
