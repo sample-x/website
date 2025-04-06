@@ -40,10 +40,10 @@ export default function Home() {
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-[#00757F]/60 to-[#f59e0b]/40 z-10"></div>
         
-        <div className="relative z-20 h-full flex items-center">
-          <div className="container mx-auto px-6 md:px-8 text-center">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex justify-center mb-8">
+        <div className="relative z-20 h-full flex items-center justify-center w-full">
+          <div className="container mx-auto px-6 md:px-8 text-center flex flex-col items-center">
+            <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
+              <div className="flex justify-center mb-8 w-full">
                 <Image 
                   src="/assets/images/logo.png" 
                   alt="Sample Exchange" 
@@ -53,14 +53,14 @@ export default function Home() {
                   priority
                 />
               </div>
-              <p className="uppercase tracking-[0.2em] text-base font-light mb-4 text-white">Redefining Scientific Exchange</p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl mb-8 text-white font-bold">The world's first marketplace for science</h1>
-              <div className="hero-text mb-10 bg-white/10 backdrop-blur-sm p-6 rounded-lg">
-                <p className="text-white/90 text-lg mb-4 font-light">Individual researchers, organizations and companies can share, monetize and out-license research assets which would otherwise remain locked up in storage and freezers.</p>
-                <p className="text-white/90 text-lg mb-4 font-light">Sharing preliminary and intermediate products, hard-to-obtain samples, and difficult-to-produce libraries and reagents reduces resource use, while also helping cut down on research time and effort.</p>
-                <p className="text-white/90 text-lg font-light">Blurring the boundary between physical and digital, SE allows scientists to create any and all kind of sales and licensing arrangements for research assets and data, be they MTAs or NFTs.</p>
+              <p className="uppercase tracking-[0.2em] text-base font-light mb-4 text-white text-center w-full">Redefining Scientific Exchange</p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl mb-8 text-white font-bold text-center w-full">The world's first marketplace for science</h1>
+              <div className="hero-text mb-10 bg-white/10 backdrop-blur-sm p-6 rounded-lg w-full">
+                <p className="text-white/90 text-lg mb-4 font-light text-center">Individual researchers, organizations and companies can share, monetize and out-license research assets which would otherwise remain locked up in storage and freezers.</p>
+                <p className="text-white/90 text-lg mb-4 font-light text-center">Sharing preliminary and intermediate products, hard-to-obtain samples, and difficult-to-produce libraries and reagents reduces resource use, while also helping cut down on research time and effort.</p>
+                <p className="text-white/90 text-lg font-light text-center">Blurring the boundary between physical and digital, SE allows scientists to create any and all kind of sales and licensing arrangements for research assets and data, be they MTAs or NFTs.</p>
               </div>
-              <div className="hero-buttons flex flex-wrap gap-4 justify-center">
+              <div className="hero-buttons flex flex-wrap gap-4 justify-center w-full">
                 <Link href="/samples" className="btn btn-primary text-lg">Browse Samples</Link>
                 <Link href="/about" className="btn btn-secondary text-lg">Learn More</Link>
               </div>
