@@ -1,43 +1,82 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
+  const pathname = usePathname()
+  
   return (
-    <header>
-      <div className="header-container">
-        <div className="logo">
-          <Link href="/">
-            <span>Sample Exchange</span>
+    <header className="bg-white shadow-sm">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="flex items-center">
+            <Image 
+              src="/assets/images/logo.png" 
+              alt="Sample Exchange Logo" 
+              width={240} 
+              height={70} 
+              priority
+              className="h-12 w-auto"
+            />
           </Link>
-        </div>
-        <nav className="nav-container">
-          <div className="nav-links">
-            <Link href="/samples">Browse Samples</Link>
-            <Link href="/about">About</Link>
-            <Link href="/contact">Contact</Link>
-          </div>
-          <div className="auth-buttons">
-            <Link href="/login" className="btn btn-outline">Sign In</Link>
-            <a 
-              href="/register" 
-              style={{
-                backgroundColor: "#FF0000",
-                color: "white",
-                fontWeight: "bold",
-                padding: "10px 20px",
-                borderRadius: "5px",
-                textDecoration: "none",
-                display: "inline-block"
-              }}
+          
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link 
+              href="/" 
+              className={`text-gray-600 hover:text-gray-900 ${pathname === '/' ? 'font-semibold' : ''}`}
             >
-              Sign Up (RED TEST)
-            </a>
-          </div>
-        </nav>
+              Home
+            </Link>
+            <Link 
+              href="/samples" 
+              className={`text-gray-600 hover:text-gray-900 ${pathname === '/samples' ? 'font-semibold' : ''}`}
+            >
+              Samples
+            </Link>
+            <Link 
+              href="/about" 
+              className={`text-gray-600 hover:text-gray-900 ${pathname === '/about' ? 'font-semibold' : ''}`}
+            >
+              Overview
+            </Link>
+            <Link 
+              href="/contact" 
+              className={`text-gray-600 hover:text-gray-900 ${pathname === '/contact' ? 'font-semibold' : ''}`}
+            >
+              Contact
+            </Link>
+            <Link 
+              href="/debug" 
+              className={`text-gray-600 hover:text-gray-900 ${pathname === '/debug' ? 'font-semibold' : ''}`}
+            >
+              Debug
+            </Link>
+            
+            <div className="auth-buttons">
+              <Link 
+                href="/login" 
+                className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-md border border-gray-300 hover:border-gray-400"
+              >
+                Login
+              </Link>
+              <Link 
+                href="/register" 
+                style={{ 
+                  backgroundColor: "#f29415",
+                  color: "white",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "0.375rem",
+                  fontWeight: "500",
+                  textDecoration: "none"
+                }}
+              >
+                Sign Up
+              </Link>
+            </div>
+          </nav>
+        </div>
       </div>
     </header>
   )
