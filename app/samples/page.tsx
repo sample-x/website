@@ -262,19 +262,19 @@ export default function SamplesPage() {
           
           <h2 className="text-2xl font-semibold mb-4">Platform Updates</h2>
           <div className="space-y-4">
-            <div className="border-l-4 border-blue-500 pl-4 py-2">
+            <div className="border-l-4 border-[#fead24] pl-4 py-2">
               <p className="font-semibold">New Filtering Options</p>
               <p className="text-sm text-gray-600">Added advanced filtering for samples based on collection date and storage conditions.</p>
               <p className="text-xs text-gray-400 mt-1">June 15, 2023</p>
             </div>
             
-            <div className="border-l-4 border-blue-500 pl-4 py-2">
+            <div className="border-l-4 border-[#fead24] pl-4 py-2">
               <p className="font-semibold">Improved Map Visualization</p>
               <p className="text-sm text-gray-600">Enhanced the map with better visual indicators and filtering capabilities.</p>
               <p className="text-xs text-gray-400 mt-1">May 28, 2023</p>
             </div>
             
-            <div className="border-l-4 border-blue-500 pl-4 py-2">
+            <div className="border-l-4 border-[#fead24] pl-4 py-2">
               <p className="font-semibold">API Access</p>
               <p className="text-sm text-gray-600">Released the beta version of our API for developers and research partners.</p>
               <p className="text-xs text-gray-400 mt-1">April 10, 2023</p>

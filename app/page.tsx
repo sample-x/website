@@ -41,8 +41,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#00757F]/60 to-[#f59e0b]/40 z-10"></div>
         
         <div className="relative z-20 h-full flex items-center">
-          <div className="container mx-auto px-6 md:px-8">
-            <div className="max-w-4xl">
+          <div className="container mx-auto px-6 md:px-8 text-center">
+            <div className="max-w-4xl mx-auto">
               <div className="flex justify-center mb-8">
                 <Image 
                   src="/assets/images/logo.png" 
@@ -60,7 +60,7 @@ export default function Home() {
                 <p className="text-white/90 text-lg mb-4 font-light">Sharing preliminary and intermediate products, hard-to-obtain samples, and difficult-to-produce libraries and reagents reduces resource use, while also helping cut down on research time and effort.</p>
                 <p className="text-white/90 text-lg font-light">Blurring the boundary between physical and digital, SE allows scientists to create any and all kind of sales and licensing arrangements for research assets and data, be they MTAs or NFTs.</p>
               </div>
-              <div className="hero-buttons flex flex-wrap gap-4">
+              <div className="hero-buttons flex flex-wrap gap-4 justify-center">
                 <Link href="/samples" className="btn btn-primary text-lg">Browse Samples</Link>
                 <Link href="/about" className="btn btn-secondary text-lg">Learn More</Link>
               </div>
@@ -73,7 +73,7 @@ export default function Home() {
       <section id="overview" className="features py-8">
         <div className="section-background opacity-20" style={{ backgroundImage: 'url(/assets/images/boxes.jpg)' }}></div>
         <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-4 relative">
+          <h2 className="section-heading text-center text-4xl mb-4 relative text-[#003949]">
             <span className="inline-block relative">
               Why Sample Exchange?
             </span>
@@ -85,26 +85,26 @@ export default function Home() {
           <div className="feature-grid grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <div className="feature bg-white p-6 rounded-tl-3xl rounded-br-3xl shadow-lg transition-transform duration-300 hover:translate-y-[-8px] cursor-pointer relative overflow-hidden" onClick={() => window.location.href='/samples'}>
               <div className="absolute top-0 right-0 w-16 h-16 bg-[#f59e0b]/20 transform rotate-45 translate-x-8 -translate-y-8"></div>
-              <h3 className="text-2xl font-medium mb-3 text-[#00757F]">Decentralized Repositories</h3>
-              <p className="text-[#263238] relative z-10">We are aiming to decentralize sample repositories; each lab becomes a repository</p>
+              <h3 className="text-2xl font-medium mb-3 text-[#003949]">Decentralized Repositories</h3>
+              <p className="text-[#003949] relative z-10">We are aiming to decentralize sample repositories; each lab becomes a repository</p>
             </div>
             
             <div className="feature bg-white p-6 rounded-tr-3xl rounded-bl-3xl shadow-lg transition-transform duration-300 hover:translate-y-[-8px] cursor-pointer relative overflow-hidden" onClick={() => window.location.href='#digital-assets'}>
               <div className="absolute top-0 left-0 w-16 h-16 bg-[#8BD7D7]/20 transform rotate-45 -translate-x-8 -translate-y-8"></div>
-              <h3 className="text-2xl font-medium mb-3 text-[#00757F]">Digital Scientific Assets</h3>
-              <p className="text-[#263238] relative z-10">Create, license and trade digital assets (like NFTs) developed from samples, data and research assets</p>
+              <h3 className="text-2xl font-medium mb-3 text-[#003949]">Digital Scientific Assets</h3>
+              <p className="text-[#003949] relative z-10">Create, license and trade digital assets (like NFTs) developed from samples, data and research assets</p>
             </div>
             
             <div className="feature bg-white p-6 rounded-tl-3xl rounded-br-3xl shadow-lg transition-transform duration-300 hover:translate-y-[-8px] cursor-pointer relative overflow-hidden" onClick={() => window.location.href='#small-labs'}>
               <div className="absolute bottom-0 right-0 w-16 h-16 bg-[#F9BA48]/20 transform rotate-45 translate-x-8 translate-y-8"></div>
-              <h3 className="text-2xl font-medium mb-3 text-[#00757F]">Focus on Small Labs</h3>
-              <p className="text-[#263238] relative z-10">All players are equal on the platform and get equal attention from researchers, improving visibility for smaller labs</p>
+              <h3 className="text-2xl font-medium mb-3 text-[#003949]">Focus on Small Labs</h3>
+              <p className="text-[#003949] relative z-10">All players are equal on the platform and get equal attention from researchers, improving visibility for smaller labs</p>
             </div>
             
             <div className="feature bg-white p-6 rounded-tr-3xl rounded-bl-3xl shadow-lg transition-transform duration-300 hover:translate-y-[-8px] cursor-pointer relative overflow-hidden" onClick={() => window.location.href='/samples'}>
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-[#f59e0b]/20 transform rotate-45 -translate-x-8 translate-y-8"></div>
-              <h3 className="text-2xl font-medium mb-3 text-[#00757F]">Inventory Management</h3>
-              <p className="text-[#263238] mb-4 relative z-10">Let us help you manage, store, digitize and out-license your research inventory</p>
+              <h3 className="text-2xl font-medium mb-3 text-[#003949]">Inventory Management</h3>
+              <p className="text-[#003949] mb-4 relative z-10">Let us help you manage, store, digitize and out-license your research inventory</p>
               <Link href="/samples" className="btn btn-secondary inline-block">View our inventory management services &gt;&gt;</Link>
             </div>
           </div>
@@ -136,7 +136,7 @@ export default function Home() {
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#00757F]">The Sample Exchange Story</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#003949]">The Sample Exchange Story</h2>
               <div className="flex justify-center">
                 <div className="h-1 w-32 bg-[#f59e0b] rounded"></div>
               </div>
@@ -144,24 +144,33 @@ export default function Home() {
             
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div className="bg-white rounded-lg shadow-lg p-8">
-                <p className="text-lg text-gray-700 mb-6">
+                <p className="text-lg text-[#003949] mb-6">
                   Sample Exchange was born from a simple observation: scientists waste countless hours trying to find the right samples for their research.
                 </p>
-                <p className="text-lg text-gray-700 mb-6">
+                <p className="text-lg text-[#003949] mb-6">
                   Our founders, having experienced this frustration firsthand in their academic careers, created a platform that connects researchers who need samples with those who have them.
                 </p>
-                <p className="text-lg text-gray-700">
+                <p className="text-lg text-[#003949] mb-6">
                   Today, Sample Exchange is revolutionizing scientific collaboration by breaking down barriers to sample acquisition and fostering a community where sharing resources accelerates discovery.
                 </p>
+                <div className="mt-6 text-center">
+                  <Link href="/team" className="inline-block px-6 py-2 bg-[#003949] text-white rounded-lg hover:bg-[#00526a] transition-colors">
+                    Meet the Team
+                  </Link>
+                </div>
               </div>
               
-              <div className="rounded-lg overflow-hidden shadow-lg relative z-20">
+              <div className="rounded-lg overflow-hidden shadow-lg relative z-20 max-w-[70%] mx-auto">
                 <img 
                   src="/assets/images/permafrost-image.jpeg" 
                   alt="Permafrost Core Sample" 
                   className="w-full h-auto block"
                   style={{ display: 'block' }}
                 />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 text-white text-xs text-center">
+                  Example of a Permafrost Core<br />
+                  Image courtesy: Permafrost Laboratory, U. of Alaska (Fairbanks)
+                </div>
               </div>
             </div>
           </div>
@@ -169,7 +178,7 @@ export default function Home() {
 
         {/* Services Section */}
         <div className="container mx-auto px-6">
-          <h2 className="section-heading text-center text-4xl mb-4 relative">
+          <h2 className="section-heading text-center text-4xl mb-4 relative text-[#003949]">
             <span className="inline-block relative">
               Our Services
             </span>
@@ -188,8 +197,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#00757F]">Sample Acquisition</h3>
-                <p className="text-[#263238]/80">Find and acquire the exact samples you need for your research from our global network of providers.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Sample Acquisition</h3>
+                <p className="text-[#003949]/80">Find and acquire the exact samples you need for your research from our global network of providers.</p>
               </div>
             </div>
             
@@ -202,8 +211,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#00757F]">Sample Management</h3>
-                <p className="text-[#263238]/80">Comprehensive tools to track, manage, and organize your biological samples and collections.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Sample Management</h3>
+                <p className="text-[#003949]/80">Comprehensive tools to track, manage, and organize your biological samples and collections.</p>
               </div>
             </div>
             
@@ -216,8 +225,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#00757F]">Exchange Platform</h3>
-                <p className="text-[#263238]/80">List samples you can share or sell, facilitating collaboration between researchers globally.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Exchange Platform</h3>
+                <p className="text-[#003949]/80">List samples you can share or sell, facilitating collaboration between researchers globally.</p>
               </div>
             </div>
             
@@ -230,8 +239,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#00757F]">Quality Assurance</h3>
-                <p className="text-[#263238]/80">Rigorous verification processes ensure all samples meet the highest quality standards.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Quality Assurance</h3>
+                <p className="text-[#003949]/80">Rigorous verification processes ensure all samples meet the highest quality standards.</p>
               </div>
             </div>
             
@@ -245,8 +254,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#00757F]">Storage Solutions</h3>
-                <p className="text-[#263238]/80">Access our network of certified storage facilities for short or long-term sample preservation.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Storage Solutions</h3>
+                <p className="text-[#003949]/80">Access our network of certified storage facilities for short or long-term sample preservation.</p>
               </div>
             </div>
             
@@ -259,8 +268,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#00757F]">Authentication</h3>
-                <p className="text-[#263238]/80">Verify the origin, type, and quality of samples through our certified authentication process.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Authentication</h3>
+                <p className="text-[#003949]/80">Verify the origin, type, and quality of samples through our certified authentication process.</p>
               </div>
             </div>
             
@@ -273,8 +282,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#00757F]">Custom Collection</h3>
-                <p className="text-[#263238]/80">Specialized collection services to gather specific samples according to your research needs.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">Custom Collection</h3>
+                <p className="text-[#003949]/80">Specialized collection services to gather specific samples according to your research needs.</p>
               </div>
             </div>
             
@@ -287,8 +296,8 @@ export default function Home() {
                 </svg>
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-xl mb-3 text-[#00757F]">API Integration</h3>
-                <p className="text-[#263238]/80">Connect your lab systems directly to our platform with our comprehensive API services.</p>
+                <h3 className="font-semibold text-xl mb-3 text-[#003949]">API Integration</h3>
+                <p className="text-[#003949]/80">Connect your lab systems directly to our platform with our comprehensive API services.</p>
               </div>
             </div>
           </div>
