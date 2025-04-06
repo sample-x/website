@@ -119,27 +119,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="contact-section" id="contact">
-        <div className="container">
-          <h2>Get In Touch</h2>
-          <p className="section-subtitle">
-            Have questions about our platform or services? Send us a message and we'll get back to you.
-          </p>
-          
-          <div className="contact-container">
-            <ContactForm 
-              title="Contact Us" 
-              subtitle="We'd love to hear from you! Fill out the form below and we'll respond as soon as possible."
-              compact={true}
-            />
-          </div>
-        </div>
-      </section>
-
       {/* About Section */}
       <section className="py-16">
-        {/* Mission Statement - with gradient background */}
-        <div className="mb-12 py-12 bg-gradient-to-r from-green-600 to-green-400 text-white rounded-lg">
+        {/* Mission Statement - with mid-century modern gradient background */}
+        <div className="mb-12 py-12 bg-gradient-to-r from-teal-600 to-teal-400 text-white rounded-lg">
           <div className="container mx-auto text-center px-6">
             <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
             <p className="text-xl max-w-3xl mx-auto">
@@ -186,7 +169,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Service Card 1 */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-700 p-4 flex justify-center">
+              <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-4 flex justify-center">
                 <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
                 </svg>
@@ -199,7 +182,7 @@ export default function Home() {
             
             {/* Service Card 2 */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-500 to-purple-700 p-4 flex justify-center">
+              <div className="bg-gradient-to-r from-amber-600 to-amber-500 p-4 flex justify-center">
                 <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                 </svg>
@@ -212,7 +195,7 @@ export default function Home() {
             
             {/* Service Card 3 */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-green-500 to-green-700 p-4 flex justify-center">
+              <div className="bg-gradient-to-r from-olive-600 to-olive-500 p-4 flex justify-center" style={{ background: 'linear-gradient(to right, #606c38, #283618)' }}>
                 <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z" />
                 </svg>
@@ -225,7 +208,7 @@ export default function Home() {
             
             {/* Service Card 4 */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-red-500 to-red-700 p-4 flex justify-center">
+              <div className="bg-gradient-to-r from-orange-600 to-orange-500 p-4 flex justify-center">
                 <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
@@ -238,7 +221,7 @@ export default function Home() {
             
             {/* Service Card 5 */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-yellow-500 to-yellow-700 p-4 flex justify-center">
+              <div className="bg-gradient-to-r p-4 flex justify-center" style={{ background: 'linear-gradient(to right, #bc6c25, #dda15e)' }}>
                 <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H5.5z" />
                   <path d="M9 13h2v5a1 1 0 11-2 0v-5z" />
@@ -252,7 +235,7 @@ export default function Home() {
             
             {/* Service Card 6 */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-indigo-500 to-indigo-700 p-4 flex justify-center">
+              <div className="bg-gradient-to-r p-4 flex justify-center" style={{ background: 'linear-gradient(to right, #457b9d, #1d3557)' }}>
                 <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clipRule="evenodd" />
                 </svg>
@@ -265,7 +248,7 @@ export default function Home() {
             
             {/* Service Card 7 */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-pink-500 to-pink-700 p-4 flex justify-center">
+              <div className="bg-gradient-to-r p-4 flex justify-center" style={{ background: 'linear-gradient(to right, #9c6644, #b08968)' }}>
                 <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M6.672 1.911a1 1 0 10-1.932.518l.259.966a1 1 0 001.932-.518l-.26-.966zM2.429 4.74a1 1 0 10-.517 1.932l.966.259a1 1 0 00.517-1.932l-.966-.26zm8.814-.569a1 1 0 00-1.415-1.414l-.707.707a1 1 0 101.415 1.415l.707-.708zm-7.071 7.072l.707-.707A1 1 0 003.465 9.12l-.708.707a1 1 0 001.415 1.415zm3.2-5.171a1 1 0 00-1.3 1.3l4 10a1 1 0 001.823.075l1.38-2.759 3.018 3.02a1 1 0 001.414-1.415l-3.019-3.02 2.76-1.379a1 1 0 00-.076-1.822l-10-4z" clipRule="evenodd" />
                 </svg>
@@ -278,7 +261,7 @@ export default function Home() {
             
             {/* Service Card 8 */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-teal-500 to-teal-700 p-4 flex justify-center">
+              <div className="bg-gradient-to-r p-4 flex justify-center" style={{ background: 'linear-gradient(to right, #588157, #3a5a40)' }}>
                 <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
                 </svg>
@@ -288,6 +271,24 @@ export default function Home() {
                 <p className="text-gray-600">Connect your lab systems directly to our platform with our comprehensive API services.</p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section - Moved to the bottom */}
+      <section className="contact-section mt-16 mb-0 py-16 bg-gray-50" id="contact">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold mb-6 text-center">Get In Touch</h2>
+          <p className="section-subtitle text-center text-gray-600 mb-12">
+            Have questions about our platform or services? Send us a message and we'll get back to you.
+          </p>
+          
+          <div className="max-w-3xl mx-auto">
+            <ContactForm 
+              title="Contact Us" 
+              subtitle="We'd love to hear from you! Fill out the form below and we'll respond as soon as possible."
+              compact={true}
+            />
           </div>
         </div>
       </section>
