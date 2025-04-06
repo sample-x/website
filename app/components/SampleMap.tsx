@@ -99,8 +99,8 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   }
 
   // Log before returning the JSX
-  console.log(`[SampleMap Render Debug] Rendering map. Samples received: ${samples?.length || 0}`);
-  console.log(`[DEBUG CRITICAL] BEFORE MAP FUNCTION. SAMPLE COUNT: ${samples.length}`);
+  console.log(`[SampleMap Render Debug v${Date.now()}] Rendering map. Samples received: ${samples?.length || 0}`);
+  console.log(`[TIMESTAMP_CACHE_BUSTER] ${new Date().toISOString()}`);
 
   return (
     <div className="map-container">

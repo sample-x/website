@@ -5,6 +5,9 @@ import { useState } from 'react'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  
+  // Cache buster
+  console.log(`[Navbar Cache Buster] ${new Date().toISOString()}`);
 
   return (
     <header>
@@ -22,7 +25,7 @@ export default function Navbar() {
           </div>
           <div className="auth-buttons">
             <Link href="/login" className="btn btn-outline">Sign In</Link>
-            <Link href="/register" className="btn btn-primary" style={{ backgroundColor: '#ff0000 !important' }}>Sign Up</Link>
+            <Link href="/register" className="btn btn-primary" style={{ backgroundColor: '#ff00ff !important', color: 'white !important', fontWeight: 'bold !important', border: '3px solid black !important' }}>SIGN UP NEW</Link>
           </div>
         </nav>
       </div>
