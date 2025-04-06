@@ -67,9 +67,8 @@ export default function Home() {
               Why Sample Exchange?
             </span>
           </h2>
-          <div className="flex justify-center space-x-6 mb-8">
-            <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
-            <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+          <div className="flex justify-center mb-8">
+            <div className="h-1 w-32 bg-[#f59e0b] rounded"></div>
           </div>
           
           <div className="feature-grid grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -111,9 +110,8 @@ export default function Home() {
           </div>
           <div className="container mx-auto text-center px-6 relative z-10">
             <h2 className="uppercase tracking-wider text-4xl font-light mb-8 text-white">Our Mission</h2>
-            <div className="flex justify-center space-x-6 mb-6">
-              <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
-              <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+            <div className="flex justify-center mb-6">
+              <div className="h-1 w-32 bg-[#f59e0b] rounded"></div>
             </div>
             <p className="text-2xl max-w-3xl mx-auto font-light leading-relaxed text-white">
               To accelerate research by connecting scientists with the right 
@@ -128,9 +126,8 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#00757F]">The Sample Exchange Story</h2>
-              <div className="flex justify-center space-x-6 mt-2">
-                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
-                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+              <div className="flex justify-center">
+                <div className="h-1 w-32 bg-[#f59e0b] rounded"></div>
               </div>
             </div>
             
@@ -165,9 +162,8 @@ export default function Home() {
               Our Services
             </span>
           </h2>
-          <div className="flex justify-center space-x-6 mb-8">
-            <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
-            <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
+          <div className="flex justify-center mb-8">
+            <div className="h-1 w-32 bg-[#f59e0b] rounded"></div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -291,15 +287,14 @@ export default function Home() {
       <section className="testimonials py-16" id="testimonials">
         <div className="section-background" style={{ backgroundImage: 'url(/assets/images/testimonials.jpg)' }}></div>
         <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-12 relative z-20">
+          <h2 className="section-heading text-center text-4xl mb-4 relative z-20">
             <span className="inline-block relative text-white">
               What the community is saying...
-              <div className="flex justify-center space-x-6 mt-4">
-                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
-                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
-              </div>
             </span>
           </h2>
+          <div className="flex justify-center mb-8">
+            <div className="h-1 w-32 bg-[#f59e0b] rounded"></div>
+          </div>
           <div className="testimonial-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="testimonial-card bg-white/10 backdrop-blur-sm p-6 rounded-lg relative shadow-md">
               <div className="absolute top-0 left-0 w-20 h-3 bg-[#f59e0b]"></div>
@@ -340,15 +335,14 @@ export default function Home() {
           <div className="showcase-overlay bg-[#21414d]"></div>
         </div>
         <div className="container">
-          <h2 className="section-heading text-center text-4xl mb-12 relative z-20">
+          <h2 className="section-heading text-center text-4xl mb-4 relative z-20">
             <span className="inline-block relative text-white">
               Showcase lab!!
-              <div className="flex justify-center space-x-6 mt-4">
-                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
-                <div className="h-1 w-16 bg-[#f59e0b] rounded"></div>
-              </div>
             </span>
           </h2>
+          <div className="flex justify-center mb-8">
+            <div className="h-1 w-32 bg-[#f59e0b] rounded"></div>
+          </div>
           <div className="showcase-content bg-white/10 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
             <p className="italic text-white mb-4 text-lg font-light">"I have always felt that there should be another way to communicate with scientists besides publications. I think sample exchange will help.</p>
             <p className="italic text-white mb-6 text-lg font-light">I am creating a collection of aquatic samples (the "Dumbarton Collection"), I am happy to share these with other researchers".</p>

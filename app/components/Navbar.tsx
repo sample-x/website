@@ -55,7 +55,7 @@ export default function Navbar() {
 
           {/* Desktop menu */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/explore" className="text-gray-700 hover:text-teal-600">
+            <Link href="/" className="text-gray-700 hover:text-teal-600">
               Explore
             </Link>
             <Link href="/samples" className="text-gray-700 hover:text-teal-600">
@@ -98,7 +98,7 @@ export default function Navbar() {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link
-              href="/explore"
+              href="/"
               className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50"
               onClick={() => setIsOpen(false)}
             >
