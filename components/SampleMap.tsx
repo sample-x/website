@@ -17,26 +17,26 @@ L.Icon.Default.mergeOptions({
   shadowUrl: '/marker-shadow.png',
 });
 
-// Sample type colors for markers - mid-century modern palette
+// Sample type colors for markers
 const getMarkerColor = (type: string): string => {
   console.log(`[Map Marker Debug] Sample type: ${type}`);
   
-  // Mid-century modern inspired color palette
+  // Highly saturated colors for better visibility
   switch (type.toLowerCase()) {
     case 'bacterial':
-      return '#7FB685'; // Sage green
+      return '#ADFF2F'; // Bright Green
     case 'viral':
-      return '#FF6B6B'; // Coral red
+      return '#FF1493'; // Deep Pink
     case 'fungal':
-      return '#F9C74F'; // Mustard yellow
+      return '#FFD700'; // Gold
     case 'cell line':
-      return '#886AB5'; // Lavender purple
+      return '#9932CC'; // Dark Orchid
     case 'plant':
-      return '#4D9078'; // Teal
+      return '#32CD32'; // Lime Green
     case 'animal':
-      return '#E07A5F'; // Terracotta
+      return '#FF8C00'; // Dark Orange
     case 'water':
-      return '#4A7ABC'; // Mid-century blue
+      return '#0066FF'; // Bright Blue
     case 'soil':
       return '#967259'; // Walnut brown
     case 'environmental':
@@ -145,6 +145,8 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
   }
 
   const usedTypes = getUsedSampleTypes(samples);
+  const visibleTypes = usedTypes.slice(0, 5); // Only show first 5 types
+  const remainingCount = usedTypes.length - 5;
 
   return (
     <div className="map-container" style={{ height: '100%', width: '100%', position: 'relative' }}>
@@ -241,7 +243,7 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
           alignItems: 'center',
           fontSize: '10px'
         }}>
-          {usedTypes.map(({ type, label }) => (
+          {visibleTypes.map(({ type, label }) => (
             <React.Fragment key={type}>
               <div style={{ 
                 width: '10px', 
@@ -265,6 +267,14 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
               </span>
             </React.Fragment>
           ))}
+          {remainingCount > 0 && (
+            <React.Fragment>
+              <div style={{ width: '10px', height: '1px' }} />
+              <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>
+                +{remainingCount} more...
+              </span>
+            </React.Fragment>
+          )}
         </div>
       </div>
     </div>

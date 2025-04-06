@@ -93,7 +93,7 @@ export default function SamplesTable({ samples, onSampleSelect, onAddToCart }: S
 
   return (
     <div className="samples-table-wrapper">
-      <h2>Available Samples ({samples.length})</h2>
+      <h2 className="text-2xl mb-4">Available Samples ({samples.length})</h2>
       
       {samples.length === 0 ? (
         <div className="no-samples">

@@ -147,6 +147,7 @@ export default function SamplesPage() {
       {/* Sample Table Section */}
       {!loading && !error && samples.length > 0 && (
         <div className="bg-white rounded-lg shadow-lg p-4 mt-8">
+          <h2 className="text-2xl mb-4">Available Samples ({filteredTableSamples.length})</h2>
           <div className="mb-4">
             <input 
               type="text"
