@@ -128,13 +128,13 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
             <CircleMarker
               key={sample.id}
               center={[sample.latitude as number, sample.longitude as number]}
-              radius={16}
+              radius={25}
               pathOptions={{
                 fillColor: color,
-                color: 'black',
-                weight: 3,
+                color: '#000000',
+                weight: 5,
                 opacity: 1,
-                fillOpacity: 1
+                fillOpacity: 0.9
               }}
             >
               <Popup>
@@ -188,43 +188,43 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
   );
 }
 
-// Sample type colors for markers - SIMPLIFIED with brighter colors
+// Sample type colors for markers - EXTREMELY BRIGHT NEON COLORS
 const getMarkerColor = (type: string | null | undefined): string => {
   if (!type) return '#808080'; // Default gray for unknown types
   
   // Normalize the type to lowercase for case-insensitive matching
   const normalizedType = type.toLowerCase().trim();
   
-  // Brighter colors for better visibility against grayscale
+  // EXTREMELY bright neon colors that can't be missed
   switch (normalizedType) {
     case 'water':
-      return '#0088FF'; // Bright blue
+      return '#00FFFF'; // Neon cyan
     case 'soil':
-      return '#CC3300'; // Bright brown-red
+      return '#FF0000'; // Pure red
     case 'air':
-      return '#00DDFF'; // Bright cyan
+      return '#00FFFF'; // Neon cyan
     case 'rock':
-      return '#888888'; // Gray
+      return '#FFFFFF'; // Pure white
     case 'bacterial':
     case 'bacteria':
-      return '#88FF00'; // Bright green-yellow
+      return '#00FF00'; // Neon green
     case 'fungal':
     case 'fungi':
-      return '#FF9900'; // Bright orange
+      return '#FFFF00'; // Neon yellow
     case 'viral':
     case 'virus':
-      return '#FF3399'; // Pink
+      return '#FF00FF'; // Neon magenta
     case 'tissue':
-      return '#FF5500'; // Orange-red
+      return '#FF6600'; // Neon orange
     case 'cell line':
-      return '#CC00FF'; // Bright purple
+      return '#FF00FF'; // Neon magenta
     case 'animal':
-      return '#DDAA00'; // Gold
+      return '#FFFF00'; // Neon yellow
     case 'plant':
-      return '#00CC00'; // Bright green
+      return '#00FF00'; // Neon green
     case 'marine':
-      return '#00FFFF'; // Cyan
+      return '#00FFFF'; // Neon cyan
     default:
-      return '#FF5500'; // Bright orange for unknown
+      return '#FFFFFF'; // Pure white
   }
 }; 

@@ -24,13 +24,17 @@ export default function Navbar() {
             <Link href="/login" className="btn btn-outline">Sign In</Link>
             <a 
               href="/register" 
-              className="btn orange-btn"
               style={{
-                backgroundColor: "#f29415",
-                color: "white"
+                backgroundColor: "#FF0000",
+                color: "white",
+                fontWeight: "bold",
+                padding: "10px 20px",
+                borderRadius: "5px",
+                textDecoration: "none",
+                display: "inline-block"
               }}
             >
-              Sign Up
+              Sign Up (RED TEST)
             </a>
           </div>
         </nav>
