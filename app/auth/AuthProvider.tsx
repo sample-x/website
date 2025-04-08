@@ -12,6 +12,7 @@ interface UserProfile {
   institution: string | null;
   country: string | null;
   phone: string | null;
+  username: string | null;
 }
 
 interface AuthContextType {

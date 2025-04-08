@@ -16,7 +16,8 @@ export default function ProfilePage() {
     last_name: '',
     institution: '',
     country: '',
-    phone: ''
+    phone: '',
+    username: ''
   });
   const [formModified, setFormModified] = useState(false);
 
@@ -36,7 +37,8 @@ export default function ProfilePage() {
         last_name: profile.last_name,
         institution: profile.institution,
         country: profile.country,
-        phone: profile.phone
+        phone: profile.phone,
+        username: profile.username
       });
       
       setFormData({
@@ -44,7 +46,8 @@ export default function ProfilePage() {
         last_name: profile.last_name || '',
         institution: profile.institution || '',
         country: profile.country || '',
-        phone: profile.phone || ''
+        phone: profile.phone || '',
+        username: profile.username || ''
       });
     } else {
       console.log('No profile data available');
@@ -202,6 +205,28 @@ export default function ProfilePage() {
                       className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                    Username
+                  </label>
+                  <div className="mt-1 relative">
+                    <span className="absolute left-3 top-3 text-gray-400">
+                      <FontAwesomeIcon icon={faUser} />
+                    </span>
+                    <input
+                      id="username"
+                      name="username"
+                      type="text"
+                      value={formData.username}
+                      onChange={handleChange}
+                      className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Your public username for the marketplace
+                  </p>
                 </div>
 
                 <div>

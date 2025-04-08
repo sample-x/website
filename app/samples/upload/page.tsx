@@ -22,6 +22,9 @@ interface SampleData {
   latitude?: number;
   longitude?: number;
   hash?: string;
+  institution_name?: string;
+  institution_contact_name?: string;
+  institution_contact_email?: string;
   [key: string]: string | number | undefined;
 }
 
@@ -67,7 +70,7 @@ function generateSampleHash(sample: Partial<SampleData>): string {
 
 export default function UploadPage() {
   const { supabase } = useSupabase();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const router = useRouter();
   const [isStatic, setIsStatic] = useState(false);
   const [forceDynamicMode, setForceDynamicMode] = useState(false);
@@ -426,15 +429,20 @@ export default function UploadPage() {
       
       console.log(`Uploading ${uploadState.data.length} samples to Supabase...`);
       
-      // Process each sample to remove hash field and add user_id
+      // Process each sample to remove hash field and add user_id and owner info
       const processedData = uploadState.data.map(sample => {
         // Create a new object without the hash field
         const { hash, ...cleanSample } = sample;
         
-        // Add user ID for ownership
+        // Add user ID for ownership and set the owner ID
         return {
           ...cleanSample,
-          user_id: user?.id
+          user_id: user?.id,
+          sample_owner_id: user?.id,
+          // If these are not in the CSV, use user profile values as defaults
+          institution_name: sample.institution_name || profile?.institution || '',
+          institution_contact_name: sample.institution_contact_name || `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
+          institution_contact_email: sample.institution_contact_email || user?.email || ''
         };
       });
 

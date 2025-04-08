@@ -10,6 +10,23 @@ import { faSave, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import { Sample } from '@/types/sample';
 
+// Update the FormData interface to include new fields
+interface FormData {
+  name: string;
+  type: string;
+  location: string;
+  collection_date: string;
+  storage_condition: string;
+  quantity: number;
+  price: number;
+  description: string;
+  latitude: number | null;
+  longitude: number | null;
+  institution_name: string;
+  institution_contact_name: string;
+  institution_contact_email: string;
+}
+
 export default function EditSampleClient({ id }: { id: string }) {
   const { supabase } = useSupabase();
   const { user, isLoading: authLoading } = useAuth();
@@ -17,7 +34,7 @@ export default function EditSampleClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sample, setSample] = useState<Sample | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     type: '',
     location: '',
@@ -26,8 +43,11 @@ export default function EditSampleClient({ id }: { id: string }) {
     quantity: 1,
     price: 0,
     description: '',
-    latitude: null as number | null,
-    longitude: null as number | null
+    latitude: null,
+    longitude: null,
+    institution_name: '',
+    institution_contact_name: '',
+    institution_contact_email: ''
   });
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -79,7 +99,10 @@ export default function EditSampleClient({ id }: { id: string }) {
           price: data.price || 0,
           description: data.description || '',
           latitude: data.latitude,
-          longitude: data.longitude
+          longitude: data.longitude,
+          institution_name: data.institution_name || '',
+          institution_contact_name: data.institution_contact_name || '',
+          institution_contact_email: data.institution_contact_email || ''
         });
       } catch (err) {
         console.error('Error fetching sample:', err);
@@ -163,7 +186,10 @@ export default function EditSampleClient({ id }: { id: string }) {
           price: formData.price,
           description: formData.description,
           latitude: formData.latitude,
-          longitude: formData.longitude
+          longitude: formData.longitude,
+          institution_name: formData.institution_name,
+          institution_contact_name: formData.institution_contact_name,
+          institution_contact_email: formData.institution_contact_email
         })
         .eq('id', sample.id);
       
@@ -382,6 +408,58 @@ export default function EditSampleClient({ id }: { id: string }) {
                   onChange={handleChange}
                   className="block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                 ></textarea>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Institution & Contact Information</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  This information will be visible to administrators and sample owners, 
+                  but only the institution name will be shown publicly.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label htmlFor="institution_name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Institution Name
+                    </label>
+                    <input
+                      type="text"
+                      id="institution_name"
+                      name="institution_name"
+                      value={formData.institution_name}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="institution_contact_name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Contact Person
+                    </label>
+                    <input
+                      type="text"
+                      id="institution_contact_name"
+                      name="institution_contact_name"
+                      value={formData.institution_contact_name}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="institution_contact_email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Contact Email
+                    </label>
+                    <input
+                      type="email"
+                      id="institution_contact_email"
+                      name="institution_contact_email"
+                      value={formData.institution_contact_email}
+                      onChange={handleChange}
+                      className="block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end">

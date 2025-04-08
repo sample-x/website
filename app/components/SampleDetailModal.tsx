@@ -195,6 +195,12 @@ export default function SampleDetailModal({
                       <h4 className="font-medium text-gray-500 text-sm">Location</h4>
                       <p className="text-gray-800 mt-1">{sample.location || 'N/A'}</p>
                     </div>
+                    {sample.institution_name && (
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <h4 className="font-medium text-gray-500 text-sm">Institution</h4>
+                        <p className="text-gray-800 mt-1">{sample.institution_name}</p>
+                      </div>
+                    )}
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <h4 className="font-medium text-gray-500 text-sm">Biosafety Level</h4>
                       <p className="text-gray-800 mt-1">{bslLevel}</p>

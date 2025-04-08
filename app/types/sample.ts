@@ -20,6 +20,11 @@ export interface Sample {
   metadata?: Record<string, any>;
   // Additional fields for sample table
   contact?: string;
+  // Institution and ownership fields
+  institution_name?: string;
+  institution_contact_name?: string;
+  institution_contact_email?: string;
+  sample_owner_id?: string;
 }
 
 export interface CartItem {

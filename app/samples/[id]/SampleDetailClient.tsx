@@ -192,6 +192,13 @@ export default function SampleDetailClient({ id }: SampleDetailClientProps) {
                     <p className="font-medium">{sample.collection_date}</p>
                   </div>
                   
+                  {sample.institution_name && (
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-sm text-gray-500">Institution</p>
+                      <p className="font-medium">{sample.institution_name}</p>
+                    </div>
+                  )}
+                  
                   <div className="bg-gray-50 p-3 rounded">
                     <p className="text-sm text-gray-500">Storage Condition</p>
                     <p className="font-medium">{sample.storage_condition}</p>
