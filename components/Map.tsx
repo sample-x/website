@@ -76,28 +76,49 @@ const Map = ({ samples, onBoundsChange }: MapProps) => {
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
         />
         {samples.map((sample) => {
-          if (!sample.latitude || !sample.longitude) return null;
+          if (!sample.coordinates) return null;
           return (
             <CircleMarker
               key={sample.id}
-              center={[sample.latitude, sample.longitude]}
-              radius={8}
-              fillColor={getMarkerColor(sample.type)}
-              color="white"
-              weight={2}
-              opacity={1}
-              fillOpacity={0.8}
+              center={[sample.coordinates[0], sample.coordinates[1]]}
+              radius={6}
+              pathOptions={{
+                fillColor: getMarkerColor(sample.type),
+                fillOpacity: 0.7,
+                color: getMarkerColor(sample.type),
+                weight: 1
+              }}
+              eventHandlers={{
+                click: () => {
+                  // TODO: Implement add to cart functionality
+                  console.log('Add to cart:', sample);
+                },
+                mouseover: (e) => {
+                  e.target.setStyle({
+                    fillOpacity: 1,
+                    weight: 2
+                  });
+                },
+                mouseout: (e) => {
+                  e.target.setStyle({
+                    fillOpacity: 0.7,
+                    weight: 1
+                  });
+                }
+              }}
             >
               <Popup>
                 <div className="sample-popup">
-                  <h3>{sample.name}</h3>
-                  <p><strong>Type:</strong> {sample.type}</p>
+                  <h3 className="text-lg font-semibold">{sample.name}</h3>
+                  <p className="text-sm text-gray-600">{sample.type}</p>
                   <p><strong>Location:</strong> {sample.location}</p>
-                  <p><strong>Collection Date:</strong> {sample.collection_date ? new Date(sample.collection_date).toLocaleDateString() : 'N/A'}</p>
-                  <p><strong>Storage:</strong> {sample.storage_condition}</p>
+                  <p><strong>Collection Date:</strong> {sample.collectionDate ? new Date(sample.collectionDate).toLocaleDateString() : 'N/A'}</p>
+                  <p><strong>Storage:</strong> {sample.storageCondition}</p>
                   <p><strong>Quantity:</strong> {typeof sample.quantity === 'number' ? (sample.quantity > 0 ? sample.quantity : 'Out of Stock') : 'N/A'}</p>
                   <p><strong>Price:</strong> {typeof sample.price === 'number' ? `$${sample.price.toFixed(2)}` : 'N/A'}</p>
-                  {sample.description && <p><strong>Description:</strong> {sample.description}</p>}
+                  {sample.description && (
+                    <p className="text-sm mt-2">{sample.description}</p>
+                  )}
                   <div className="popup-actions">
                     <button 
                       className="action-button add"
