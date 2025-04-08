@@ -14,6 +14,14 @@ interface Sample {
   category?: string;
   price?: number;
   description: string;
+  quantity?: number;
+  location?: string;
+  coordinates?: string;
+  collectionDate?: string;
+  storageCondition?: string;
+  availability?: string;
+  inStock?: boolean;
+  created_at?: string;
 }
 
 export default function CheckoutClient({ id }: { id: string }) {
@@ -41,14 +49,22 @@ export default function CheckoutClient({ id }: { id: string }) {
       
       // In static mode, use the static sample data
       if (staticMode) {
-        const staticSample = getStaticSampleById(parseInt(id, 10));
+        const staticSample = getStaticSampleById(id);
         if (staticSample) {
           setSample({
             id: staticSample.id,
             name: staticSample.name,
             type: staticSample.type,
             price: staticSample.price,
-            description: staticSample.description || ''
+            quantity: staticSample.quantity,
+            description: staticSample.description,
+            location: staticSample.location,
+            coordinates: staticSample.coordinates ? `${staticSample.coordinates[0]},${staticSample.coordinates[1]}` : undefined,
+            collectionDate: staticSample.collectionDate,
+            storageCondition: staticSample.storageCondition,
+            availability: staticSample.availability,
+            inStock: staticSample.inStock,
+            created_at: staticSample.created_at
           });
           setLoading(false);
         } else {
