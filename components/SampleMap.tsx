@@ -1,13 +1,14 @@
 'use client';  // Add this at the top
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, FC } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import styles from '@/styles/Map.module.css';
-import { Sample } from '@/types/sample';
+import { Sample } from '@/types/supabase';
 import { sampleTypeColors } from '@/utils/constants';
 import L from 'leaflet';
 import { useRouter } from 'next/navigation';
+import { LatLngBounds, Map as LeafletMap } from 'leaflet';
 
 // Fix for Leaflet default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -86,13 +87,35 @@ function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (b
   return null;
 }
 
+type DatabaseSample = {
+  id: string;
+  name: string;
+  type: string;
+  location: string;
+  collection_date: string;
+  storage_condition: string;
+  quantity: number;
+  price: number;
+  description: string | null;
+  latitude: number;
+  longitude: number;
+  hash: string;
+  created_at: string;
+  updated_at: string;
+};
+
+interface Sample extends DatabaseSample {
+  inStock: boolean;
+}
+
 interface SampleMapProps {
   samples: Sample[];
   onBoundsChange?: (bounds: L.LatLngBounds) => void;
   onTypeFilter?: (type: string | null) => void;
+  onSampleSelect?: (sample: Sample) => void;
 }
 
-export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: SampleMapProps) {
+export const SampleMap: FC<SampleMapProps> = ({ samples, onBoundsChange, onTypeFilter, onSampleSelect }) => {
   const [mounted, setMounted] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -110,23 +133,20 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
     });
   }, []);
 
-  // Calculate map center from samples
-  const center = samples.reduce(
+  // Calculate map bounds from samples
+  const bounds = samples.reduce(
     (acc, sample) => {
       if (typeof sample.latitude === 'number' && typeof sample.longitude === 'number') {
-        acc[0] += sample.latitude;
-        acc[1] += sample.longitude;
-        acc[2]++; // Count valid samples
+        acc.extend([sample.latitude, sample.longitude]);
       }
       return acc;
     },
-    [0, 0, 0] // [sumLat, sumLng, count]
+    new LatLngBounds([0, 0], [0, 0])
   );
 
   // Default to world center if no valid samples
-  const mapCenter = center[2] > 0
-    ? [center[0] / center[2], center[1] / center[2]] as [number, number]
-    : [20, 0] as [number, number];
+  const center = !bounds.isValid() ? [20, 0] as [number, number] : bounds.getCenter();
+  const zoom = 2;
 
   // Function to handle clicking on a sample type in the legend
   const handleTypeClick = (type: string) => {
@@ -140,8 +160,14 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
     }
   };
 
+  const handleMarkerClick = (sample: Sample) => {
+    if (onSampleSelect) {
+      onSampleSelect(sample);
+    }
+  };
+
   if (!mounted) {
-    return <div>Loading map...</div>;
+    return null;
   }
 
   const usedTypes = getUsedSampleTypes(samples);
@@ -151,10 +177,21 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
   return (
     <div className="map-container" style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden', borderRadius: '8px' }}>
       <MapContainer 
-        center={mapCenter}
-        zoom={2} 
+        center={center}
+        zoom={zoom} 
         style={{ height: '100%', width: '100%', zIndex: 1 }}
         scrollWheelZoom={true}
+        whenReady={() => {
+          if (bounds.isValid()) {
+            const map = document.querySelector('.leaflet-container');
+            if (map) {
+              const leafletMap = (map as any)._leaflet_map;
+              if (leafletMap) {
+                leafletMap.fitBounds(bounds);
+              }
+            }
+          }
+        }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -163,74 +200,85 @@ export default function SampleMap({ samples, onBoundsChange, onTypeFilter }: Sam
         />
         
         {samples.map((sample) => {
-          const color = getMarkerColor(sample.type);
-          
-          return (
-            <CircleMarker
-              key={sample.id}
-              center={[sample.latitude as number, sample.longitude as number]}
-              radius={7}
-              pathOptions={{
-                fillColor: color,
-                color: 'black',
-                weight: 2,
-                opacity: 0.9,
-                fillOpacity: 0.7
-              }}
-              className="no-grayscale"
-            >
-              <Popup className="sample-popup" autoPan={true}>
-                <div className="p-2">
-                  <h3 className="font-bold text-base mb-2">{sample.name}</h3>
-                  <ul className="list-disc pl-4 space-y-1 mb-3">
-                    <li><span className="font-medium">Type:</span> {sample.type}</li>
-                    <li><span className="font-medium">Location:</span> {sample.location}</li>
-                    {sample.collection_date && <li><span className="font-medium">Collection Date:</span> {sample.collection_date}</li>}
-                    {sample.storage_condition && <li><span className="font-medium">Storage:</span> {sample.storage_condition}</li>}
-                    <li><span className="font-medium">Availability:</span> {sample.quantity > 0 ? 'Available' : 'Out of Stock'}</li>
-                    <li><span className="font-medium">Price:</span> ${sample.price}</li>
-                    <li><span className="font-medium">Biosafety Level:</span> <span className="bg-green-100 px-1 rounded text-xs inline-flex items-center">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                      </svg>BSL1</span>
-                    </li>
-                  </ul>
-                  <div className="flex space-x-2 mt-3">
-                    <button 
-                      className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs flex items-center"
-                      onClick={() => router.push(`/samples/${sample.id}`)}
-                    >
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 10-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
-                      Details
-                    </button>
-                    <button 
-                      className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs flex items-center"
-                    >
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
-                      </svg>
-                      Add to Cart
-                    </button>
-                  </div>
-                  
-                  {/* Info section that appears when details button is clicked */}
-                  <div className="mt-3 bg-gray-50 p-2 rounded text-xs border border-gray-200">
-                    <div className="flex justify-between mb-2">
-                      <h4 className="font-bold">Additional Information</h4>
+          if (typeof sample.latitude === 'number' && typeof sample.longitude === 'number') {
+            return (
+              <CircleMarker
+                key={sample.id}
+                center={[sample.latitude, sample.longitude]}
+                radius={6}
+                pathOptions={{
+                  color: sample.inStock ? '#4CAF50' : '#f44336',
+                  fillColor: sample.inStock ? '#4CAF50' : '#f44336',
+                  fillOpacity: 0.7,
+                }}
+                eventHandlers={{
+                  click: () => handleMarkerClick(sample),
+                  mouseover: (e) => {
+                    e.target.setStyle({
+                      fillOpacity: 1,
+                    });
+                  },
+                  mouseout: (e) => {
+                    e.target.setStyle({
+                      fillOpacity: 0.7,
+                    });
+                  },
+                }}
+              >
+                <Popup className="sample-popup" autoPan={true}>
+                  <div className="p-2">
+                    <h3 className="font-bold text-base mb-2">{sample.name}</h3>
+                    <ul className="list-disc pl-4 space-y-1 mb-3">
+                      <li><span className="font-medium">Type:</span> {sample.type}</li>
+                      <li><span className="font-medium">Location:</span> {sample.location}</li>
+                      {sample.collection_date && <li><span className="font-medium">Collection Date:</span> {sample.collection_date}</li>}
+                      {sample.storage_condition && <li><span className="font-medium">Storage:</span> {sample.storage_condition}</li>}
+                      <li><span className="font-medium">Availability:</span> {sample.inStock ? 'In Stock' : 'Out of Stock'}</li>
+                      <li><span className="font-medium">Price:</span> ${sample.price}</li>
+                      <li><span className="font-medium">Biosafety Level:</span> <span className="bg-green-100 px-1 rounded text-xs inline-flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>BSL1</span>
+                      </li>
+                    </ul>
+                    <div className="flex space-x-2 mt-3">
+                      <button 
+                        className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs flex items-center"
+                        onClick={() => router.push(`/samples/${sample.id}`)}
+                      >
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 10-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                        Details
+                      </button>
+                      <button 
+                        className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs flex items-center"
+                      >
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                        </svg>
+                        Add to Cart
+                      </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Permits & Restrictions</button>
-                      <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">References</button>
-                      <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Handling Information</button>
-                      <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Instructions</button>
+                    
+                    {/* Info section that appears when details button is clicked */}
+                    <div className="mt-3 bg-gray-50 p-2 rounded text-xs border border-gray-200">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-bold">Additional Information</h4>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Permits & Restrictions</button>
+                        <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">References</button>
+                        <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Handling Information</button>
+                        <button className="bg-gray-200 hover:bg-gray-300 p-1 rounded text-xs text-center">Instructions</button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Popup>
-            </CircleMarker>
-          );
+                </Popup>
+              </CircleMarker>
+            );
+          }
+          return null;
         })}
         
         <BoundsUpdater samples={samples} onChange={onBoundsChange} />
