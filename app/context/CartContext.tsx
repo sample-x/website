@@ -6,6 +6,7 @@ import { useAuth } from '@/app/auth/AuthProvider';
 import { Sample } from '@/types/sample';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import { isStaticExport } from '@/app/lib/staticData';
 
 interface CartItem extends Sample {
   quantity_selected: number;
@@ -33,7 +34,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isSaving, setIsSaving] = useState(false);
   const [useLocalStorage, setUseLocalStorage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStatic, setIsStatic] = useState(false);
   const router = useRouter();
+
+  // Check if we're in static mode
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const staticMode = isStaticExport();
+      console.log('CartContext: Static mode detected:', staticMode);
+      setIsStatic(staticMode);
+      if (staticMode) {
+        setUseLocalStorage(true);
+      }
+    }
+  }, []);
 
   // Load cart from localStorage or database when component mounts or user changes
   useEffect(() => {
@@ -57,6 +71,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               localStorage.removeItem('cart');
             }
           }
+        }
+
+        // In static mode, always use localStorage
+        if (isStatic) {
+          setUseLocalStorage(true);
+          setItems(localItems);
+          setIsInitialized(true);
+          setIsLoading(false);
+          return;
         }
 
         if (user) {
@@ -121,8 +144,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                   if (!insertError) {
                     setItems(mergedItems);
                     setUseLocalStorage(false);
-                    // Keep the cart in localStorage as backup
-                    // localStorage.removeItem('cart');
+                    // Always keep the cart in localStorage as backup
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('cart', JSON.stringify(mergedItems));
+                    }
                     return;
                   }
                 }
@@ -135,8 +160,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             if (dbItems.length > 0) {
               setItems(dbItems);
               setUseLocalStorage(false);
-              // Keep localStorage as backup
-              // localStorage.removeItem('cart');
+              // Always keep localStorage as backup
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('cart', JSON.stringify(dbItems));
+              }
             } else if (localItems.length > 0) {
               // DB is empty but we have localStorage items, keep using those
               setItems(localItems);
@@ -175,7 +202,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     loadCart();
-  }, [user, supabase, items.length]);
+  }, [user, supabase, isStatic]);
 
   // Save cart to localStorage when it changes (ONLY ON CLIENT)
   useEffect(() => {
@@ -190,10 +217,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, isInitialized, isLoading]);
 
-  // Save cart to database when logged in and cart changes
+  // Save cart to database when logged in and cart changes (but not in static mode)
   useEffect(() => {
     const saveCartToDatabase = async () => {
-      if (!user || !isInitialized || isSaving || useLocalStorage) return;
+      if (!user || !isInitialized || isSaving || useLocalStorage || isStatic) return;
 
       setIsSaving(true);
       try {
@@ -227,8 +254,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             return;
           }
           
-          // Successfully saved to DB, clear localStorage
-          localStorage.removeItem('cart');
+          // Successfully saved to DB, but still keep in localStorage as backup
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('cart', JSON.stringify(items));
+          }
           setUseLocalStorage(false);
         }
       } catch (error) {
@@ -239,10 +268,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    if (user && isInitialized && !useLocalStorage) {
+    if (user && isInitialized && !useLocalStorage && !isStatic) {
       saveCartToDatabase();
     }
-  }, [items, user, supabase, isInitialized, isSaving, useLocalStorage]);
+  }, [items, user, supabase, isInitialized, isSaving, useLocalStorage, isStatic]);
 
   const addToCart = async (sample: Sample, quantity: number = 1) => {
     // Allow guest cart additions for better UX - we'll prompt for login at checkout
@@ -267,8 +296,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               : item
           );
           
-          // Ensure we update localStorage immediately for guest users
-          if (!user && typeof window !== 'undefined') {
+          // Always update localStorage immediately for all users
+          if (typeof window !== 'undefined') {
             try {
               localStorage.setItem('cart', JSON.stringify(updatedItems));
             } catch (e) {
@@ -293,8 +322,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         const newItems = [...currentItems, newItem];
         
-        // Ensure we update localStorage immediately for guest users
-        if (!user && typeof window !== 'undefined') {
+        // Always update localStorage immediately for all users
+        if (typeof window !== 'undefined') {
           try {
             localStorage.setItem('cart', JSON.stringify(newItems));
           } catch (e) {
@@ -315,8 +344,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems(currentItems => {
       const updatedItems = currentItems.filter(item => item.id.toString() !== sampleId);
       
-      // Update localStorage immediately for guest users
-      if (!user && typeof window !== 'undefined') {
+      // Always update localStorage immediately for all users
+      if (typeof window !== 'undefined') {
         try {
           localStorage.setItem('cart', JSON.stringify(updatedItems));
         } catch (e) {
@@ -343,8 +372,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return item;
       });
       
-      // Update localStorage immediately for guest users
-      if (!user && typeof window !== 'undefined') {
+      // Always update localStorage immediately for all users
+      if (typeof window !== 'undefined') {
         try {
           localStorage.setItem('cart', JSON.stringify(updatedItems));
         } catch (e) {
@@ -360,7 +389,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     // Allow guests to clear their cart too
     setItems([]);
     
-    // Clear localStorage cart for guest users
+    // Clear localStorage cart for all users
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('cart');

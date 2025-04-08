@@ -1,27 +1,64 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { toast } from 'react-toastify'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGoogle } from '@fortawesome/free-brands-svg-icons'
-import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons'
+import { faEnvelope, faLock, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import './login.css'
+import { isStaticExport } from '@/app/lib/staticData'
 
 export default function LoginPage() {
   const { signIn, signInWithGoogle } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isStatic, setIsStatic] = useState(false)
+
+  // Check for URL error parameters and static mode
+  useEffect(() => {
+    // Check for error in URL params
+    const urlError = searchParams?.get('error')
+    if (urlError) {
+      if (urlError === 'redirect_uri_mismatch') {
+        setError('Google login failed: Redirect URI mismatch. The authentication configuration needs to be updated for this domain.')
+      } else {
+        setError(`Authentication error: ${urlError}`)
+      }
+    }
+
+    // Check for static mode
+    if (typeof window !== 'undefined') {
+      const staticMode = isStaticExport()
+      setIsStatic(staticMode)
+      
+      if (staticMode) {
+        console.log('Login page running in static mode - limited functionality')
+      }
+    }
+  }, [searchParams])
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
+
+    // In static mode, simulate login
+    if (isStatic) {
+      setTimeout(() => {
+        // Set demo mode user
+        localStorage.setItem('staticUser', JSON.stringify({ email, name: 'Demo User' }))
+        toast.success('Demo mode: Logged in as demo user')
+        router.push('/samples')
+      }, 1000)
+      return
+    }
 
     try {
       const { error } = await signIn(email, password)
@@ -43,6 +80,13 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = async () => {
+    // In static mode, show a message
+    if (isStatic) {
+      toast.info('Google login is not available in static mode')
+      setError('Google login is not available in static mode. This is a demonstration site.')
+      return
+    }
+
     try {
       await signInWithGoogle()
       // Redirect happens automatically after oauth
@@ -61,6 +105,24 @@ export default function LoginPage() {
             Welcome back to Sample Exchange
           </p>
         </div>
+
+        {isStatic && (
+          <div className="mb-4 p-4 border-l-4 border-yellow-400 bg-yellow-50 rounded-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <FontAwesomeIcon icon={faExclamationTriangle} className="h-5 w-5 text-yellow-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Demo Mode:</strong> This is a static demo site. Authentication is simulated.
+                </p>
+                <p className="mt-1 text-xs text-yellow-600">
+                  Use any email/password to sign in as a demo user.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-lg shadow-md p-8">
           {error && (
