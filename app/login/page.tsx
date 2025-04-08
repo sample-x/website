@@ -80,18 +80,12 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = async () => {
-    // In static mode, show a message
-    if (isStatic) {
-      toast.info('Google login is not available in static mode')
-      setError('Google login is not available in static mode. This is a demonstration site.')
-      return
-    }
-
     try {
       await signInWithGoogle()
       // Redirect happens automatically after oauth
     } catch (err) {
       console.error('Google login error:', err)
+      setError('Google login failed. Please try again.')
       toast.error('Google login failed. Please try again.')
     }
   }

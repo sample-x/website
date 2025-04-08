@@ -122,39 +122,31 @@ export function getStaticSampleById(id: string): Sample | undefined {
 export function isStaticExport(): boolean {
   // For Cloudflare Pages deployments, we need to detect static mode
   
-  // Check if we're in a browser environment (client-side)
-  if (typeof window !== 'undefined') {
-    // If we're running in the browser and window.__STATIC_MODE__ is defined,
-    // we're in static mode
-    if ((window as any).__STATIC_MODE__) {
-      return true;
-    }
-    
-    // Another way to detect Cloudflare Pages static deployment
-    const hostname = window.location.hostname;
-    if (hostname.includes('.pages.dev') || hostname.includes('samplex.org')) {
-      // Running on Cloudflare Pages domain - likely static
-      return true;
-    }
+  // During build, if we set STATIC_EXPORT=1, always use static mode
+  if (process.env.STATIC_EXPORT === '1') {
+    console.log('isStaticExport: Build-time STATIC_EXPORT=1 detected');
+    return true;
   }
   
-  // Check if we have Supabase environment variables
-  // This works during build time and server-side
+  // At runtime (client or server), check for Supabase variables
   const hasSupabaseUrl = typeof process.env.NEXT_PUBLIC_SUPABASE_URL === 'string' && 
                          process.env.NEXT_PUBLIC_SUPABASE_URL.length > 10;
   const hasSupabaseKey = typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'string' && 
                          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 10;
+                         
+  // If Supabase variables are properly set, assume dynamic mode (NOT static)
+  if (hasSupabaseUrl && hasSupabaseKey) {
+    console.log('isStaticExport: Supabase env vars found, assuming dynamic mode');
+    return false;
+  }
   
-  // During build, if we set STATIC_EXPORT=1, always use static mode
-  if (process.env.STATIC_EXPORT === '1') {
+  // Fallback: Check for window flag (less reliable)
+  if (typeof window !== 'undefined' && (window as any).__STATIC_MODE__) {
+    console.log('isStaticExport: window.__STATIC_MODE__ flag found');
     return true;
   }
   
-  // If we have both valid Supabase environment variables, we're not in static mode
-  if (hasSupabaseUrl && hasSupabaseKey) {
-    return false;
-  }
-
-  // Otherwise, default to static mode
+  // Default to static mode if Supabase variables are missing
+  console.log('isStaticExport: Defaulting to static mode (missing Supabase vars or window flag)');
   return true;
 } 
