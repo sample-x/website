@@ -7,43 +7,38 @@ import SamplesMap from './SamplesMap'
 import SamplesTable from './SamplesTable'
 import './samples.css'
 import { isStaticExport } from '@/app/lib/staticData'
-
-// Sample type definition
-interface Sample {
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  location: string;
-  price: number;
-  coordinates?: [number, number];
-  latitude?: number;
-  longitude?: number;
-  collectionDate?: string;
-  storageCondition?: string;
-  availability: string;
-  inStock?: boolean;
-}
+import { useAuth } from '@/app/auth/AuthProvider'
+import { toast } from 'react-toastify'
+import { useSupabase } from '@/app/supabase-provider'
+import { useCart } from '@/app/context/CartContext'
+import { Database } from '@/types/supabase'
+import { Sample } from '@/types/sample'
 
 // Filter type definition
-interface SampleFilters {
-  search: string;
-  type: string;
+interface FilterState {
+  searchQuery: string;
+  selectedTypes: string[];
   minPrice: number;
   maxPrice: number;
 }
 
+type SupabaseSample = Database['public']['Tables']['samples']['Row']
+
 export default function ClientSamples() {
+  const { supabase } = useSupabase()
+  const { addToCart } = useCart()
+  const { user } = useAuth()
   const router = useRouter()
-  const [samples, setSamples] = useState<Sample[]>([])
-  const [filteredSamples, setFilteredSamples] = useState<Sample[]>([])
-  const [loading, setLoading] = useState(true)
+  const [dbSamples, setDBSamples] = useState<SupabaseSample[]>([])
+  const [tableSamples, setTableSamples] = useState<Sample[]>([])
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null)
+  const [loading, setLoading] = useState(true)
   const [isStatic, setIsStatic] = useState(true)
   const [forceDynamicMode, setForceDynamicMode] = useState(false)
-  const [filters, setFilters] = useState<SampleFilters>({
-    search: '',
-    type: '',
+  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [filters, setFilters] = useState<FilterState>({
+    searchQuery: '',
+    selectedTypes: [],
     minPrice: 0,
     maxPrice: 1000
   })
@@ -53,17 +48,35 @@ export default function ClientSamples() {
     const staticMode = isStaticExport();
     
     // Check for localStorage override
+    let forceDynamic = false;
     if (typeof window !== 'undefined') {
       try {
-        const forceDynamic = localStorage.getItem('forceDynamicMode') === 'true';
+        forceDynamic = localStorage.getItem('forceDynamicMode') === 'true';
         setForceDynamicMode(forceDynamic);
       } catch (e) {
-        // Ignore localStorage errors
+        console.error('Error accessing localStorage:', e);
       }
     }
     
-    setIsStatic(staticMode && !forceDynamicMode);
-  }, [forceDynamicMode]);
+    // Set static mode based on environment and override
+    const finalStaticMode = staticMode && !forceDynamic;
+    setIsStatic(finalStaticMode);
+    
+    // If we're in dynamic mode, trigger sample fetch
+    if (!finalStaticMode) {
+      fetchSamples();
+    }
+  }, []);
+
+  // Handle upload button click
+  const handleUploadClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault();
+      // Redirect to login page with redirect back to upload
+      router.push('/login?redirect=/samples/upload');
+      toast.info('Please log in to upload samples');
+    }
+  };
 
   // Toggle dynamic mode
   const toggleDynamicMode = () => {
@@ -83,117 +96,162 @@ export default function ClientSamples() {
     window.location.reload();
   };
 
+  // Fetch samples from Supabase
+  const fetchSamples = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('samples')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching samples:', error);
+        // Fall back to mock data
+        const mockSamples: SupabaseSample[] = [
+          {
+            id: '1',
+            name: "Marine Bacterial Culture",
+            type: "Bacterial",
+            description: "Deep sea bacterial culture isolated from hydrothermal vents",
+            location: "Pacific Ocean",
+            price: 299.99,
+            latitude: 45.5155,
+            longitude: -122.6789,
+            collection_date: "2024-02-15",
+            storage_condition: "frozen",
+            quantity: 5,
+            hash: "sample1",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: '2',
+            name: "Cell Line A549",
+            type: "Cell Line",
+            description: "Human lung carcinoma cell line",
+            location: "Laboratory Stock",
+            price: 499.99,
+            latitude: 41.8781,
+            longitude: -87.6298,
+            collection_date: "2024-01-20",
+            storage_condition: "cryogenic",
+            quantity: 3,
+            hash: "sample2",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ];
+        setDBSamples(mockSamples);
+        setTableSamples(mockSamples.map(convertToTableSample));
+      } else if (data) {
+        console.log('Fetched samples:', data);
+        setDBSamples(data);
+        setTableSamples(data.map(convertToTableSample));
+      }
+    } catch (error) {
+      console.error('Error in fetchSamples:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Mock data for samples
   useEffect(() => {
-    // Simulate API call
+    if (!isStatic) return; // Only load mock data in static mode
+    
+    // Simulate API call with mock data for now
+    setLoading(true);
     setTimeout(() => {
-      const mockSamples: Sample[] = [
+      const mockSamples: SupabaseSample[] = [
         {
-          id: 'sample-001',
-          name: 'Human Blood Plasma',
-          type: 'tissue',
-          description: 'Human blood plasma samples from healthy donors for immunological studies.',
-          location: 'Seattle, WA',
-          price: 120,
-          coordinates: [47.6062, -122.3321],
-          collectionDate: '2023-05-15',
-          storageCondition: '-80°C',
-          availability: 'available',
-          inStock: true
+          id: '1',
+          name: "Marine Bacterial Culture",
+          type: "Bacterial",
+          description: "Deep sea bacterial culture isolated from hydrothermal vents",
+          location: "Pacific Ocean",
+          price: 299.99,
+          latitude: 45.5155,
+          longitude: -122.6789,
+          collection_date: "2024-02-15",
+          storage_condition: "frozen",
+          quantity: 5,
+          hash: "sample1",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         },
         {
-          id: 'sample-002',
-          name: 'Mouse Brain Tissue',
-          type: 'tissue',
-          description: 'Fixed mouse brain tissue sections for neurological research.',
-          location: 'Boston, MA',
-          price: 180,
-          coordinates: [42.3601, -71.0589],
-          collectionDate: '2023-04-20',
-          storageCondition: 'Room temperature (fixed)',
-          availability: 'limited',
-          inStock: true
-        },
-        {
-          id: 'sample-003',
-          name: 'E. coli Culture',
-          type: 'bacterial',
-          description: 'Pure culture of E. coli strain K-12 for molecular biology applications.',
-          location: 'Chicago, IL',
-          price: 75,
-          coordinates: [41.8781, -87.6298],
-          collectionDate: '2023-06-01',
-          storageCondition: '4°C',
-          availability: 'available',
-          inStock: true
-        },
-        {
-          id: 'sample-004',
-          name: 'Soil Sample from Amazon Rainforest',
-          type: 'environmental',
-          description: 'Rich soil sample collected from the Amazon rainforest for microbial diversity studies.',
-          location: 'Manaus, Brazil',
-          price: 95,
-          coordinates: [-3.1190, -60.0217],
-          collectionDate: '2023-03-10',
-          storageCondition: 'Room temperature',
-          availability: 'available',
-          inStock: true
-        },
-        {
-          id: 'sample-005',
-          name: 'Human Lung Cell Line',
-          type: 'cell line',
-          description: 'A549 human lung epithelial cell line for respiratory research.',
-          location: 'San Francisco, CA',
-          price: 210,
-          coordinates: [37.7749, -122.4194],
-          collectionDate: '2023-05-05',
-          storageCondition: 'Liquid nitrogen',
-          availability: 'limited',
-          inStock: true
-        },
-        {
-          id: 'sample-006',
-          name: 'Antarctic Ice Core',
-          type: 'ice core',
-          description: 'Ice core sample from Antarctica for climate research.',
-          location: 'McMurdo Station, Antarctica',
-          price: 350,
-          coordinates: [-77.8419, 166.6863],
-          collectionDate: '2022-12-15',
-          storageCondition: '-20°C',
-          availability: 'limited',
-          inStock: true
+          id: '2',
+          name: "Cell Line A549",
+          type: "Cell Line",
+          description: "Human lung carcinoma cell line",
+          location: "Laboratory Stock",
+          price: 499.99,
+          latitude: 41.8781,
+          longitude: -87.6298,
+          collection_date: "2024-01-20",
+          storage_condition: "cryogenic",
+          quantity: 3,
+          hash: "sample2",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }
-      ]
-      
-      setSamples(mockSamples)
-      setFilteredSamples(mockSamples)
-      setLoading(false)
-    }, 1000)
-  }, [])
+      ];
+
+      setDBSamples(mockSamples);
+      setTableSamples(mockSamples.map(convertToTableSample));
+      setLoading(false);
+    }, 1000);
+  }, [isStatic]);
+
+  // Convert Supabase samples to table format
+  const convertToDBSample = (sample: SupabaseSample): SupabaseSample => sample
+
+  const convertToTableSample = (sample: SupabaseSample): Sample => {
+    const quantity = typeof sample.quantity === 'number' ? sample.quantity : 0;
+    return {
+      id: sample.id,
+      name: sample.name,
+      type: sample.type,
+      description: sample.description || '',
+      location: sample.location || '',
+      price: sample.price || 0,
+      coordinates: sample.latitude && sample.longitude ? [sample.latitude, sample.longitude] : undefined,
+      collectionDate: sample.collection_date,
+      storageCondition: sample.storage_condition,
+      availability: quantity > 0 ? `${quantity} available` : 'Out of Stock',
+      inStock: quantity > 0,
+      quantity: quantity,
+      created_at: sample.created_at
+    };
+  };
+
+  // Update samples state handler
+  const handleSamplesUpdate = (newSamples: SupabaseSample[]) => {
+    const convertedDBSamples = newSamples.map(convertToDBSample)
+    setDBSamples(convertedDBSamples)
+    setTableSamples(convertedDBSamples.map(convertToTableSample))
+  }
 
   // Apply filters to samples
   const applyFilters = () => {
-    const filtered = samples.filter(sample => {
+    const filtered = dbSamples.map(convertToTableSample).filter(sample => {
       // Search filter
       const searchMatch = 
-        sample.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        sample.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-        sample.type.toLowerCase().includes(filters.search.toLowerCase()) ||
-        sample.location.toLowerCase().includes(filters.search.toLowerCase())
+        sample.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        sample.description.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        sample.type.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        (sample.location?.toLowerCase() || '').includes(filters.searchQuery.toLowerCase())
       
       // Type filter
-      const typeMatch = filters.type === '' || sample.type.toLowerCase() === filters.type.toLowerCase()
+      const typeMatch = filters.selectedTypes.length === 0 || filters.selectedTypes.includes(sample.type.toLowerCase())
       
       // Price filter
-      const priceMatch = sample.price >= filters.minPrice && sample.price <= filters.maxPrice
+      const priceMatch = (!sample.price || (sample.price >= filters.minPrice && sample.price <= filters.maxPrice))
       
       return searchMatch && typeMatch && priceMatch
     })
     
-    setFilteredSamples(filtered)
+    setTableSamples(filtered)
   }
 
   // Handle filter changes
@@ -208,23 +266,31 @@ export default function ClientSamples() {
 
   // Handle sample selection
   const handleSampleSelect = (sample: Sample) => {
-    setSelectedSample(sample)
+    setSelectedSample(sample);
   }
 
   // Handle add to cart
   const handleAddToCart = (sample: Sample) => {
-    // In a real app, this would add the sample to a cart
-    alert(`Added ${sample.name} to cart!`)
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    const dbSample = dbSamples.find(s => s.id.toString() === sample.id);
+    if (dbSample && dbSample.quantity > 0) {
+      // Convert to table sample format before adding to cart
+      const cartSample = convertToTableSample(dbSample);
+      addToCart(cartSample);
+    }
   }
 
   // Apply filters when they change
   useEffect(() => {
     // Apply filters whenever samples or filter values change
     applyFilters();
-  }, [samples, filters, applyFilters]);
+  }, [tableSamples, filters, applyFilters]);
 
   // Get unique sample types for filter dropdown
-  const sampleTypes = Array.from(new Set(samples.map(sample => sample.type)))
+  const sampleTypes = Array.from(new Set(dbSamples.map(sample => sample.type)))
 
   return (
     <main>
@@ -242,17 +308,23 @@ export default function ClientSamples() {
             marginTop: '16px',
             justifyContent: 'center'
           }}>
-            <Link href="/samples/upload" className="btn btn-primary" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              backgroundColor: '#f97316',
-              color: 'white',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: '500'
-            }}>
+            <Link 
+              href={user ? "/samples/upload" : "/login?redirect=/samples/upload"} 
+              className="btn btn-primary" 
+              onClick={handleUploadClick}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                backgroundColor: '#f97316',
+                color: 'white',
+                borderRadius: '4px',
+                fontWeight: 'bold',
+                textDecoration: 'none',
+                transition: 'background-color 0.2s'
+              }}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                 <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
@@ -340,17 +412,17 @@ export default function ClientSamples() {
                     <div className="search-box">
                       <input
                         type="text"
-                        name="search"
+                        name="searchQuery"
                         placeholder="Search samples..."
-                        value={filters.search}
+                        value={filters.searchQuery}
                         onChange={handleFilterChange}
                       />
                     </div>
                     
                     <div className="category-filter">
                       <select
-                        name="type"
-                        value={filters.type}
+                        name="selectedTypes"
+                        value={filters.selectedTypes.join(',')}
                         onChange={handleFilterChange}
                       >
                         <option value="">All Types</option>
@@ -384,15 +456,16 @@ export default function ClientSamples() {
                   
                   {/* Results count */}
                   <div className="results-count">
-                    <p>Showing {filteredSamples.length} of {samples.length} samples</p>
+                    <p>Showing {tableSamples.length} of {dbSamples.length} samples</p>
                   </div>
                   
                   {/* Samples table */}
                   <div className="samples-table-container">
                     <SamplesTable
-                      samples={filteredSamples}
+                      samples={tableSamples}
                       onSampleSelect={handleSampleSelect}
                       onAddToCart={handleAddToCart}
+                      isAuthenticated={!!user}
                     />
                   </div>
                   
@@ -400,7 +473,7 @@ export default function ClientSamples() {
                   <div className="map-container">
                     <h2>Sample Locations</h2>
                     <SamplesMap
-                      samples={filteredSamples}
+                      samples={tableSamples}
                       onSampleSelect={handleSampleSelect}
                       onAddToCart={handleAddToCart}
                       selectedSample={selectedSample}
@@ -410,36 +483,17 @@ export default function ClientSamples() {
                   {/* Selected sample details */}
                   {selectedSample && (
                     <div className="sample-details">
-                      <h2>{selectedSample.name}</h2>
-                      <div className="sample-details-grid">
-                        <div className="sample-details-info">
-                          <p><strong>Type:</strong> {selectedSample.type}</p>
-                          <p><strong>Description:</strong> {selectedSample.description}</p>
-                          <p><strong>Location:</strong> {selectedSample.location}</p>
-                          <p><strong>Price:</strong> ${selectedSample.price}</p>
-                          <p><strong>Collection Date:</strong> {selectedSample.collectionDate || 'N/A'}</p>
-                          <p><strong>Storage Condition:</strong> {selectedSample.storageCondition || 'N/A'}</p>
-                          <p><strong>Availability:</strong> {selectedSample.availability}</p>
-                        </div>
-                        <div className="sample-details-actions">
-                          <Link href={`/samples/${selectedSample.id}`} className="btn btn-primary">
-                            View Details
-                          </Link>
-                          <button
-                            className="btn btn-secondary"
-                            onClick={() => handleAddToCart(selectedSample)}
-                            disabled={!selectedSample.inStock}
-                          >
-                            Add to Cart
-                          </button>
-                        </div>
+                      <div className="sample-details-content">
+                        <h3>{selectedSample.name}</h3>
+                        <p><strong>Type:</strong> {selectedSample.type}</p>
+                        <p><strong>Description:</strong> {selectedSample.description || 'N/A'}</p>
+                        <p><strong>Location:</strong> {selectedSample.location}</p>
+                        <p><strong>Price:</strong> ${selectedSample.price}</p>
+                        <p><strong>Collection Date:</strong> {selectedSample.collectionDate || 'N/A'}</p>
+                        <p><strong>Storage Condition:</strong> {selectedSample.storageCondition || 'N/A'}</p>
+                        <p><strong>Availability:</strong> {selectedSample.availability}</p>
+                        <button onClick={() => setSelectedSample(null)}>Close</button>
                       </div>
-                      <button
-                        className="btn btn-outline close-details"
-                        onClick={() => setSelectedSample(null)}
-                      >
-                        Close
-                      </button>
                     </div>
                   )}
                 </>
