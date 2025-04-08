@@ -70,7 +70,7 @@ function generateSampleHash(sample: Partial<SampleData>): string {
 
 export default function UploadPage() {
   const { supabase } = useSupabase();
-  const { user, profile } = useAuth();
+  const { user, profile, isLoading } = useAuth();
   const router = useRouter();
   const [isStatic, setIsStatic] = useState(false);
   const [forceDynamicMode, setForceDynamicMode] = useState(false);
@@ -84,11 +84,12 @@ export default function UploadPage() {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!user) {
+    // Wait until authentication state is fully loaded
+    if (!isLoading && !user) {
       toast.info('Please log in to upload samples');
       router.push('/login?redirect=/samples/upload');
     }
-  }, [user, router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     // Check if we're in static mode
