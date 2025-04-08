@@ -5,6 +5,7 @@ import { Sample } from '@/types/sample'
 import dynamic from 'next/dynamic'
 import { isStaticExport } from '@/app/lib/staticData'
 import { SamplesMapProps } from './mapTypes'
+import Image from 'next/image'
 
 // Dynamically import LeafletMap to avoid SSR issues
 const LeafletMap = dynamic(() => import('./LeafletMap'), {
@@ -38,10 +39,12 @@ export default function SamplesMap({ samples, onSampleSelect, selectedSample }: 
   const [mapCenter, setMapCenter] = useState<[number, number]>([51.505, -0.09])
   const [mapZoom, setMapZoom] = useState(2)
   const [isMounted, setIsMounted] = useState(false)
+  const [isStaticMode, setIsStaticMode] = useState(true)
 
   // Check for client-side rendering
   useEffect(() => {
     setIsMounted(true)
+    setIsStaticMode(isStaticExport())
   }, [])
 
   useEffect(() => {
@@ -93,15 +96,55 @@ export default function SamplesMap({ samples, onSampleSelect, selectedSample }: 
     }
   }, [samples, onSampleSelect, selectedSample, isMounted]);
 
-  // Skip map rendering in static export mode or before client-side mount
-  if (isStaticExport() || !isMounted) {
+  // Create a static map fallback for static mode
+  if (isStaticMode || !isMounted) {
     return (
-      <div className="h-80 w-full flex items-center justify-center bg-gray-100 rounded-lg">
-        <div className="text-center">
-          <p>Map not available in static mode</p>
-          <p className="text-sm text-gray-500 mt-2">
-            {samples?.length || 0} sample locations would be shown here
-          </p>
+      <div className="h-80 w-full flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+        <div className="text-center relative w-full h-full">
+          {/* Use a static map background image */}
+          <div className="absolute inset-0 bg-blue-50 opacity-30 z-0"></div>
+          
+          {/* Static map background pattern */}
+          <div className="absolute inset-0 z-0 opacity-20" 
+            style={{
+              backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%2392a6c4\' fill-opacity=\'0.2\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
+              backgroundSize: '150px 150px'
+            }}>
+          </div>
+
+          {/* Sample location markers */}
+          {samples.filter(s => s.latitude && s.longitude).map((sample, index) => (
+            <div 
+              key={index}
+              className="absolute w-3 h-3 rounded-full border border-white shadow-sm transform -translate-x-1.5 -translate-y-1.5 cursor-pointer"
+              style={{
+                backgroundColor: typeColors[sample.type?.toLowerCase() || 'default'] || typeColors.default,
+                left: `${((sample.longitude || 0) + 180) / 360 * 100}%`,
+                top: `${(90 - (sample.latitude || 0)) / 180 * 100}%`,
+                zIndex: 10
+              }}
+              onClick={() => onSampleSelect?.(sample)}
+              title={sample.name}
+            />
+          ))}
+
+          {/* Overlay with message */}
+          <div className="absolute inset-0 flex items-center justify-center z-20 bg-white bg-opacity-80 p-4">
+            <div className="text-center max-w-md">
+              <h3 className="text-lg font-medium text-gray-900">Map not available in static mode</h3>
+              <p className="mt-2 text-sm text-gray-600">
+                {samples?.filter(s => s.latitude && s.longitude).length || 0} sample locations would be shown here
+              </p>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {Object.entries(typeColors).slice(0, 6).map(([type, color]) => (
+                  <div key={type} className="flex items-center text-xs text-gray-600">
+                    <span className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: color }}></span>
+                    <span className="capitalize truncate">{type}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
