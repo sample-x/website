@@ -1,19 +1,22 @@
 import './globals.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
 import Navbar from './components/Navbar';
 import { Footer } from './components/Footer';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { CartProvider } from './context/CartContext';
 import ErrorBoundary from './components/ErrorBoundary';
-import ScriptLoader from './components/ScriptLoader';
-import { Suspense } from 'react';
+import Script from 'next/script';
+import { AuthProvider } from './auth/AuthProvider';
+import SupabaseProvider from './supabase-provider';
+import { TailwindIndicator } from './components/TailwindIndicator';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Sample Exchange',
-  description: 'Exchange samples with researchers worldwide',
+  title: 'Sample Exchange Platform',
+  description: 'Exchange scientific samples with researchers worldwide',
 };
 
 export const dynamic = 'force-static';
@@ -40,18 +43,48 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
-          <Providers>
-            <Navbar />
-            <main className="min-h-screen">
-              <Suspense fallback={<div>Loading...</div>}>
-                {children}
-              </Suspense>
-            </main>
-            <Footer />
-            <ToastContainer position="bottom-right" />
-            <ScriptLoader />
-          </Providers>
+          <SupabaseProvider>
+            <AuthProvider>
+              <CartProvider>
+                <TailwindIndicator />
+                <Providers>
+                  <Navbar />
+                  <main className="min-h-screen">
+                    {children}
+                  </main>
+                  <Footer />
+                  <ToastContainer position="bottom-right" />
+                </Providers>
+              </CartProvider>
+            </AuthProvider>
+          </SupabaseProvider>
         </ErrorBoundary>
+        {/* Load fix scripts with highest priority */}
+        <Script src="/cloudflare-fix.js" strategy="beforeInteractive" />
+        {/* Fallback script tag for maximum compatibility */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Force all links to use direct navigation
+                document.addEventListener('click', function(e) {
+                  var target = e.target;
+                  while (target && target.tagName !== 'A') {
+                    target = target.parentElement;
+                  }
+                  if (target && target.tagName === 'A') {
+                    var href = target.getAttribute('href');
+                    if (href && !href.startsWith('http') && !href.startsWith('//') && !href.startsWith('#')) {
+                      e.preventDefault();
+                      window.location.href = href;
+                      return false;
+                    }
+                  }
+                }, true);
+              })();
+            `,
+          }}
+        />
       </body>
     </html>
   );

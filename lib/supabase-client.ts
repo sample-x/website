@@ -16,8 +16,9 @@ const getSupabaseUrl = (): string => {
   
   // In static build with an invalid URL, return a safe fallback
   if (process.env.NODE_ENV === 'production' && !isValidUrl(url)) {
-    console.warn('Invalid Supabase URL provided. Using fallback URL for static build.');
-    return 'https://example.com'; // Safe fallback URL for static build
+    console.warn('Invalid Supabase URL provided. Using production URL from .env.production');
+    // Use the actual production URL instead of a placeholder
+    return 'https://znmkkduvzzmoxzgthwby.supabase.co';
   }
   
   return url;

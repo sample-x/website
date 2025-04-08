@@ -57,17 +57,20 @@ export default function ClientPage() {
         id: Number(sample.id),
         name: sample.name,
         type: sample.type,
-        location: sample.location,
-        collection_date: sample.collection_date,
+        location: sample.location || null,
+        collection_date: sample.collection_date || null,
         storage: sample.storage,
-        availability: sample.availability,
+        storage_condition: sample.storage_condition || null,
+        quantity: sample.quantity || 0,
         price: sample.price ? Number(sample.price) : 0,
-        latitude: Number(sample.latitude),
-        longitude: Number(sample.longitude),
-        description: sample.description || '',
-        inStock: sample.in_stock || false,
+        latitude: sample.latitude ? Number(sample.latitude) : null,
+        longitude: sample.longitude ? Number(sample.longitude) : null,
+        description: sample.description || null,
+        inStock: sample.quantity > 0,
         user_id: sample.user_id || '',
-        created_at: sample.created_at || new Date().toISOString()
+        created_at: sample.created_at || new Date().toISOString(),
+        updated_at: sample.updated_at || null,
+        hash: sample.hash || null
       }));
 
       setAllSamples(transformedSamples);
@@ -94,7 +97,7 @@ export default function ClientPage() {
       filtered = filtered.filter(sample => 
         sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sample.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sample.location.toLowerCase().includes(searchTerm.toLowerCase())
+        sample.location?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -216,7 +219,7 @@ export default function ClientPage() {
                 <th>Location</th>
                 <th>Collection Date</th>
                 <th>Storage</th>
-                <th>Availability</th>
+                <th>Stock Status</th>
                 <th>Price</th>
                 <th>Actions</th>
               </tr>
@@ -237,8 +240,8 @@ export default function ClientPage() {
                   <td>{sample.collection_date}</td>
                   <td>{sample.storage}</td>
                   <td>
-                    <span className={`availability-badge ${sample.availability}`}>
-                      {sample.availability}
+                    <span className={`availability-badge ${sample.inStock ? 'in-stock' : 'out-of-stock'}`}>
+                      {sample.inStock ? 'In Stock' : 'Out of Stock'}
                     </span>
                   </td>
                   <td className="price">${(sample.price ?? 0).toFixed(2)}</td>
@@ -339,10 +342,10 @@ export default function ClientPage() {
                 <div className="detail-label">Storage:</div>
                 <div className="detail-value">{popupInfo.sample.storage}</div>
                 
-                <div className="detail-label">Availability:</div>
+                <div className="detail-label">Stock Status:</div>
                 <div className="detail-value">
-                  <span className={`availability-badge ${popupInfo.sample.availability}`}>
-                    {popupInfo.sample.availability}
+                  <span className={`availability-badge ${popupInfo.sample.inStock ? 'in-stock' : 'out-of-stock'}`}>
+                    {popupInfo.sample.inStock ? 'In Stock' : 'Out of Stock'}
                   </span>
                 </div>
                 

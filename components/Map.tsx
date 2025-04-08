@@ -1,159 +1,272 @@
 'use client';
 
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
+import React, { useEffect, useRef, useState, FC } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import styles from '@/styles/Map.module.css';
 import { Sample } from '@/types/sample';
-import { Map as LeafletMap } from 'leaflet';
+import L from 'leaflet';
+import { useRouter } from 'next/navigation';
+import { LatLngBounds, Map as LeafletMap } from 'leaflet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
 
-// Sample type colors
-const sampleTypeColors: { [key: string]: string } = {
-  'bacterial': '#e74c3c',
-  'viral': '#9b59b6',
-  'fungal': '#2ecc71',
-  'tissue': '#f39c12',
-  'environmental': '#3498db',
-  'cell line': '#8b5cf6',
-  'soil': '#92400e',
-  'botanical': '#65a30d',
-  'dna': '#7c3aed',
-  'water': '#0ea5e9',
-  'industrial': '#64748b',
-  'default': '#95a5a6'
+// Sample type colors for markers (ensure this matches expected data types)
+export const sampleTypeColors: { [key: string]: string } = {
+  'bacterial': '#e74c3c',      // Red (adjusted)
+  'viral': '#9b59b6',          // Purple
+  'fungal': '#2ecc71',         // Green
+  'cell line': '#8b5cf6',    // Violet
+  'plant': '#65a30d',          // Lime
+  'animal': '#f39c12',         // Orange
+  'water': '#0ea5e9',          // Sky Blue
+  'soil': '#92400e',          // Brown
+  'environmental': '#3498db', // Blue
+  'dna': '#7c3aed',            // Indigo
+  'industrial': '#64748b',     // Slate
+  'default': '#95a5a6'         // Grey (default)
 };
 
-function getMarkerColor(type: string): string {
+// Top-level color getter function
+const getMarkerColor = (type: string): string => {
   return sampleTypeColors[type.toLowerCase()] || sampleTypeColors.default;
-}
+};
 
-interface MapProps {
-  samples: Sample[];
-  onBoundsChange: (bounds: {
-    north: number;
-    south: number;
-    east: number;
-    west: number;
-  }) => void;
-}
+// After the getMarkerColor function, add a new constant for the legend
+const sampleTypes = [
+  { type: 'bacterial', label: 'Bacterial' },
+  { type: 'viral', label: 'Viral' },
+  { type: 'fungal', label: 'Fungal' },
+  { type: 'cell line', label: 'Cell Line' },
+  { type: 'plant', label: 'Plant' },
+  { type: 'animal', label: 'Animal' },
+  { type: 'water', label: 'Water' },
+  { type: 'soil', label: 'Soil' },
+  { type: 'environmental', label: 'Environmental' },
+  { type: 'dna', label: 'DNA' }, // Added DNA
+  { type: 'industrial', label: 'Industrial' } // Added Industrial
+];
 
-function MapEventHandler({ onBoundsChange }: { onBoundsChange: MapProps['onBoundsChange'] }) {
-  const map = useMap();
-  
-  map.on('moveend', () => {
-    const bounds = map.getBounds();
-    onBoundsChange({
-      north: bounds.getNorth(),
-      south: bounds.getSouth(),
-      east: bounds.getEast(),
-      west: bounds.getWest(),
-    });
+// Function to get actually used sample types to display in legend
+const getUsedSampleTypes = (samples: Sample[]) => {
+  const usedTypes = new Set<string>();
+  samples.forEach(sample => {
+    if (sample.type) {
+      // Ensure consistent lowercase comparison
+      usedTypes.add(sample.type.toLowerCase());
+    }
+  });
+
+  // Filter the predefined sampleTypes list based on used types
+  return sampleTypes.filter(({ type }) =>
+    usedTypes.has(type.toLowerCase())
+  );
+};
+
+// BoundsUpdater component to handle map bounds changes
+function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (bounds: L.LatLngBounds) => void }) {
+  const map = useMapEvents({
+    moveend: () => {
+      if (!onChange) return;
+      const bounds = map.getBounds();
+      onChange(bounds);
+    }
   });
 
   return null;
 }
 
-const Map = ({ samples, onBoundsChange }: MapProps) => {
-  const getMarkerColor = (type: string) => {
-    return sampleTypeColors[type.toLowerCase()] || sampleTypeColors.default;
+// Update props to use the imported Sample type
+export interface SampleMapProps {
+  samples: Sample[]; // Use imported Sample type
+  onBoundsChange?: (bounds: L.LatLngBounds) => void;
+  onTypeFilter?: (type: string | null) => void;
+  onSampleSelect?: (sample: Sample) => void; // Use imported Sample type
+}
+
+export const SampleMap: FC<SampleMapProps> = ({ samples, onBoundsChange, onTypeFilter, onSampleSelect }) => {
+  const [mounted, setMounted] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+
+    // Move Leaflet icon fix inside useEffect to run only client-side
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    });
+  }, []);
+
+  // Calculate map bounds from samples
+  const bounds = samples.reduce(
+    (acc, sample) => {
+      if (typeof sample.latitude === 'number' && typeof sample.longitude === 'number') {
+        acc.extend([sample.latitude, sample.longitude]);
+      }
+      return acc;
+    },
+    new LatLngBounds([0, 0], [0, 0]) // Initialize properly
+  );
+
+  // Default to world center if no valid samples
+  const center = !bounds.isValid() || samples.length === 0 ? [20, 0] as [number, number] : bounds.getCenter();
+  const zoom = !bounds.isValid() || samples.length === 0 ? 2 : undefined; // Let fitBounds determine zoom if bounds are valid
+
+  // Function to handle clicking on a sample type in the legend
+  const handleTypeClick = (type: string) => {
+    // If already active, clear the filter
+    const newFilter = activeFilter === type ? null : type;
+    setActiveFilter(newFilter);
+
+    // Call parent component to filter samples
+    if (onTypeFilter) {
+      onTypeFilter(newFilter);
+    }
   };
 
-  // Get unique sample types for the legend
-  const uniqueTypes = Array.from(new Set(samples.map(sample => sample.type.toLowerCase())));
+  // Ensure this uses the correct Sample type
+  const handleMarkerClick = (sample: Sample) => {
+    if (onSampleSelect) {
+      onSampleSelect(sample);
+    }
+    // Optionally open popup on click
+     if (mapRef.current) {
+       const markerLatLng = L.latLng(sample.latitude, sample.longitude);
+       // Find the corresponding marker layer if needed, or just open a popup at the location
+       // This example just opens a new popup, assumes one popup per click
+       L.popup({ autoPanPadding: L.point(50, 50) }) // Add padding
+         .setLatLng(markerLatLng)
+         .setContent(`
+           <div class="p-2 max-w-xs"> <!-- Add max width -->
+             <h3 class="font-bold text-base mb-1">${sample.name}</h3>
+             <p class="text-sm text-gray-600 mb-2 capitalize">${sample.type ? sample.type.charAt(0).toUpperCase() + sample.type.slice(1) : 'N/A'}</p> <!-- Capitalize type -->
+             <ul class="list-none text-xs space-y-0.5 mb-2"> <!-- Remove list disc, adjust spacing -->
+               <li><span class="font-medium">Location:</span> ${sample.location || 'N/A'}</li>
+               ${sample.collection_date ? `<li><span class="font-medium">Collected:</span> ${new Date(sample.collection_date).toLocaleDateString()}</li>` : ''}
+               ${sample.storage_condition ? `<li><span class="font-medium">Storage:</span> ${sample.storage_condition}</li>` : ''}
+               <li><span class="font-medium">Available:</span> ${sample.quantity > 0 ? sample.quantity : 'Out of Stock'}</li>
+               <li><span class="font-medium">Price:</span> $${sample.price ? sample.price.toFixed(2) : 'N/A'}</li>
+             </ul>
+             <button
+               class="mt-1 px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs w-full"
+               onclick="window.location.href='/samples/${sample.id}'"
+             >
+               View Details
+             </button>
+           </div>
+         `)
+         .openOn(mapRef.current);
+     }
+  };
+
+  if (!mounted) {
+    return null; // Or a loading placeholder
+  }
+
+  // Get used types for the legend based on the *actual* samples passed
+  const usedTypesForLegend = getUsedSampleTypes(samples);
 
   return (
-    <div className="relative">
+    <div className="map-container relative h-full w-full overflow-hidden rounded-lg">
       <MapContainer
-        center={[20, 0]}
-        zoom={2}
-        style={{ height: '500px', width: '100%' }}
-        className="rounded-lg"
+        ref={mapRef} // Assign ref
+        center={center}
+        zoom={zoom} // Use calculated zoom
+        style={{ height: '100%', width: '100%', zIndex: 1 }}
+        scrollWheelZoom={true}
+        // Use whenReady to access the map instance after creation
+        whenReady={() => {
+          // Store map instance if needed, though ref is usually sufficient
+          // if (mapRef.current) { /* mapRef.current is the instance */ }
+
+          // Use fitBounds only if bounds are valid
+          if (mapRef.current && bounds.isValid() && samples.length > 0) {
+            mapRef.current.fitBounds(bounds, { padding: [50, 50] }); // Add padding
+          }
+        }}
       >
-        <MapEventHandler onBoundsChange={onBoundsChange} />
         <TileLayer
-          url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          className="map-tiles-grayscale"
         />
+
         {samples.map((sample) => {
-          if (!sample.coordinates) return null;
+          // Ensure coordinates are valid numbers before rendering marker
+          if (typeof sample.latitude !== 'number' || typeof sample.longitude !== 'number') {
+            console.warn(`Skipping sample ${sample.id} due to invalid coordinates:`, sample.latitude, sample.longitude);
+            return null;
+          }
+
+          // Use the top-level getMarkerColor function
+          const markerColor = getMarkerColor(sample.type);
+
           return (
             <CircleMarker
               key={sample.id}
-              center={[sample.coordinates[0], sample.coordinates[1]]}
+              center={[sample.latitude, sample.longitude]}
               radius={6}
               pathOptions={{
-                fillColor: getMarkerColor(sample.type),
+                // Use the resolved markerColor
+                color: markerColor,
+                fillColor: markerColor,
                 fillOpacity: 0.7,
-                color: getMarkerColor(sample.type),
-                weight: 1
+                weight: 1 // Set consistent weight
               }}
               eventHandlers={{
-                click: () => {
-                  // TODO: Implement add to cart functionality
-                  console.log('Add to cart:', sample);
-                },
+                click: () => handleMarkerClick(sample), // Use updated handler
                 mouseover: (e) => {
-                  e.target.setStyle({
-                    fillOpacity: 1,
-                    weight: 2
-                  });
+                  e.target.setStyle({ fillOpacity: 0.9, radius: 7 }); // Slightly larger on hover
+                  e.target.bringToFront();
                 },
                 mouseout: (e) => {
-                  e.target.setStyle({
-                    fillOpacity: 0.7,
-                    weight: 1
-                  });
-                }
+                  e.target.setStyle({ fillOpacity: 0.7, radius: 6 });
+                },
               }}
             >
-              <Popup>
-                <div className="sample-popup">
-                  <h3 className="text-lg font-semibold">{sample.name}</h3>
-                  <p className="text-sm text-gray-600">{sample.type}</p>
-                  <p><strong>Location:</strong> {sample.location}</p>
-                  <p><strong>Collection Date:</strong> {sample.collectionDate ? new Date(sample.collectionDate).toLocaleDateString() : 'N/A'}</p>
-                  <p><strong>Storage:</strong> {sample.storageCondition}</p>
-                  <p><strong>Quantity:</strong> {typeof sample.quantity === 'number' ? (sample.quantity > 0 ? sample.quantity : 'Out of Stock') : 'N/A'}</p>
-                  <p><strong>Price:</strong> {typeof sample.price === 'number' ? `$${sample.price.toFixed(2)}` : 'N/A'}</p>
-                  {sample.description && (
-                    <p className="text-sm mt-2">{sample.description}</p>
-                  )}
-                  <div className="popup-actions">
-                    <button 
-                      className="action-button add"
-                      onClick={() => {
-                        // TODO: Implement add to cart functionality
-                        console.log('Add to cart:', sample);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faCartPlus} /> Add to Cart
-                    </button>
-                  </div>
-                </div>
-              </Popup>
+              {/* Remove the default <Popup> component here, handle popup in handleMarkerClick */}
             </CircleMarker>
           );
         })}
+        {/* Add BoundsUpdater if needed */}
+        {/* <BoundsUpdater samples={samples} onChange={onBoundsChange} /> */}
+
       </MapContainer>
 
-      {/* Map Legend */}
-      <div className="map-legend">
-        <div className="legend-title">Sample Types</div>
-        <div className="legend-items">
-          {uniqueTypes.map(type => (
-            <div key={type} className="legend-item">
+       {/* Map Legend - Ensure consistent styling and capitalization */}
+      <div className="absolute top-2 right-2 bg-white p-2 rounded shadow-md z-10 max-w-[150px]">
+        <div className="font-semibold text-sm mb-1 text-center">Sample Types</div>
+        <div className="space-y-1">
+          {usedTypesForLegend.map(({ type, label }) => (
+            <div key={type} className="flex items-center text-xs cursor-pointer" onClick={() => handleTypeClick(type)}>
               <div
-                className="legend-color"
-                style={{ backgroundColor: sampleTypeColors[type] || sampleTypeColors.default }}
+                className="w-3 h-3 rounded-full mr-1.5 border border-gray-300"
+                style={{ backgroundColor: sampleTypeColors[type.toLowerCase()] || sampleTypeColors.default }}
               />
-              <span className="capitalize">{type}</span>
+              {/* Use the predefined label for consistent capitalization */}
+              <span className={`capitalize ${activeFilter === type ? 'font-bold' : ''}`}>{label}</span>
             </div>
           ))}
+          {/* Add 'Show All' option */}
+           {activeFilter && (
+             <div className="flex items-center text-xs cursor-pointer mt-1 pt-1 border-t border-gray-200" onClick={() => handleTypeClick('')}>
+               <div
+                 className="w-3 h-3 rounded-full mr-1.5 border border-gray-400 bg-transparent"
+               />
+               <span>Show All</span>
+             </div>
+           )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Map; 
+// Default export if this is the primary component export
+// export default SampleMap; 

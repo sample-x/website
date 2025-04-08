@@ -1,0 +1,82 @@
+.cart-table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1rem 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cart-table th,
+.cart-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.cart-table tr:hover {
+  background-color: #f9fafb;
+}
+
+.sample-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sample-name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.sample-type {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.quantity-input {
+  width: 60px;
+  padding: 0.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.remove-button {
+  color: #ef4444;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.remove-button:hover {
+  color: #dc2626;
+}
+
+/* Storage symbol styles */
+.storage-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+}
+
+.storage-symbol svg {
+  width: 1.2rem;
+  height: 1.2rem;
+} 

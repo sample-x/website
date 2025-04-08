@@ -2,21 +2,21 @@ export interface Sample {
   id: number;
   name: string;
   type: string;
-  location: string;
-  collection_date?: string;
+  location: string | null;
+  collection_date?: string | null;
   storage?: string;
-  storage_condition?: string;
-  quantity?: number;
-  price?: number;
-  description?: string;
-  latitude?: number;
-  longitude?: number;
+  storage_condition?: string | null;
+  quantity: number;
+  price: number;
+  description?: string | null;
+  latitude: number | null;
+  longitude: number | null;
   user_id?: string;
-  created_at?: string;
-  availability: string;
+  created_at: string;
+  updated_at?: string;
   imageUrl?: string;
   inStock: boolean;
-  coordinates?: [number, number]; // [latitude, longitude]
+  hash?: string;
   metadata?: Record<string, any>;
   // Additional fields for sample table
   contact?: string;

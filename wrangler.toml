@@ -1,10 +1,4 @@
-# Static site configuration
-name = "sample-exchange"
-compatibility_date = "2024-03-28"
-
-# Static assets configuration
-[site]
-bucket = "./dist"
-
-# Pages configuration
-pages_build_output_dir = "out" 
+# Project configuration for Cloudflare Pages
+name = "samplex"
+compatibility_date = "2023-12-01"
+pages_build_output_dir = "out"

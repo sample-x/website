@@ -1,0 +1,15 @@
+Welcome to SampleX!
+
+Thank you for joining the SampleX community. We're thrilled to have you on board as we build a global network for scientific sample exchange.
+
+Please confirm your email address to get started by visiting this link:
+{{ .ConfirmationURL }}
+
+If you didn't create this account, you can safely ignore this email.
+
+Best regards,
+The SampleX Team
+
+---
+© 2024 SampleX. All rights reserved.
+If you have any questions, please contact us at support@samplex.com. 

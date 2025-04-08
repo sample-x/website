@@ -11,66 +11,72 @@ export interface Database {
     Tables: {
       samples: {
         Row: {
-          id: number
-          name: string
-          type: string
-          location: string
-          collection_date: string
-          storage_condition: string
-          quantity: number
-          price: number
-          description: string | null
-          latitude: number | null
-          longitude: number | null
-          created_at: string
+          id: string;
+          name: string;
+          type: string;
+          location: string;
+          collection_date: string;
+          storage_condition: string;
+          quantity: number;
+          price: number;
+          description: string | null;
+          latitude: number;
+          longitude: number;
+          hash: string;
+          created_at: string;
+          updated_at: string;
         }
         Insert: {
-          id?: number
-          name: string
-          type: string
-          location: string
-          collection_date: string
-          storage_condition: string
-          quantity: number
-          price: number
-          description?: string | null
-          latitude?: number | null
-          longitude?: number | null
-          created_at?: string
+          id?: string;
+          name: string;
+          type: string;
+          location: string;
+          collection_date: string;
+          storage_condition: string;
+          quantity: number;
+          price: number;
+          description?: string | null;
+          latitude: number;
+          longitude: number;
+          hash: string;
+          created_at?: string;
+          updated_at?: string;
         }
         Update: {
-          id?: number
-          name?: string
-          type?: string
-          location?: string
-          collection_date?: string
-          storage_condition?: string
-          quantity?: number
-          price?: number
-          description?: string | null
-          latitude?: number | null
-          longitude?: number | null
-          created_at?: string
+          id?: string;
+          name?: string;
+          type?: string;
+          location?: string;
+          collection_date?: string;
+          storage_condition?: string;
+          quantity?: number;
+          price?: number;
+          description?: string | null;
+          latitude?: number;
+          longitude?: number;
+          hash?: string;
+          created_at?: string;
+          updated_at?: string;
         }
       }
       cart: {
         Row: {
-          id: number
-          sample_id: number
-          quantity: number
-          created_at: string
+          id: number;
+          sample_id: string;
+          quantity: number;
+          created_at: string;
         }
         Insert: {
-          id?: number
-          sample_id: number
-          quantity: number
-          created_at?: string
+          id?: number;
+          sample_id: string;
+          quantity: number;
+          created_at?: string;
         }
         Update: {
-          id?: number
-          sample_id?: number
-          quantity?: number
-          created_at?: string
+          id?: number;
+          sample_id?: string;
+          quantity?: number;
+          created_at?: string;
         }
       }
     }

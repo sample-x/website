@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, FC } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import styles from '@/styles/Map.module.css';
-import { Sample } from '@/types/supabase';
+import { Sample } from '@/types/sample';
 import { sampleTypeColors } from '@/utils/constants';
 import L from 'leaflet';
 import { useRouter } from 'next/navigation';
@@ -87,28 +87,7 @@ function BoundsUpdater({ samples, onChange }: { samples: Sample[], onChange?: (b
   return null;
 }
 
-type DatabaseSample = {
-  id: string;
-  name: string;
-  type: string;
-  location: string;
-  collection_date: string;
-  storage_condition: string;
-  quantity: number;
-  price: number;
-  description: string | null;
-  latitude: number;
-  longitude: number;
-  hash: string;
-  created_at: string;
-  updated_at: string;
-};
-
-interface Sample extends DatabaseSample {
-  inStock: boolean;
-}
-
-interface SampleMapProps {
+export interface SampleMapProps {
   samples: Sample[];
   onBoundsChange?: (bounds: L.LatLngBounds) => void;
   onTypeFilter?: (type: string | null) => void;

@@ -348,7 +348,7 @@ export default function SampleDetailsPage() {
                               className="w-full bg-white rounded px-2 py-1 mt-1"
                             />
                           ) : (
-                            <p className="font-medium">{sample.collectionDate}</p>
+                            <p className="font-medium">{sample.collection_date}</p>
                           )}
                         </div>
                         
@@ -364,7 +364,7 @@ export default function SampleDetailsPage() {
                               placeholder="e.g., -20°C, Room temperature"
                             />
                           ) : (
-                            <p className="font-medium">{sample.storageCondition}</p>
+                            <p className="font-medium">{sample.storage_condition}</p>
                           )}
                         </div>
                         
@@ -438,7 +438,12 @@ export default function SampleDetailsPage() {
                             className="w-full bg-white rounded px-2 py-1 mt-1"
                           />
                         ) : (
-                          <p className="font-medium">{sample.coordinates ? sample.coordinates[0] : 'N/A'}</p>
+                          <div className="flex flex-col">
+                            <p className="text-sm text-gray-500">Coordinates</p>
+                            <p className="font-medium">
+                              {sample.latitude}, {sample.longitude}
+                            </p>
+                          </div>
                         )}
                       </div>
                       
@@ -456,7 +461,12 @@ export default function SampleDetailsPage() {
                             className="w-full bg-white rounded px-2 py-1 mt-1"
                           />
                         ) : (
-                          <p className="font-medium">{sample.coordinates ? sample.coordinates[1] : 'N/A'}</p>
+                          <div className="flex flex-col">
+                            <p className="text-sm text-gray-500">Coordinates</p>
+                            <p className="font-medium">
+                              {sample.latitude}, {sample.longitude}
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>

@@ -1,11 +1,46 @@
-import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { isStaticExport } from '@/app/lib/staticData';
 
-// This is a static version of the auth callback route
-export function GET() {
-  // In a static export, we'll handle the auth callback on the client side
-  // This is just a placeholder that will be replaced by client-side code
-  return NextResponse.redirect(new URL('/profile', 'https://sample.exchange'))
+export async function GET(request: Request) {
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get('code');
+  
+  // In static export mode, just redirect to samples
+  if (isStaticExport()) {
+    console.log('Static export mode detected - skipping auth code exchange');
+    return NextResponse.redirect(new URL('/samples', request.url));
+  }
+  
+  if (code) {
+    // Create a supabase client
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const cookieStore = cookies();
+    
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        flowType: 'pkce',
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        persistSession: false
+      }
+    });
+    
+    try {
+      // Exchange the code for a session
+      await supabase.auth.exchangeCodeForSession(code);
+    } catch (error) {
+      console.error('Error exchanging auth code for session:', error);
+      // Still redirect to samples page even on error
+    }
+  }
+
+  // URL to redirect to after sign in process completes
+  return NextResponse.redirect(new URL('/samples', request.url));
 }
 
-// Force static generation
-export const dynamic = 'force-static'
+// Needed for static export to work
+// For dynamic deployments, use a Worker/Function to handle this route
+export const dynamic = 'force-static';

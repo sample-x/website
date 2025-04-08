@@ -22,6 +22,10 @@ interface Sample {
   availability?: string;
   inStock?: boolean;
   created_at?: string;
+  updated_at?: string;
+  latitude?: number;
+  longitude?: number;
+  hash?: string;
 }
 
 export default function CheckoutClient({ id }: { id: string }) {
@@ -51,21 +55,24 @@ export default function CheckoutClient({ id }: { id: string }) {
       if (staticMode) {
         const staticSample = getStaticSampleById(id);
         if (staticSample) {
-          setSample({
+          const formData = {
             id: staticSample.id,
             name: staticSample.name,
             type: staticSample.type,
             price: staticSample.price,
             quantity: staticSample.quantity,
-            description: staticSample.description,
+            description: staticSample.description || '',
             location: staticSample.location,
-            coordinates: staticSample.coordinates ? `${staticSample.coordinates[0]},${staticSample.coordinates[1]}` : undefined,
-            collectionDate: staticSample.collectionDate,
-            storageCondition: staticSample.storageCondition,
-            availability: staticSample.availability,
-            inStock: staticSample.inStock,
-            created_at: staticSample.created_at
-          });
+            latitude: staticSample.latitude,
+            longitude: staticSample.longitude,
+            collection_date: staticSample.collection_date,
+            storage_condition: staticSample.storage_condition,
+            hash: staticSample.hash,
+            created_at: staticSample.created_at,
+            updated_at: staticSample.updated_at,
+            inStock: staticSample.quantity > 0
+          };
+          setSample(formData);
           setLoading(false);
         } else {
           setError('Sample not found in static data');

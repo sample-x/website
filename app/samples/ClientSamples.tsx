@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import SamplesMap from './SamplesMap'
+import SamplesMap from '@/app/samples/SamplesMap'
+import { SamplesMapProps } from '@/app/samples/mapTypes'
 import SamplesTable from './SamplesTable'
 import './samples.css'
 import { isStaticExport } from '@/app/lib/staticData'
@@ -13,6 +14,9 @@ import { useSupabase } from '@/app/supabase-provider'
 import { useCart } from '@/app/context/CartContext'
 import { Database } from '@/types/supabase'
 import { Sample } from '@/types/sample'
+import SampleDetailModal from '@/app/components/SampleDetailModal'
+import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline'
+import SampleTypePieChart from '@/app/components/SampleTypePieChart'
 
 // Filter type definition
 interface FilterState {
@@ -20,6 +24,11 @@ interface FilterState {
   selectedTypes: string[];
   minPrice: number;
   maxPrice: number;
+  locations: string[];
+  dateRange: {
+    start: string | null;
+    end: string | null;
+  };
 }
 
 type SupabaseSample = Database['public']['Tables']['samples']['Row']
@@ -29,19 +38,39 @@ export default function ClientSamples() {
   const { addToCart } = useCart()
   const { user } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [dbSamples, setDBSamples] = useState<SupabaseSample[]>([])
   const [tableSamples, setTableSamples] = useState<Sample[]>([])
+  const [filteredSamples, setFilteredSamples] = useState<Sample[]>([])
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null)
   const [loading, setLoading] = useState(true)
   const [isStatic, setIsStatic] = useState(true)
   const [forceDynamicMode, setForceDynamicMode] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [availableTypes, setAvailableTypes] = useState<string[]>([])
+  const [availableLocations, setAvailableLocations] = useState<string[]>([])
+  
   const [filters, setFilters] = useState<FilterState>({
     searchQuery: '',
     selectedTypes: [],
     minPrice: 0,
-    maxPrice: 1000
+    maxPrice: 1000,
+    locations: [],
+    dateRange: {
+      start: null,
+      end: null
+    }
   })
+
+  // Handle navigation
+  const handleNavigation = (path: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+    }
+    router.push(path)
+  }
 
   // Check if we're in static mode
   useEffect(() => {
@@ -139,14 +168,68 @@ export default function ClientSamples() {
             hash: "sample2",
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
+          },
+          {
+            id: '3',
+            name: "Soil Sample",
+            type: "Environmental",
+            description: "Rich soil sample from Amazon rainforest",
+            location: "Brazil",
+            price: 129.99,
+            latitude: -3.4653,
+            longitude: -62.2159,
+            collection_date: "2023-11-05",
+            storage_condition: "room temperature",
+            quantity: 8,
+            hash: "sample3",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: '4',
+            name: "E. coli Strain K-12",
+            type: "Bacterial",
+            description: "Standard laboratory strain of E. coli",
+            location: "Research Lab",
+            price: 149.99,
+            latitude: 37.7749,
+            longitude: -122.4194,
+            collection_date: "2024-01-10",
+            storage_condition: "frozen",
+            quantity: 15,
+            hash: "sample4",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: '5',
+            name: "Plant Tissue",
+            type: "Plant",
+            description: "Arabidopsis thaliana leaf tissue",
+            location: "Greenhouse",
+            price: 89.99,
+            latitude: 52.5200,
+            longitude: 13.4050,
+            collection_date: "2024-03-01",
+            storage_condition: "frozen",
+            quantity: 7,
+            hash: "sample5",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
         ];
+        const convertedSamples = mockSamples.map(convertToTableSample);
         setDBSamples(mockSamples);
-        setTableSamples(mockSamples.map(convertToTableSample));
+        setTableSamples(convertedSamples);
+        setFilteredSamples(convertedSamples);
+        extractFilterOptions(convertedSamples);
       } else if (data) {
         console.log('Fetched samples:', data);
+        const convertedSamples = data.map(convertToTableSample);
         setDBSamples(data);
-        setTableSamples(data.map(convertToTableSample));
+        setTableSamples(convertedSamples);
+        setFilteredSamples(convertedSamples);
+        extractFilterOptions(convertedSamples);
       }
     } catch (error) {
       console.error('Error in fetchSamples:', error);
@@ -154,6 +237,161 @@ export default function ClientSamples() {
       setLoading(false);
     }
   };
+
+  // Extract available filter options from samples
+  const extractFilterOptions = (samples: Sample[]) => {
+    // Extract unique types
+    const types = [...new Set(samples.map(s => s.type).filter(Boolean))];
+    setAvailableTypes(types as string[]);
+    
+    // Extract unique locations
+    const locations = [...new Set(samples.map(s => s.location).filter(Boolean))];
+    setAvailableLocations(locations as string[]);
+  };
+
+  // Convert Supabase sample to frontend Sample type
+  const convertToTableSample = (dbSample: SupabaseSample): Sample => {
+    return {
+      id: dbSample.id,
+      name: dbSample.name,
+      type: dbSample.type || undefined,
+      description: dbSample.description || undefined,
+      location: dbSample.location || undefined,
+      price: dbSample.price,
+      latitude: dbSample.latitude,
+      longitude: dbSample.longitude,
+      collection_date: dbSample.collection_date || undefined,
+      storage_condition: dbSample.storage_condition || undefined,
+      quantity: dbSample.quantity,
+      hash: dbSample.hash || undefined,
+      created_at: dbSample.created_at || undefined, 
+      updated_at: dbSample.updated_at || undefined,
+      inStock: (dbSample.quantity || 0) > 0,
+      references: [
+        "Smith, J. et al (2023). Novel properties of strain XYZ. Journal of Microbiology, 45(2), 112-118.",
+        "Zhang, L. & Johnson, T. (2022). Comparative analysis of environmental samples. Nature Methods, 18(3), 320-328."
+      ]
+    };
+  };
+
+  // Handle adding to cart
+  const handleAddToCart = async (sample: Sample) => {
+    try {
+      if (!user) {
+        toast.error('Please log in to add items to cart');
+        router.push('/login');
+        return;
+      }
+      
+      // Check if quantity is available
+      if (!sample.quantity || sample.quantity <= 0) {
+        toast.error('This sample is out of stock');
+        return;
+      }
+      
+      // Add to cart
+      await addToCart(sample);
+      toast.success(`${sample.name} added to cart`);
+      
+      // Update the displayed quantity in the table
+      const updatedSamples = tableSamples.map(s => {
+        if (s.id === sample.id) {
+          // Decrease the quantity by 1 (or the selected quantity)
+          return { 
+            ...s, 
+            quantity: Math.max(0, (s.quantity || 0) - 1),
+            inStock: ((s.quantity || 0) - 1) > 0
+          };
+        }
+        return s;
+      });
+      
+      setTableSamples(updatedSamples);
+      
+      // Also update filtered samples to keep them in sync
+      const updatedFilteredSamples = filteredSamples.map(s => {
+        if (s.id === sample.id) {
+          return { 
+            ...s, 
+            quantity: Math.max(0, (s.quantity || 0) - 1),
+            inStock: ((s.quantity || 0) - 1) > 0
+          };
+        }
+        return s;
+      });
+      
+      setFilteredSamples(updatedFilteredSamples);
+      
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart');
+    }
+  };
+
+  // Handle sample selection (from map or table)
+  const handleSampleSelect = (sample: Sample) => {
+    setSelectedSample(sample);
+    setShowDetailModal(true);
+  };
+
+  // Handle view sample details (from table)
+  const handleViewSampleDetails = (sample: Sample) => {
+    setSelectedSample(sample);
+    setShowDetailModal(true);
+  };
+
+  // Apply filters
+  useEffect(() => {
+    if (tableSamples.length > 0) {
+      let result = [...tableSamples];
+      
+      // Apply search query
+      if (filters.searchQuery) {
+        const query = filters.searchQuery.toLowerCase();
+        result = result.filter(sample => 
+          sample.name.toLowerCase().includes(query) || 
+          sample.description?.toLowerCase().includes(query) ||
+          sample.location?.toLowerCase().includes(query) ||
+          sample.type?.toLowerCase().includes(query)
+        );
+      }
+      
+      // Apply type filter
+      if (filters.selectedTypes.length > 0) {
+        result = result.filter(sample => 
+          sample.type && filters.selectedTypes.includes(sample.type)
+        );
+      }
+      
+      // Apply price range filter
+      result = result.filter(sample => 
+        sample.price >= filters.minPrice && 
+        sample.price <= filters.maxPrice
+      );
+      
+      // Apply location filter
+      if (filters.locations.length > 0) {
+        result = result.filter(sample => 
+          sample.location && filters.locations.includes(sample.location)
+        );
+      }
+      
+      // Apply date range filter
+      if (filters.dateRange.start || filters.dateRange.end) {
+        result = result.filter(sample => {
+          if (!sample.collection_date) return false;
+          
+          const sampleDate = new Date(sample.collection_date).getTime();
+          const startOk = !filters.dateRange.start || sampleDate >= new Date(filters.dateRange.start).getTime();
+          const endOk = !filters.dateRange.end || sampleDate <= new Date(filters.dateRange.end).getTime();
+          
+          return startOk && endOk;
+        });
+      }
+      
+      setFilteredSamples(result);
+    }
+  }, [tableSamples, filters]);
 
   // Mock data for samples
   useEffect(() => {
@@ -194,314 +432,362 @@ export default function ClientSamples() {
           hash: "sample2",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
+        },
+        {
+          id: '3',
+          name: "Soil Sample",
+          type: "Environmental",
+          description: "Rich soil sample from Amazon rainforest",
+          location: "Brazil",
+          price: 129.99,
+          latitude: -3.4653,
+          longitude: -62.2159,
+          collection_date: "2023-11-05",
+          storage_condition: "room temperature",
+          quantity: 8,
+          hash: "sample3",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '4',
+          name: "E. coli Strain K-12",
+          type: "Bacterial",
+          description: "Standard laboratory strain of E. coli",
+          location: "Research Lab",
+          price: 149.99,
+          latitude: 37.7749,
+          longitude: -122.4194,
+          collection_date: "2024-01-10",
+          storage_condition: "frozen",
+          quantity: 15,
+          hash: "sample4",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '5',
+          name: "Plant Tissue",
+          type: "Plant",
+          description: "Arabidopsis thaliana leaf tissue",
+          location: "Greenhouse",
+          price: 89.99,
+          latitude: 52.5200,
+          longitude: 13.4050,
+          collection_date: "2024-03-01",
+          storage_condition: "frozen",
+          quantity: 7,
+          hash: "sample5",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }
       ];
 
+      const convertedSamples = mockSamples.map(convertToTableSample);
       setDBSamples(mockSamples);
-      setTableSamples(mockSamples.map(convertToTableSample));
+      setTableSamples(convertedSamples);
+      setFilteredSamples(convertedSamples);
+      extractFilterOptions(convertedSamples);
       setLoading(false);
     }, 1000);
   }, [isStatic]);
 
-  // Convert Supabase samples to table format
-  const convertToDBSample = (sample: SupabaseSample): SupabaseSample => sample
-
-  const convertToTableSample = (sample: SupabaseSample): Sample => {
-    const quantity = typeof sample.quantity === 'number' ? sample.quantity : 0;
-    return {
-      id: sample.id,
-      name: sample.name,
-      type: sample.type,
-      description: sample.description || '',
-      location: sample.location || '',
-      price: sample.price || 0,
-      coordinates: sample.latitude && sample.longitude ? [sample.latitude, sample.longitude] : undefined,
-      collectionDate: sample.collection_date,
-      storageCondition: sample.storage_condition,
-      availability: quantity > 0 ? `${quantity} available` : 'Out of Stock',
-      inStock: quantity > 0,
-      quantity: quantity,
-      created_at: sample.created_at
-    };
-  };
-
-  // Update samples state handler
-  const handleSamplesUpdate = (newSamples: SupabaseSample[]) => {
-    const convertedDBSamples = newSamples.map(convertToDBSample)
-    setDBSamples(convertedDBSamples)
-    setTableSamples(convertedDBSamples.map(convertToTableSample))
-  }
-
-  // Apply filters to samples
-  const applyFilters = () => {
-    const filtered = dbSamples.map(convertToTableSample).filter(sample => {
-      // Search filter
-      const searchMatch = 
-        sample.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-        sample.description.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-        sample.type.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-        (sample.location?.toLowerCase() || '').includes(filters.searchQuery.toLowerCase())
-      
-      // Type filter
-      const typeMatch = filters.selectedTypes.length === 0 || filters.selectedTypes.includes(sample.type.toLowerCase())
-      
-      // Price filter
-      const priceMatch = (!sample.price || (sample.price >= filters.minPrice && sample.price <= filters.maxPrice))
-      
-      return searchMatch && typeMatch && priceMatch
-    })
-    
-    setTableSamples(filtered)
-  }
-
-  // Handle filter changes
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    
-    setFilters(prev => ({
-      ...prev,
-      [name]: name === 'minPrice' || name === 'maxPrice' ? Number(value) : value
-    }))
-  }
-
-  // Handle sample selection
-  const handleSampleSelect = (sample: Sample) => {
-    setSelectedSample(sample);
-  }
-
-  // Handle add to cart
-  const handleAddToCart = (sample: Sample) => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    const dbSample = dbSamples.find(s => s.id.toString() === sample.id);
-    if (dbSample && dbSample.quantity > 0) {
-      // Convert to table sample format before adding to cart
-      const cartSample = convertToTableSample(dbSample);
-      addToCart(cartSample);
-    }
-  }
-
-  // Apply filters when they change
-  useEffect(() => {
-    // Apply filters whenever samples or filter values change
-    applyFilters();
-  }, [tableSamples, filters, applyFilters]);
-
-  // Get unique sample types for filter dropdown
-  const sampleTypes = Array.from(new Set(dbSamples.map(sample => sample.type)))
-
   return (
-    <main>
-      <section className="samples-page">
-        <div className="samples-hero">
-          <h1>Browse Samples</h1>
-          <p>
-            Discover and browse scientific samples from researchers around the world.
-            Find the perfect samples for your research needs.
+    <main className="container mx-auto px-4 py-8">
+      {/* Samples data notification banner */}
+      {!isStatic && (
+        <div className="bg-green-50 border border-green-200 text-green-800 rounded-md p-4 mb-6">
+          <p className="flex items-center">
+            <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            Running in live mode with real Supabase connection. Sample data is being loaded from your database.
           </p>
-          
-          <div className="action-buttons" style={{
-            display: 'flex',
-            gap: '12px',
-            marginTop: '16px',
-            justifyContent: 'center'
-          }}>
-            <Link 
-              href={user ? "/samples/upload" : "/login?redirect=/samples/upload"} 
-              className="btn btn-primary" 
-              onClick={handleUploadClick}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 20px',
-                backgroundColor: '#f97316',
-                color: 'white',
-                borderRadius: '4px',
-                fontWeight: 'bold',
-                textDecoration: 'none',
-                transition: 'background-color 0.2s'
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
-              </svg>
-              Upload Samples
-            </Link>
-            
-            <button 
+        </div>
+      )}
+
+      <div className="bg-white rounded-lg shadow-lg p-4 mb-8">
+        <h2 className="text-2xl mb-4">Browse Samples</h2>
+        <p className="text-gray-600 mb-6">
+          Discover and browse scientific samples from researchers around the world. Find the perfect samples for your research needs.
+        </p>
+        
+        <div className="flex flex-wrap gap-4 mb-6">
+          <Link href="/samples/upload" 
+            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md inline-flex items-center"
+            onClick={handleUploadClick}
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
+            </svg>
+            Upload Samples
+          </Link>
+
+          {process.env.NODE_ENV === 'development' && (
+            <button
               onClick={toggleDynamicMode}
-              className="btn btn-secondary"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 20px',
-                backgroundColor: forceDynamicMode ? '#047857' : '#6b7280',
-                color: 'white',
-                borderRadius: '6px',
-                border: 'none',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md inline-flex items-center"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              {forceDynamicMode ? 'Using Live Mode' : 'Switch to Live Mode'}
+              Switch to {forceDynamicMode ? 'Static' : 'Live'} Mode
+            </button>
+          )}
+        </div>
+
+        {/* Search and filter section */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="relative flex-grow">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search by name, type, location..."
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={filters.searchQuery}
+                onChange={(e) => setFilters({ ...filters, searchQuery: e.target.value })}
+              />
+            </div>
+            <button
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <AdjustmentsHorizontalIcon className="h-5 w-5 mr-2 text-gray-500" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
           </div>
+
+          {/* Advanced filters */}
+          {showFilters && (
+            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Advanced Filters</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Type filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sample Type</label>
+                  <select
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                    value={filters.selectedTypes[0] || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFilters({
+                        ...filters,
+                        selectedTypes: value ? [value] : []
+                      });
+                    }}
+                  >
+                    <option value="">All Types</option>
+                    {availableTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Price range filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
+                  <div className="flex items-center space-x-2">
+                    <div className="relative mt-1 rounded-md shadow-sm flex-1">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">$</span>
+                      </div>
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        className="block w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        value={filters.minPrice}
+                        onChange={(e) => setFilters({ ...filters, minPrice: parseInt(e.target.value) || 0 })}
+                        min="0"
+                      />
+                    </div>
+                    <span className="text-gray-500">to</span>
+                    <div className="relative mt-1 rounded-md shadow-sm flex-1">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">$</span>
+                      </div>
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        className="block w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        value={filters.maxPrice}
+                        onChange={(e) => setFilters({ ...filters, maxPrice: parseInt(e.target.value) || 1000 })}
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <select
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                    value={filters.locations[0] || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFilters({
+                        ...filters,
+                        locations: value ? [value] : []
+                      });
+                    }}
+                  >
+                    <option value="">All Locations</option>
+                    {availableLocations.map(location => (
+                      <option key={location} value={location}>{location}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Date range filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Collection Date (Start)</label>
+                  <input
+                    type="date"
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                    value={filters.dateRange.start || ''}
+                    onChange={(e) => setFilters({
+                      ...filters,
+                      dateRange: {
+                        ...filters.dateRange,
+                        start: e.target.value || null
+                      }
+                    })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Collection Date (End)</label>
+                  <input
+                    type="date"
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                    value={filters.dateRange.end || ''}
+                    onChange={(e) => setFilters({
+                      ...filters,
+                      dateRange: {
+                        ...filters.dateRange,
+                        end: e.target.value || null
+                      }
+                    })}
+                  />
+                </div>
+
+                {/* Reset filters button */}
+                <div className="flex items-end">
+                  <button
+                    onClick={() => setFilters({
+                      searchQuery: '',
+                      selectedTypes: [],
+                      minPrice: 0,
+                      maxPrice: 1000,
+                      locations: [],
+                      dateRange: {
+                        start: null,
+                        end: null
+                      }
+                    })}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Reset Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        
-        {/* Mode indicator */}
-        {isStatic ? (
-          <div className="static-mode-indicator" style={{
-            background: '#eff6ff',
-            border: '1px solid #bfdbfe',
-            borderRadius: '6px',
-            padding: '12px 16px',
-            marginBottom: '20px',
-            color: '#1e40af',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-            </svg>
-            <span>
-              Running in demo mode with static sample data. Click "Switch to Live Mode" to use real Supabase connections.
-            </span>
+
+        {loading ? (
+          <div className="my-12 text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 mb-4"></div>
+            <p className="text-xl">Loading samples...</p>
+          </div>
+        ) : filteredSamples.length === 0 ? (
+          <div className="my-12 text-center">
+            <p className="text-xl">No samples found matching your criteria.</p>
+            <button
+              onClick={() => setFilters({
+                searchQuery: '',
+                selectedTypes: [],
+                minPrice: 0,
+                maxPrice: 1000,
+                locations: [],
+                dateRange: {
+                  start: null,
+                  end: null
+                }
+              })}
+              className="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Clear Filters
+            </button>
           </div>
         ) : (
-          <div className="live-mode-indicator" style={{
-            background: '#ecfdf5',
-            border: '1px solid #a7f3d0',
-            borderRadius: '6px',
-            padding: '12px 16px',
-            marginBottom: '20px',
-            color: '#065f46',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-            </svg>
-            <span>
-              Running in live mode with real Supabase connection. Sample data is being loaded from your database.
-            </span>
-          </div>
-        )}
-        
-        <div className="samples-container">
-          <div className="samples-content">
-            <div className="container">
-              {loading ? (
-                <div className="loading-container">
-                  <div className="loading-spinner"></div>
-                  <p>Loading samples...</p>
-                </div>
-              ) : (
-                <>
-                  {/* Filter controls */}
-                  <div className="filter-controls">
-                    <div className="search-box">
-                      <input
-                        type="text"
-                        name="searchQuery"
-                        placeholder="Search samples..."
-                        value={filters.searchQuery}
-                        onChange={handleFilterChange}
-                      />
-                    </div>
-                    
-                    <div className="category-filter">
-                      <select
-                        name="selectedTypes"
-                        value={filters.selectedTypes.join(',')}
-                        onChange={handleFilterChange}
-                      >
-                        <option value="">All Types</option>
-                        {sampleTypes.map(type => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div className="price-filter">
-                      <span>Price Range: </span>
-                      <input
-                        type="number"
-                        name="minPrice"
-                        placeholder="Min"
-                        min="0"
-                        value={filters.minPrice}
-                        onChange={handleFilterChange}
-                      />
-                      <span> to </span>
-                      <input
-                        type="number"
-                        name="maxPrice"
-                        placeholder="Max"
-                        min="0"
-                        value={filters.maxPrice}
-                        onChange={handleFilterChange}
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Results count */}
-                  <div className="results-count">
-                    <p>Showing {tableSamples.length} of {dbSamples.length} samples</p>
-                  </div>
-                  
-                  {/* Samples table */}
-                  <div className="samples-table-container">
-                    <SamplesTable
-                      samples={tableSamples}
-                      onSampleSelect={handleSampleSelect}
-                      onAddToCart={handleAddToCart}
-                      isAuthenticated={!!user}
-                    />
-                  </div>
-                  
-                  {/* Map */}
-                  <div className="map-container">
-                    <h2>Sample Locations</h2>
-                    <SamplesMap
-                      samples={tableSamples}
-                      onSampleSelect={handleSampleSelect}
-                      onAddToCart={handleAddToCart}
-                      selectedSample={selectedSample}
-                    />
-                  </div>
-                  
-                  {/* Selected sample details */}
-                  {selectedSample && (
-                    <div className="sample-details">
-                      <div className="sample-details-content">
-                        <h3>{selectedSample.name}</h3>
-                        <p><strong>Type:</strong> {selectedSample.type}</p>
-                        <p><strong>Description:</strong> {selectedSample.description || 'N/A'}</p>
-                        <p><strong>Location:</strong> {selectedSample.location}</p>
-                        <p><strong>Price:</strong> ${selectedSample.price}</p>
-                        <p><strong>Collection Date:</strong> {selectedSample.collectionDate || 'N/A'}</p>
-                        <p><strong>Storage Condition:</strong> {selectedSample.storageCondition || 'N/A'}</p>
-                        <p><strong>Availability:</strong> {selectedSample.availability}</p>
-                        <button onClick={() => setSelectedSample(null)}>Close</button>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
+          <>
+            <div className="mb-8">
+              <h3 className="text-xl mb-4">Sample Locations</h3>
+              <div className="h-[400px] w-full">
+                <SamplesMap
+                  samples={filteredSamples}
+                  onSampleSelect={handleSampleSelect}
+                  selectedSample={selectedSample}
+                />
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
+
+            <div className="mb-8">
+              <h3 className="text-xl mb-4">Available Samples ({filteredSamples.length})</h3>
+              <div className="overflow-x-auto">
+                <SamplesTable 
+                  samples={filteredSamples}
+                  onSampleSelect={handleSampleSelect}
+                  onAddToCart={handleAddToCart}
+                  onViewDetails={handleViewSampleDetails}
+                  loading={loading}
+                  isAuthenticated={!!user}
+                />
+              </div>
+            </div>
+            
+            {/* Platform Statistics Section */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-semibold mb-6">Platform Statistics</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm text-blue-600 font-medium">Total Samples</p>
+                  <p className="text-3xl font-bold">{tableSamples.length}</p>
+                  <p className="text-xs text-gray-500 mt-1">Updated daily</p>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <p className="text-sm text-green-600 font-medium">Active Users</p>
+                  <p className="text-3xl font-bold">347</p>
+                  <p className="text-xs text-gray-500 mt-1">+8% from last month</p>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <p className="text-sm text-purple-600 font-medium">Types</p>
+                  <p className="text-3xl font-bold">{availableTypes.length}</p>
+                  <p className="text-xs text-gray-500 mt-1">Diverse sample collection</p>
+                </div>
+              </div>
+              
+              {/* Sample Type Distribution Chart */}
+              <div className="mb-10">
+                <SampleTypePieChart samples={tableSamples} />
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Sample Detail Modal */}
+      <SampleDetailModal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        sample={selectedSample}
+        onAddToCart={handleAddToCart}
+      />
     </main>
-  )
+  );
 }
+

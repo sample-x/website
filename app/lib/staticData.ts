@@ -5,88 +5,106 @@ import { Sample } from '@/types/sample';
 
 export const staticSamples: Sample[] = [
   {
-    id: 1,
-    name: 'Arctic Ice Core Sample',
-    type: 'ice core',
-    location: 'Greenland',
-    collection_date: '2023-01-15',
-    storage_condition: 'Ultra-Low (-80°C)',
-    quantity: 5,
-    price: 599.99,
-    description: 'Ice core sample extracted from the Arctic ice sheet, perfect for climate research and analysis of historical atmospheric conditions.',
+    id: '1',
+    name: 'Arctic Ice Core',
+    type: 'environmental',
+    description: 'Deep ice core sample from Greenland ice sheet, containing valuable climate data.',
+    price: 1499.99,
     latitude: 72.5863,
-    longitude: -38.4554,
-    created_at: '2023-01-20T08:30:00Z'
+    longitude: -38.4557,
+    collection_date: '2023-08-15',
+    storage_condition: 'frozen',
+    quantity: 3,
+    hash: 'abc123',
+    created_at: '2023-08-15T12:00:00Z',
+    updated_at: '2023-08-15T12:00:00Z',
+    inStock: true,
+    location: 'Greenland Ice Sheet'
   },
   {
-    id: 2,
-    name: 'Deep Sea Sediment',
-    type: 'soil sample',
-    location: 'Mariana Trench',
-    collection_date: '2023-03-10',
-    storage_condition: 'Refrigerated (2-8°C)',
-    quantity: 8,
-    price: 349.99,
-    description: 'Deep sea sediment collected from the Mariana Trench at a depth of approximately 10,000 meters. Rich in unique microbial life.',
-    latitude: 11.3548,
-    longitude: 142.1995,
-    created_at: '2023-03-15T14:20:00Z'
+    id: '2',
+    name: 'Marine Bacterial Culture',
+    type: 'bacterial',
+    description: 'Unique bacterial strain isolated from deep-sea hydrothermal vents.',
+    price: 899.99,
+    latitude: -0.8667,
+    longitude: -13.2833,
+    collection_date: '2023-07-20',
+    storage_condition: 'refrigerated',
+    quantity: 5,
+    hash: 'def456',
+    created_at: '2023-07-20T12:00:00Z',
+    updated_at: '2023-07-20T12:00:00Z',
+    inStock: true,
+    location: 'Mid-Atlantic Ridge'
   },
   {
-    id: 3,
-    name: 'Yellowstone Thermal Vent Bacteria',
-    type: 'bacterial culture',
-    location: 'Yellowstone National Park, USA',
-    collection_date: '2023-02-05',
-    storage_condition: 'Frozen (-20°C)',
-    quantity: 12,
-    price: 249.99,
-    description: 'Thermophilic bacterial culture collected from hot springs in Yellowstone National Park. Includes extremophiles that thrive in temperatures above 70°C.',
-    latitude: 44.4280,
-    longitude: -110.5885,
-    created_at: '2023-02-10T10:15:00Z'
+    id: '3',
+    name: 'Cell Line A549',
+    type: 'cell line',
+    description: 'Human lung carcinoma cell line for cancer research.',
+    price: 1299.99,
+    latitude: 40.7128,
+    longitude: -74.0060,
+    collection_date: '2023-09-01',
+    storage_condition: 'cryogenic',
+    quantity: 0,
+    hash: 'ghi789',
+    created_at: '2023-09-01T12:00:00Z',
+    updated_at: '2023-09-01T12:00:00Z',
+    inStock: false,
+    location: 'New York Research Center'
   },
   {
-    id: 4,
-    name: 'Amazon Rainforest Soil',
-    type: 'soil sample',
-    location: 'Amazon Rainforest, Brazil',
-    collection_date: '2023-04-20',
-    storage_condition: 'Room Temperature',
-    quantity: 15,
-    price: 199.99,
-    description: 'Rich soil sample from the Amazon rainforest floor, containing diverse microorganisms and organic matter essential for biodiversity studies.',
+    id: '4',
+    name: 'Tropical Soil Sample',
+    type: 'soil',
+    description: 'Rich soil sample from Amazon rainforest with unique microbial composition.',
+    price: 799.99,
     latitude: -3.4653,
     longitude: -62.2159,
-    created_at: '2023-04-25T09:45:00Z'
+    collection_date: '2023-11-01',
+    storage_condition: 'room temperature',
+    quantity: 8,
+    hash: 'jkl012',
+    created_at: '2023-11-01T12:00:00Z',
+    updated_at: '2023-11-01T12:00:00Z',
+    inStock: true,
+    location: 'Amazon Rainforest'
   },
   {
-    id: 5,
-    name: 'Human Lung Epithelial Cells',
-    type: 'cell line',
-    location: 'Boston, USA',
-    collection_date: '2023-01-30',
-    storage_condition: 'Liquid Nitrogen (-196°C)',
-    quantity: 7,
-    price: 799.99,
-    description: 'Primary human lung epithelial cell line suitable for respiratory disease research and drug testing applications.',
-    latitude: 42.3601,
-    longitude: -71.0589,
-    created_at: '2023-02-05T11:30:00Z'
+    id: '5',
+    name: 'Volcanic Rock Sample',
+    type: 'geological',
+    description: 'Fresh volcanic rock sample from recent eruption.',
+    price: 599.99,
+    latitude: 19.4069,
+    longitude: -155.2834,
+    collection_date: '2023-12-15',
+    storage_condition: 'room temperature',
+    quantity: 6,
+    hash: 'mno345',
+    created_at: '2023-12-15T12:00:00Z',
+    updated_at: '2023-12-15T12:00:00Z',
+    inStock: true,
+    location: 'Kilauea Volcano, Hawaii'
   },
   {
-    id: 6,
-    name: 'Sahara Desert Sand',
-    type: 'mineral sample',
-    location: 'Sahara Desert, Morocco',
-    collection_date: '2023-05-15',
-    storage_condition: 'Room Temperature',
-    quantity: 20,
-    price: 149.99,
-    description: 'Fine sand sample from the Sahara Desert with unique mineral composition and microbial communities adapted to extreme dryness.',
-    latitude: 31.7917,
-    longitude: -7.0926,
-    created_at: '2023-05-20T16:10:00Z'
+    id: '6',
+    name: 'Plant Tissue Culture',
+    type: 'botanical',
+    description: 'Rare orchid tissue culture for conservation research.',
+    price: 699.99,
+    latitude: -0.9537,
+    longitude: -90.9656,
+    collection_date: '2024-01-10',
+    storage_condition: 'refrigerated',
+    quantity: 4,
+    hash: 'pqr678',
+    created_at: '2024-01-10T12:00:00Z',
+    updated_at: '2024-01-10T12:00:00Z',
+    inStock: true,
+    location: 'Galapagos Islands'
   }
 ];
 
@@ -96,27 +114,47 @@ export function getStaticSamples(): Sample[] {
 }
 
 // Function to get a sample by ID
-export function getStaticSampleById(id: number): Sample | undefined {
+export function getStaticSampleById(id: string): Sample | undefined {
   return staticSamples.find(sample => sample.id === id);
 }
 
 // Function to check if we're in static export mode
 export function isStaticExport(): boolean {
-  // Always return false to force dynamic mode
-  return false;
+  // For Cloudflare Pages deployments, we need to detect static mode
   
-  // The original logic below is commented out
-  /*
+  // Check if we're in a browser environment (client-side)
+  if (typeof window !== 'undefined') {
+    // If we're running in the browser and window.__STATIC_MODE__ is defined,
+    // we're in static mode
+    if ((window as any).__STATIC_MODE__) {
+      return true;
+    }
+    
+    // Another way to detect Cloudflare Pages static deployment
+    const hostname = window.location.hostname;
+    if (hostname.includes('.pages.dev') || hostname.includes('samplex.org')) {
+      // Running on Cloudflare Pages domain - likely static
+      return true;
+    }
+  }
+  
   // Check if we have Supabase environment variables
-  const hasSupabaseUrl = typeof process.env.NEXT_PUBLIC_SUPABASE_URL !== 'undefined';
-  const hasSupabaseKey = typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'undefined';
+  // This works during build time and server-side
+  const hasSupabaseUrl = typeof process.env.NEXT_PUBLIC_SUPABASE_URL === 'string' && 
+                         process.env.NEXT_PUBLIC_SUPABASE_URL.length > 10;
+  const hasSupabaseKey = typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'string' && 
+                         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 10;
   
-  // If we have both Supabase environment variables, we're not in static mode
+  // During build, if we set STATIC_EXPORT=1, always use static mode
+  if (process.env.STATIC_EXPORT === '1') {
+    return true;
+  }
+  
+  // If we have both valid Supabase environment variables, we're not in static mode
   if (hasSupabaseUrl && hasSupabaseKey) {
     return false;
   }
 
-  // Otherwise, default to static mode (shouldn't happen if Supabase keys are always provided)
+  // Otherwise, default to static mode
   return true;
-  */
 } 

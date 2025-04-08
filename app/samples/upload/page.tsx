@@ -6,6 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload, faCheck, faTimes, faTable, faEye, faBan, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import './upload.css';
 import { isStaticExport } from '@/app/lib/staticData';
+import { useAuth } from '@/app/auth/AuthProvider';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 interface SampleData {
   name: string;
@@ -47,7 +50,7 @@ function simpleHash(str: string): string {
   return Math.abs(hash).toString(16).padStart(8, '0');
 }
 
-// Function to generate a hash for a sample
+// Function to generate a hash for a sample - now only used for local processing
 function generateSampleHash(sample: Partial<SampleData>): string {
   // Create a string of all relevant fields that define uniqueness
   const uniqueFields = [
@@ -64,6 +67,8 @@ function generateSampleHash(sample: Partial<SampleData>): string {
 
 export default function UploadPage() {
   const { supabase } = useSupabase();
+  const { user } = useAuth();
+  const router = useRouter();
   const [isStatic, setIsStatic] = useState(false);
   const [forceDynamicMode, setForceDynamicMode] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState>({
@@ -73,6 +78,14 @@ export default function UploadPage() {
     errors: [],
     showPreview: false
   });
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      toast.info('Please log in to upload samples');
+      router.push('/login?redirect=/samples/upload');
+    }
+  }, [user, router]);
 
   useEffect(() => {
     // Check if we're in static mode
@@ -175,6 +188,84 @@ export default function UploadPage() {
     return null;
   };
 
+  // Process and validate samples from CSV
+  const processSamples = (headers: string[], rows: string[][]): { samples: SampleData[], errors: ValidationError[] } => {
+    const samples: SampleData[] = [];
+    const errors: ValidationError[] = [];
+    
+    // Process each row
+    rows.forEach((values, rowIndex) => {
+      // Map headers to values
+      const sample: Partial<SampleData> = {};
+      headers.forEach((header, index) => {
+        if (index < values.length) {
+          const value = values[index].trim();
+          
+          switch (header) {
+            case 'price':
+            case 'quantity':
+            case 'latitude':
+            case 'longitude':
+              // Parse numeric fields
+              sample[header] = value ? parseFloat(value) : undefined;
+              break;
+            default:
+              // Store as string
+              sample[header] = value || undefined;
+          }
+        }
+      });
+      
+      // Validate required fields
+      const requiredFields = [
+        'name', 'type', 'location', 'collection_date', 
+        'storage_condition', 'quantity', 'price'
+      ];
+      
+      const missingFields = requiredFields.filter(field => 
+        !sample[field] && sample[field] !== 0
+      );
+      
+      if (missingFields.length > 0) {
+        errors.push({
+          row: String(rowIndex + 1),
+          field: missingFields.join(', '),
+          message: `Missing required fields: ${missingFields.join(', ')}`
+        });
+        return; // Skip this sample
+      }
+      
+      // Validate each field
+      for (const field in sample) {
+        const validationError = validateField(sample[field], field, String(rowIndex + 1));
+        if (validationError) {
+          errors.push(validationError);
+        }
+      }
+      
+      // If there are no errors for this row, add it to samples
+      if (!errors.some(e => e.row === String(rowIndex + 1))) {
+        // Create a complete sample object with all fields
+        const completeSample = {
+          name: sample.name || '',
+          type: sample.type || '',
+          location: sample.location || '',
+          collection_date: sample.collection_date || '',
+          storage_condition: sample.storage_condition || '',
+          quantity: sample.quantity || 0,
+          price: sample.price || 0,
+          description: sample.description,
+          latitude: sample.latitude,
+          longitude: sample.longitude
+        } as SampleData;
+        
+        samples.push(completeSample);
+      }
+    });
+    
+    return { samples, errors };
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -230,156 +321,65 @@ export default function UploadPage() {
           return;
         }
 
-        // Parse and validate data
-        const data: SampleData[] = [];
-        const errors: ValidationError[] = [];
+        // Parse data rows
+        const rows = lines.slice(1).map(line => {
+          return line.split(',').map(value => value.trim());
+        });
         
-        // Process each row
-        for (let i = 1; i < lines.length; i++) {
-          const line = lines[i];
-          const values = line.split(',').map(value => value.trim());
-          
-          console.log(`Processing row ${i}:`, values);
-          
-          // Check if we have the correct number of values
-          if (values.length !== headers.length) {
-            console.log(`Row ${i} has incorrect number of values. Expected ${headers.length}, got ${values.length}`);
-            errors.push({
-              row: String(i),
-              field: 'format',
-              message: `Row has ${values.length} values but should have ${headers.length}`
-            });
-            continue;
-          }
-
-          // Create row object with default values
-          const row: SampleData = {
-            name: '',
-            type: '',
-            location: '',
-            collection_date: '',
-            storage_condition: '',
-            quantity: 0,
-            price: 0
-          };
-
-          // Process each field
-          headers.forEach((header, j) => {
-            const value = values[j];
-            
-            if (header === 'quantity') {
-              const parsedQuantity = parseInt(value);
-              if (isNaN(parsedQuantity) || parsedQuantity < 1) {
-                console.log(`Invalid quantity in row ${i}:`, value);
-                errors.push({
-                  row: String(i),
-                  field: header,
-                  message: 'Quantity must be a positive integer'
-                });
-                row[header] = 0;
-              } else {
-                row[header] = parsedQuantity;
-              }
-            } else if (header === 'price') {
-              const parsedPrice = parseFloat(value);
-              if (isNaN(parsedPrice) || parsedPrice < 0) {
-                console.log(`Invalid price in row ${i}:`, value);
-                errors.push({
-                  row: String(i),
-                  field: header,
-                  message: 'Price must be a positive number'
-                });
-                row[header] = 0;
-              } else {
-                row[header] = parsedPrice;
-              }
-            } else {
-              row[header as keyof SampleData] = value;
-            }
-
-            // Validate required fields
-            if (requiredFields.includes(header) && !value) {
-              errors.push({
-                row: String(i),
-                field: header,
-                message: 'Required field cannot be empty'
-              });
-            }
-
-            // Validate field format
-            const fieldError = validateField(value, header, String(i));
-            if (fieldError) {
-              errors.push(fieldError);
-            }
-          });
-
-          // Generate hash for duplicate detection
-          try {
-            const hashInput = [
-              row.name,
-              row.type,
-              row.location,
-              row.collection_date,
-              row.storage_condition
-            ].filter(Boolean).join(':');
-            
-            row.hash = simpleHash(hashInput);
-            data.push(row);
-          } catch (hashError) {
-            console.error('Error generating hash for row:', hashError);
-            errors.push({
-              row: String(i),
-              field: 'hash',
-              message: 'Error generating sample hash'
-            });
-          }
-        }
-
-        console.log('Processed data:', data);
-        console.log('Validation errors:', errors);
-
+        console.log(`Parsed ${rows.length} data rows`);
+        
+        // Process and validate the samples
+        const { samples, errors } = processSamples(headers, rows);
+        
+        console.log(`Processed into ${samples.length} valid samples with ${errors.length} errors`);
+        
         if (errors.length > 0) {
           setUploadState({
             status: 'error',
-            message: 'Validation errors found. Please check the error list below.',
-            data,
-            errors,
+            message: `Found ${errors.length} validation errors.`,
+            data: samples,
+            errors: errors,
             showPreview: true
           });
-          return;
+        } else if (samples.length === 0) {
+          setUploadState({
+            status: 'error',
+            message: 'No valid samples found in the file.',
+            data: null,
+            errors: [],
+            showPreview: false
+          });
+        } else {
+          setUploadState({
+            status: 'validating',
+            message: `Found ${samples.length} valid samples.`,
+            data: samples,
+            errors: [],
+            showPreview: true
+          });
         }
-
-        setUploadState({
-          status: 'validating',
-          message: 'Data validated successfully. Ready to upload.',
-          data,
-          errors: [],
-          showPreview: true
-        });
       } catch (error) {
-        console.error('Detailed CSV parsing error:', error);
-        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        console.error('CSV validation error:', error);
         setUploadState({
           status: 'error',
-          message: `Error parsing CSV file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          message: `Error parsing CSV: ${error instanceof Error ? error.message : String(error)}`,
           data: null,
           errors: [],
           showPreview: false
         });
       }
     };
-
-    reader.onerror = (error) => {
-      console.error('File reading error:', error);
+    
+    reader.onerror = () => {
       setUploadState({
         status: 'error',
-        message: 'Error reading the file. Please try again.',
+        message: 'Error reading the file.',
         data: null,
         errors: [],
         showPreview: false
       });
     };
-
+    
     reader.readAsText(file);
   };
 
@@ -415,72 +415,55 @@ export default function UploadPage() {
   };
 
   const handleUpload = async () => {
-    // In static mode, just show a simulated success message
-    if (isStatic) {
-      setUploadState(prevState => ({
-        ...prevState,
-        status: 'success',
-        message: 'Simulated upload successful in demo mode. Note: In a real deployment, data would be saved to Supabase.'
-      }));
-      return;
-    }
-
-    if (!uploadState.data || uploadState.data.length === 0) {
-      setUploadState(prevState => ({
-        ...prevState,
-        status: 'error',
-        message: 'No valid data to upload'
-      }));
-      return;
-    }
-
+    if (!uploadState.data || isStatic) return;
+    
     try {
-      setUploadState(prevState => ({
-        ...prevState,
+      setUploadState({
+        ...uploadState,
         status: 'uploading',
-        message: 'Uploading samples to database...'
-      }));
+        message: 'Uploading samples...'
+      });
+      
+      console.log(`Uploading ${uploadState.data.length} samples to Supabase...`);
+      
+      // Process each sample to remove hash field and add user_id
+      const processedData = uploadState.data.map(sample => {
+        // Create a new object without the hash field
+        const { hash, ...cleanSample } = sample;
+        
+        // Add user ID for ownership
+        return {
+          ...cleanSample,
+          user_id: user?.id
+        };
+      });
 
-      // Process in batches to avoid timeout issues
-      const batchSize = 50;
-      const data = uploadState.data;
+      // Log the first sample to debug
+      console.log('Sample structure:', processedData.length > 0 ? processedData[0] : 'No samples');
       
-      console.log(`Starting upload of ${data.length} samples in batches of ${batchSize}`);
+      const { data, error } = await supabase
+        .from('samples')
+        .insert(processedData);
       
-      for (let i = 0; i < data.length; i += batchSize) {
-        const batch = data.slice(i, Math.min(i + batchSize, data.length));
-        console.log(`Processing batch ${Math.floor(i/batchSize) + 1}: ${batch.length} samples`);
-        
-        // Remove the hash field from each sample before sending to Supabase
-        const cleanBatch = batch.map(sample => {
-          // Create a new object without the hash field
-          const { hash, ...cleanSample } = sample;
-          return cleanSample;
-        });
-        
-        const { error } = await supabase
-          .from('samples')
-          .insert(cleanBatch);
-          
-        if (error) {
-          console.error(`Error uploading batch ${Math.floor(i/batchSize) + 1}:`, error);
-          throw error;
-        }
+      if (error) {
+        console.error('Error uploading samples:', error);
+        throw error;
       }
       
-      setUploadState(prevState => ({
-        ...prevState,
-        status: 'success',
-        message: `Successfully uploaded ${data.length} samples`
-      }));
+      console.log('Upload successful:', data);
       
+      setUploadState({
+        ...uploadState,
+        status: 'success',
+        message: `Successfully uploaded ${uploadState.data.length} samples.`
+      });
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadState(prevState => ({
-        ...prevState,
+      setUploadState({
+        ...uploadState,
         status: 'error',
-        message: error instanceof Error ? error.message : 'Error uploading samples'
-      }));
+        message: `Error uploading samples: ${(error as Error).message}`
+      });
     }
   };
 

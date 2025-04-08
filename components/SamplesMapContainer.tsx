@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { Sample } from '@/types/sample';
 import dynamic from 'next/dynamic';
 import { useSupabase } from '@/app/supabase-provider';
+import type { SampleMapProps } from './SampleMap';
 
 // Dynamically import the SampleMap component with no SSR
-const SampleMap = dynamic(() => import('./SampleMap'), {
+const SampleMap = dynamic<SampleMapProps>(() => import('./SampleMap').then(mod => mod.SampleMap), {
   ssr: false,
   loading: () => (
     <div className="map-placeholder" style={{
@@ -48,22 +49,27 @@ export default function SamplesMapContainer({
   const [visibleSampleIds, setVisibleSampleIds] = useState<string[]>([]);
   const [activeTypeFilter, setActiveTypeFilter] = useState<string | null>(null);
 
-  // Add a global style for the spinner animation
   useEffect(() => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-    
-    setMounted(true);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
+    // Ensure this runs only on the client
+    if (typeof window !== 'undefined') {
+      const style = document.createElement('style');
+      style.innerHTML = `
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+
+      setMounted(true);
+
+      return () => {
+        // Check if style element exists before removing
+        if (style && document.head.contains(style)) {
+          document.head.removeChild(style);
+        }
+      };
+    }
   }, []);
 
   // Handle type filter change

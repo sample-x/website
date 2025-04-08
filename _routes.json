@@ -5,7 +5,10 @@
   ],
   "exclude": [
     "/build/*",
-    "/node_modules/*"
+    "/assets/*",
+    "/_next/*",
+    "/api/*",
+    "/favicon.ico"
   ],
   "headers": [
     {
@@ -44,8 +47,12 @@
   ],
   "routes": [
     {
-      "src": "^/samples/([^/]+)/?$",
-      "dest": "/samples/[id].html"
+      "src": "/samples/([^/]+)/?$",
+      "dest": "/samples/[id]/index.html"
+    },
+    {
+      "src": "/samples/edit/([^/]+)/?$",
+      "dest": "/samples/edit/[id]/index.html"
     },
     {
       "src": "^/checkout/([^/]+)/?$",

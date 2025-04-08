@@ -19,17 +19,20 @@ export async function loader() {
     id: Number(sample.id),
     name: sample.name,
     type: sample.type,
-    location: sample.location,
-    collection_date: sample.collection_date,
+    location: sample.location || null,
+    collection_date: sample.collection_date || null,
     storage: sample.storage,
-    availability: sample.availability,
+    storage_condition: sample.storage_condition || null,
+    quantity: sample.quantity || 0,
     price: sample.price ? Number(sample.price) : 0,
-    latitude: Number(sample.latitude),
-    longitude: Number(sample.longitude),
-    description: sample.description || '',
-    inStock: sample.in_stock || false,
+    latitude: sample.latitude ? Number(sample.latitude) : null,
+    longitude: sample.longitude ? Number(sample.longitude) : null,
+    description: sample.description || null,
+    inStock: sample.quantity > 0,
     user_id: sample.user_id || '',
-    created_at: sample.created_at || new Date().toISOString()
+    created_at: sample.created_at || new Date().toISOString(),
+    updated_at: sample.updated_at || null,
+    hash: sample.hash || null
   }));
 
   return json({ samples: transformedSamples });
@@ -56,17 +59,20 @@ export default function Samples() {
         id: Number(sample.id),
         name: sample.name,
         type: sample.type,
-        location: sample.location,
-        collection_date: sample.collection_date,
+        location: sample.location || null,
+        collection_date: sample.collection_date || null,
         storage: sample.storage,
-        availability: sample.availability,
+        storage_condition: sample.storage_condition || null,
+        quantity: sample.quantity || 0,
         price: sample.price ? Number(sample.price) : 0,
-        latitude: Number(sample.latitude),
-        longitude: Number(sample.longitude),
-        description: sample.description || '',
-        inStock: sample.in_stock || false,
+        latitude: sample.latitude ? Number(sample.latitude) : null,
+        longitude: sample.longitude ? Number(sample.longitude) : null,
+        description: sample.description || null,
+        inStock: sample.quantity > 0,
         user_id: sample.user_id || '',
-        created_at: sample.created_at || new Date().toISOString()
+        created_at: sample.created_at || new Date().toISOString(),
+        updated_at: sample.updated_at || null,
+        hash: sample.hash || null
       }));
 
       setSamples(transformedSamples);
@@ -110,7 +116,7 @@ export default function Samples() {
                 <th className="px-4 py-2">Location</th>
                 <th className="px-4 py-2">Collection Date</th>
                 <th className="px-4 py-2">Storage</th>
-                <th className="px-4 py-2">Availability</th>
+                <th className="px-4 py-2">Stock Status</th>
                 <th className="px-4 py-2">Price</th>
                 <th className="px-4 py-2">Details</th>
               </tr>
@@ -123,7 +129,7 @@ export default function Samples() {
                   <td className="px-4 py-2">{sample.location}</td>
                   <td className="px-4 py-2">{sample.collection_date}</td>
                   <td className="px-4 py-2">{sample.storage}</td>
-                  <td className="px-4 py-2">{sample.availability}</td>
+                  <td className="px-4 py-2">{sample.inStock ? 'In Stock' : 'Out of Stock'}</td>
                   <td className="px-4 py-2">${sample.price || 0}</td>
                   <td className="px-4 py-2">
                     <button className="text-blue-500">Info</button>

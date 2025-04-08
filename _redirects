@@ -1,0 +1,2 @@
+/samples/*  /samples/[id]/index.html  200
+/samples/edit/*  /samples/edit/[id]/index.html  200 

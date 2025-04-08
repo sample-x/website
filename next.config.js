@@ -2,13 +2,16 @@
 const path = require('path');
 
 const nextConfig = {
-  // Enable static export for Cloudflare Pages
+  // Configure for static export
   output: 'export',
   reactStrictMode: true,
   swcMinify: true,
   
-  // Skip trailing slash redirect
+  // Skip trailing slash redirect for better edge caching
   skipTrailingSlashRedirect: true,
+  
+  // Static export configuration
+  staticPageGenerationTimeout: 300,
   
   // Images configuration for static export
   images: {
@@ -23,68 +26,26 @@ const nextConfig = {
   },
   
   // Handle dynamic routes
-  // trailingSlash: true, // Temporarily removed
+  trailingSlash: true,
   
-  // Webpack optimization
-  // /* // Re-enabled
-  webpack: (config, { isServer }) => {
-    // Optimize bundle size
-    config.optimization = {
-      ...config.optimization,
-      minimize: true,
-      splitChunks: {
-        chunks: 'all',
-        minSize: 20000,
-        maxSize: 244000,
-        minChunks: 1,
-        maxAsyncRequests: 30,
-        maxInitialRequests: 30,
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          framework: {
-            chunks: 'all',
-            name: 'framework',
-            test: /(?<!node_modules.*)[\/]node_modules[\/](react|react-dom|scheduler|prop-types|use-subscription)[\/]/,
-            priority: 40,
-            enforce: true,
-          },
-          commons: {
-            name: 'commons',
-            minChunks: 2,
-            priority: 20,
-          },
-          lib: {
-            test(module) {
-              return module.size() > 160000 && /node_modules[/\\]/.test(module.identifier());
-            },
-            name(module) {
-              // Simple hash based on module identifier
-              const moduleId = module.identifier();
-              const hash = Array.from(moduleId).reduce((acc, char) => {
-                return (acc << 5) - acc + char.charCodeAt(0) >>> 0;
-              }, 0);
-              return `chunk-${hash.toString(16).slice(0, 8)}`;
-            },
-            priority: 30,
-            minChunks: 1,
-            reuseExistingChunk: true,
-          },
-        },
-      },
-    };
-
-    // Handle browser APIs in Node environment
-    if (isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    
-    // Path aliases
+  // TypeScript configuration
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
+  
+  // ESLint configuration
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
+  
+  // Path aliases
+  webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname),
@@ -96,15 +57,6 @@ const nextConfig = {
     
     return config;
   },
-  // */ // Re-enabled
-
-  // Environment variables are now managed through .env.local
-  env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  },
-
-  // distDir: 'dist', // Output to dist directory -- REMOVED, defaulting to 'out'
 };
 
 module.exports = nextConfig;

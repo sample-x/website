@@ -1,221 +1,183 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import LeafletMap from './LeafletMap'
+import { useState, useEffect } from 'react'
+import { Sample } from '@/types/sample'
+import dynamic from 'next/dynamic'
 import { isStaticExport } from '@/app/lib/staticData'
+import { SamplesMapProps } from './mapTypes'
 
-// Sample type definition
-interface Sample {
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  location: string;
-  price: number;
-  coordinates?: [number, number];
-  latitude?: number;
-  longitude?: number;
-  collectionDate?: string;
-  storageCondition?: string;
-  availability: string;
-  inStock?: boolean;
-}
+// Dynamically import LeafletMap to avoid SSR issues
+const LeafletMap = dynamic(() => import('./LeafletMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-80 w-full flex items-center justify-center bg-gray-100 rounded-lg">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900 mb-2"></div>
+        <p>Loading map...</p>
+      </div>
+    </div>
+  )
+})
 
-interface SamplesMapProps {
-  samples: Sample[];
-  onSampleSelect?: (sample: Sample) => void;
-  onAddToCart?: (sample: Sample) => void;
-  selectedSample?: Sample | null;
-}
-
-// Define color mapping for sample types
+// Sample type colors for markers
 const typeColors: Record<string, string> = {
-  'bacterial': '#8BC34A',
-  'tissue': '#E91E63',
-  'cell line': '#E91E63',
-  'environmental': '#795548',
-  'ice core': '#B3E5FC',
-  default: '#757575'
-};
+  animal: '#ef4444',
+  plant: '#65a30d',
+  mineral: '#3b82f6',
+  synthetic: '#8b5cf6',
+  bacterial: '#10b981',
+  'cell line': '#8b5cf6',
+  environmental: '#3b82f6',
+  soil: '#92400e',
+  viral: '#db2777',
+  default: '#6b7280',
+}
 
-// Get color based on sample type
-const getSampleColor = (type: string): string => {
+export default function SamplesMap({ samples, onSampleSelect, selectedSample }: SamplesMapProps) {
+  const [markers, setMarkers] = useState<any[]>([])
+  const [mapCenter, setMapCenter] = useState<[number, number]>([51.505, -0.09])
+  const [mapZoom, setMapZoom] = useState(2)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Check for client-side rendering
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!samples || samples.length === 0 || !isMounted) {
+      return
+    }
+
+    console.log('SamplesMap: Processing samples for map:', samples.length);
+
+    // Filter samples with valid coordinates
+    const filteredSamples = samples.filter(
+      (sample) => typeof sample.latitude === 'number' && 
+                 typeof sample.longitude === 'number' && 
+                 !isNaN(sample.latitude) && 
+                 !isNaN(sample.longitude)
+    );
+
+    console.log('SamplesMap: Filtered samples with coordinates:', filteredSamples.length);
+
+    if (filteredSamples.length > 0) {
+      // Create markers
+      const newMarkers = filteredSamples.map((sample) => {
+        console.log(`Creating marker for sample ${sample.id} at [${sample.latitude}, ${sample.longitude}]`);
+        return {
+          position: [sample.latitude, sample.longitude] as [number, number],
+          popup: createPopupContent(sample),
+          sampleType: sample.type,
+          sampleId: sample.id,
+          onClick: () => {
+            if (onSampleSelect) onSampleSelect(sample);
+          },
+        };
+      });
+
+      setMarkers(newMarkers);
+      console.log('SamplesMap: Set markers:', newMarkers.length);
+
+      // Calculate center and zoom
+      if (newMarkers.length === 1) {
+        setMapCenter([filteredSamples[0].latitude!, filteredSamples[0].longitude!]);
+        setMapZoom(13);
+      } else if (newMarkers.length > 1) {
+        // Calculate the average center for multiple points
+        const avgLat = filteredSamples.reduce((sum, s) => sum + (s.latitude || 0), 0) / filteredSamples.length;
+        const avgLng = filteredSamples.reduce((sum, s) => sum + (s.longitude || 0), 0) / filteredSamples.length;
+        setMapCenter([avgLat, avgLng]);
+        setMapZoom(3); // Better zoom level to show multiple points
+      }
+    }
+  }, [samples, onSampleSelect, selectedSample, isMounted]);
+
+  // Skip map rendering in static export mode or before client-side mount
+  if (isStaticExport() || !isMounted) {
+    return (
+      <div className="h-80 w-full flex items-center justify-center bg-gray-100 rounded-lg">
+        <div className="text-center">
+          <p>Map not available in static mode</p>
+          <p className="text-sm text-gray-500 mt-2">
+            {samples?.length || 0} sample locations would be shown here
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Make sure we're passing all necessary props to LeafletMap
+  return (
+    <div className="rounded-lg overflow-hidden border border-gray-200" style={{ height: "400px", minHeight: "400px" }}>
+      <LeafletMap 
+        markers={markers}
+        center={mapCenter} 
+        zoom={mapZoom}
+        handleSampleSelect={(sampleId) => {
+          console.log('Sample selected from map:', sampleId);
+          const sample = samples.find(s => s.id === sampleId);
+          if (sample && onSampleSelect) onSampleSelect(sample);
+        }}
+      />
+    </div>
+  );
+}
+
+// Function to get the marker color based on sample type
+const getMarkerColor = (type?: string): string => {
   if (!type) return typeColors.default;
   
-  const normalizedType = type.toLowerCase();
+  // Convert to lowercase for case-insensitive matching
+  const typeLower = type.toLowerCase();
   
-  // Try exact match first
-  if (typeColors[normalizedType]) {
-    return typeColors[normalizedType];
-  }
-  
-  // Try partial matches
+  // Check if type is directly in our color map
   for (const [key, color] of Object.entries(typeColors)) {
-    if (key !== 'default' && normalizedType.includes(key)) {
-      return color;
-    }
+    if (key === typeLower) return color;
   }
   
+  // Check if type contains any of our color keys
+  for (const [key, color] of Object.entries(typeColors)) {
+    if (typeLower.includes(key)) return color;
+  }
+  
+  // Default color if no match
   return typeColors.default;
 };
 
-export default function SamplesMap({ samples, onSampleSelect, onAddToCart, selectedSample }: SamplesMapProps) {
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [isStatic, setIsStatic] = useState(false);
-  const [hasLoggedDebug, setHasLoggedDebug] = useState(false);
+function createPopupContent(sample: Sample): string {
+  const price = sample.price ? `$${sample.price.toFixed(2)}` : 'N/A';
+  const typeColor = getMarkerColor(sample.type);
   
-  useEffect(() => {
-    // Check if we're in static mode
-    setIsStatic(isStaticExport());
-    
-    // Check for localStorage override
-    if (typeof window !== 'undefined') {
-      try {
-        const forceDynamic = localStorage.getItem('forceDynamicMode') === 'true';
-        if (forceDynamic) setIsStatic(false);
-      } catch (e) {
-        // Ignore localStorage errors
-      }
-    }
-    
-    // Mark as loaded
-    setMapLoaded(true);
-  }, []);
-  
-  // Filter samples with valid coordinates
-  const samplesWithCoordinates = samples.filter(sample => {
-    // Extract coordinates if they exist
-    let hasValidCoords = false;
-    
-    // Check for coordinates array
-    if (sample.coordinates && Array.isArray(sample.coordinates) && sample.coordinates.length === 2) {
-      const [lat, lng] = sample.coordinates;
-      hasValidCoords = typeof lat === 'number' && typeof lng === 'number';
-    }
-    
-    // Check for separate lat/lng fields
-    if (!hasValidCoords && typeof sample.latitude === 'number' && typeof sample.longitude === 'number') {
-      hasValidCoords = true;
-    }
-    
-    return hasValidCoords;
-  });
-  
-  // Log debug info
-  useEffect(() => {
-    if (mapLoaded && !hasLoggedDebug) {
-      console.log('Map data:', {
-        samplesCount: samples.length,
-        samplesWithCoordinates: samplesWithCoordinates.length,
-        firstSample: samples[0],
-        sampleFormats: samples.slice(0, 3).map(s => ({
-          hasCoordinates: !!s.coordinates,
-          coordFormat: s.coordinates ? typeof s.coordinates : null,
-          hasLat: typeof s.latitude === 'number',
-          hasLong: typeof s.longitude === 'number',
-          latValue: s.latitude,
-          longValue: s.longitude
-        }))
-      });
-      setHasLoggedDebug(true);
-    }
-  }, [mapLoaded, samples, samplesWithCoordinates.length, hasLoggedDebug]);
-  
-  // Convert samples to marker format for LeafletMap
-  const markers = samplesWithCoordinates.map(sample => {
-    // Use coordinates if available, otherwise use latitude/longitude
-    const position: [number, number] = sample.coordinates 
-      ? sample.coordinates 
-      : [Number(sample.latitude) || 0, Number(sample.longitude) || 0];
+  return `
+    <div class="sample-popup p-3">
+      <h3 class="font-bold text-lg mb-2">${sample.name}</h3>
       
-    return {
-      position,
-      popup: `<strong>${sample.name}</strong><br>${sample.type} sample<br>${sample.location}`
-    };
-  });
-  
-  // Calculate center point based on samples (average lat/lng)
-  let center: [number, number] = [37.7749, -122.4194]; // Default to San Francisco
-  
-  if (markers.length > 0) {
-    const sumLat = markers.reduce((sum, marker) => sum + marker.position[0], 0);
-    const sumLng = markers.reduce((sum, marker) => sum + marker.position[1], 0);
-    
-    center = [
-      sumLat / markers.length,
-      sumLng / markers.length
-    ];
-  }
-  
-  if (!mapLoaded) {
-    return (
-      <div className="map-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading map...</p>
+      <div class="mb-2">
+        <span class="inline-block px-2 py-1 text-xs font-medium rounded-full" 
+              style="background-color: ${typeColor}20; color: ${typeColor}; border: 1px solid ${typeColor}">
+          ${sample.type || 'Unknown'}
+        </span>
       </div>
-    );
-  }
-  
-  if (samplesWithCoordinates.length === 0) {
-    return (
-      <div className="map-no-data">
-        <p>No samples with location data available to display on the map.</p>
-        <details style={{marginTop: '10px'}}>
-          <summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#666'}}>Debug Info</summary>
-          <pre style={{
-            background: '#f5f5f5', 
-            padding: '10px', 
-            borderRadius: '4px', 
-            fontSize: '12px',
-            maxHeight: '200px',
-            overflow: 'auto',
-            marginTop: '10px'
-          }}>
-            {JSON.stringify({
-              totalSamples: samples.length,
-              sampleFormats: samples.slice(0, 3).map(s => ({
-                id: s.id,
-                name: s.name,
-                hasCoordinates: !!s.coordinates,
-                coordFormat: s.coordinates ? typeof s.coordinates : null,
-                coordinates: s.coordinates,
-                hasLat: typeof s.latitude === 'number',
-                hasLong: typeof s.longitude === 'number',
-                latValue: s.latitude,
-                longValue: s.longitude
-              }))
-            }, null, 2)}
-          </pre>
-        </details>
+      
+      <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
+        <div>
+          <span class="font-medium">Location:</span>
+          <p>${sample.location || 'Unknown'}</p>
+        </div>
+        
+        <div>
+          <span class="font-medium">Price:</span>
+          <p>${price}</p>
+        </div>
       </div>
-    );
-  }
-  
-  return (
-    <div className="map-container">
-      {markers.length > 0 && (
-        <>
-          <LeafletMap 
-            markers={markers}
-            center={center}
-            zoom={3}
-          />
-          <div className="map-info" style={{margin: '10px 0', fontSize: '0.875rem', color: '#666'}}>
-            Displaying {markers.length} sample locations
-          </div>
-        </>
-      )}
-      <div className="map-legend">
-        <h3>Sample Types</h3>
-        <ul>
-          {Object.entries(typeColors).filter(([key]) => key !== 'default').map(([type, color]) => (
-            <li key={type} className="legend-item">
-              <div className="legend-color" style={{ backgroundColor: color }}></div>
-              <span>{type}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      
+      <button 
+        onclick="window.leafletSelectSample('${sample.id}')" 
+        class="w-full bg-indigo-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-indigo-700 transition-colors"
+      >
+        View Details
+      </button>
     </div>
-  );
+  `;
 }

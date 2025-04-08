@@ -189,12 +189,12 @@ export default function SampleDetailClient({ id }: SampleDetailClientProps) {
                   
                   <div className="bg-gray-50 p-3 rounded">
                     <p className="text-sm text-gray-500">Collection Date</p>
-                    <p className="font-medium">{sample.collectionDate}</p>
+                    <p className="font-medium">{sample.collection_date}</p>
                   </div>
                   
                   <div className="bg-gray-50 p-3 rounded">
                     <p className="text-sm text-gray-500">Storage Condition</p>
-                    <p className="font-medium">{sample.storageCondition}</p>
+                    <p className="font-medium">{sample.storage_condition}</p>
                   </div>
                   
                   <div className="bg-gray-50 p-3 rounded">
@@ -225,14 +225,14 @@ export default function SampleDetailClient({ id }: SampleDetailClientProps) {
             <div>
               <h2 className="text-xl font-semibold mb-4 text-[#003949]">Location Information</h2>
               
-              {sample.coordinates && (
+              {sample.latitude !== undefined && sample.longitude !== undefined && (
                 <div className="mt-4">
                   <h3 className="text-lg font-semibold mb-2">Location</h3>
                   <div className="bg-gray-100 h-[300px] rounded-lg flex items-center justify-center">
                     <div className="text-center">
                       <p className="font-medium">Location Information</p>
-                      <p className="text-sm text-gray-500">Latitude: {sample.coordinates[0]}</p>
-                      <p className="text-sm text-gray-500">Longitude: {sample.coordinates[1]}</p>
+                      <p className="text-sm text-gray-500">Latitude: {sample.latitude}</p>
+                      <p className="text-sm text-gray-500">Longitude: {sample.longitude}</p>
                     </div>
                   </div>
                 </div>

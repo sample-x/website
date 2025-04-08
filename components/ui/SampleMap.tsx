@@ -118,7 +118,7 @@ export default function SampleMap({ samples, onBoundsChange }: SampleMapProps) {
                     <p><span className="font-semibold">Location:</span> {sample.location}</p>
                     <p><span className="font-semibold">Storage:</span> {sample.storage}</p>
                     <p><span className="font-semibold">Price:</span> ${(sample.price ?? 0).toFixed(2)}</p>
-                    <p><span className="font-semibold">Availability:</span> {sample.availability}</p>
+                    <p><span className="font-semibold">Status:</span> {sample.inStock ? 'In Stock' : 'Out of Stock'}</p>
                   </div>
                   <button 
                     className="mt-3 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full transition-colors"

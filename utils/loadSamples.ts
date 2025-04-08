@@ -17,15 +17,9 @@ function transformSample(sample: any): Sample {
         description: sample.description,
         latitude: sample.latitude,
         longitude: sample.longitude,
-        availability: sample.availability,
-        contact: sample.contact,
-        inStock: sample.quantity > 0,
+        hash: sample.hash || Math.random().toString(36).substring(2),
         created_at: new Date().toISOString(),
-        coordinates: sample.latitude && sample.longitude ? [sample.latitude, sample.longitude] : undefined,
-        metadata: {
-            host: sample.host,
-            unit: sample.unit
-        }
+        updated_at: new Date().toISOString()
     } as Sample;
 
     return transformed;

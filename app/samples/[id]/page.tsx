@@ -1,16 +1,13 @@
 import { Suspense } from 'react'
-import SampleDetailClient from './SampleDetailClient'
+import SampleViewEditClient from './SampleViewEditClient'
 
-// This function is required for static export with dynamic routes
+// Enable dynamic rendering for all sample IDs that aren't statically generated
+export const dynamicParams = true;
+
+// Generate a few static paths for common samples
 export function generateStaticParams() {
-  // Generate a list of possible IDs for static generation
   return [
-    { id: 'sample-001' },
-    { id: 'sample-002' },
-    { id: 'sample-003' },
-    { id: 'sample-004' },
-    { id: 'sample-005' },
-    { id: 'sample-006' }
+    { id: 'placeholder' }
   ]
 }
 
@@ -23,7 +20,7 @@ export default function SampleDetailPage({ params }: { params: { id: string } })
   return (
     <div className="container mx-auto px-4 py-8">
       <Suspense fallback={<div className="loading-spinner">Loading sample details...</div>}>
-        <SampleDetailClient id={params.id} />
+        <SampleViewEditClient id={params.id} />
       </Suspense>
     </div>
   )

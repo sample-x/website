@@ -1,16 +1,20 @@
 export interface Sample {
-    id: number;
+    id: string;
     name: string;
-    type: string;
-    location: string;
-    collection_date: string;
-    storage_condition: string;
-    quantity: number;
+    type?: string;
+    description?: string;
+    location?: string;
     price: number;
-    description: string | null;
-    latitude: number | null;
-    longitude: number | null;
-    created_at: string;
+    latitude?: number;
+    longitude?: number;
+    collection_date?: string;
+    storage_condition?: string;
+    quantity?: number;
+    hash?: string;
+    created_at?: string;
+    updated_at?: string;
+    inStock?: boolean;
+    references?: string[];
 }
 
 export type SampleFilter = {

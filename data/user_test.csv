@@ -1,0 +1,108 @@
+name,type,location,collection_date,storage_condition,quantity,price,description,latitude,longitude
+QWET Bacterial Culture,bacterial,Pacific Ocean,2023-01-01,Refrigerated,5,299.99,Marine bacterial culture collected from QWET Ocean samples.,14.0522,-108.2437
+MZXP Fungal Isolate,fungal,Amazon Rainforest,2023-02-15,Frozen,3,425.50,Rare fungal isolate from deep Amazon undergrowth.,3.4653,-62.2159
+BNVR Algal Sample,algal,Mediterranean Sea,2023-03-10,Room Temperature,8,199.99,Green algae collected from coastal Mediterranean waters.,41.3851,2.1734
+KPLT Soil Microbiome,microbial,Sahara Desert,2023-01-20,Desiccated,10,350.00,Diverse microbial community from arid desert soil.,23.4162,25.6628
+JFHD Viral Particles,viral,Antarctic Ice Sheet,2023-04-05,Ultra-frozen,2,599.99,Novel viral particles isolated from ancient ice cores.,-75.2504,-0.0712
+QRST Archaeal Culture,archaeal,Yellowstone Hot Springs,2023-02-28,Incubated,4,475.00,Thermophilic archaea from geothermal hot springs.,44.4280,-110.5885
+WXYZ Plant Tissue,plant,Borneo Rainforest,2023-03-22,Lyophilized,6,275.50,Preserved tissue from rare tropical plant species.,0.9619,114.5548
+ABCD Coral Microbiome,marine,Great Barrier Reef,2023-01-15,Salt-preserved,7,399.99,Microbial community associated with coral polyps.,-18.2871,147.6992
+EFGH Insect Symbiont,symbiotic,Costa Rican Forest,2023-04-12,Glycerol Stock,3,325.00,Bacterial symbiont isolated from tropical insects.,9.7489,-83.7534
+IJKL Extremophile Mix,extremophile,Death Valley,2023-02-10,Cryopreserved,5,450.00,Mixed culture of extremophiles from hypersaline environment.,36.5323,-116.9325
+MNOP Freshwater Sample,aquatic,Lake Baikal,2023-03-05,Chilled,9,225.50,Diverse microorganisms from world's deepest lake.,53.5216,108.1659
+RSTU Deep Sea Vent,hydrothermal,Mariana Trench,2023-01-25,Pressurized,2,699.99,Rare microbes collected from deep sea hydrothermal vent.,-11.3494,142.1996
+VWXY Arctic Permafrost,cryophilic,Siberian Tundra,2023-04-18,Frozen,4,375.00,Cold-adapted microorganisms from ancient permafrost.,67.4897,153.4728
+ZABC Mangrove Sediment,sediment,Sundarbans,2023-02-05,Anaerobic Jar,6,299.50,Anaerobic bacteria from mangrove ecosystem sediments.,21.9497,89.1833
+DEFG Cave Biofilm,biofilm,Mammoth Cave,2023-03-15,Humidity Controlled,8,275.00,Microbial biofilm scraped from cave wall surfaces.,37.1862,-86.1000
+HIJK Termite Gut,microbial,Serengeti Plain,2023-01-10,Glycerol Stock,3,350.50,Cellulolytic bacteria from termite gut microbiome.,-2.3333,34.8333
+LMNO Volcanic Soil,thermophilic,Mount Etna,2023-04-22,Heat-stable Media,5,425.00,Heat-resistant microbes from active volcanic soil.,37.7510,14.9934
+PQRS Rice Paddy,agricultural,Mekong Delta,2023-02-20,Refrigerated,7,250.00,Methanogenic archaea from flooded rice paddy soil.,10.0341,105.7840
+TUVW Kombucha SCOBY,fermentation,Portland Oregon,2023-03-25,Vinegar Solution,10,175.50,Symbiotic culture of bacteria and yeast for fermentation.,45.5152,-122.6784
+XYZA Deep Mine,extremophile,Mponeng Gold Mine,2023-01-30,Anaerobic Chamber,2,550.00,Ultra-deep subsurface microbes from gold mine.,26.4391,27.3844
+BCDE Glacier Runoff,psychrophilic,Patagonian Glacier,2023-04-08,Frozen,6,325.50,Cold-adapted microorganisms from glacial meltwater.,-50.4669,-73.0369
+FGHI Salt Flat,halophilic,Salar de Uyuni,2023-02-25,Desiccated,4,375.00,Extreme halophiles from world's largest salt flat.,-20.1338,-67.4891
+JKLM Peat Bog,anaerobic,Scottish Highlands,2023-03-20,Oxygen-free Vials,8,275.00,Methane-producing microbes from ancient peat bog.,57.3229,-4.4244
+NOPQ Hydrothermal Mud,thermophilic,Rotorua,2023-01-05,Temperature Stable,3,399.50,Thermophilic bacteria from geothermal mud pools.,-38.1368,176.2497
+RSTU Whale Fall,marine,Monterey Canyon,2023-04-15,Deep-freeze,5,450.00,Specialized bacteria from whale carcass decomposition.,36.8007,-121.9471
+VWXY Desert Crust,cyanobacterial,Atacama Desert,2023-02-12,Desiccated,7,325.00,Cyanobacterial biological soil crust from hyper-arid desert.,-24.5000,-69.2500
+ZABC Pitcher Plant,carnivorous,Borneo Highlands,2023-03-18,Refrigerated,4,299.99,Microbial community from carnivorous plant digestive fluid.,1.1389,110.3433
+DEFG Stromatolite,cyanobacterial,Shark Bay,2023-01-22,Salt Solution,6,375.50,Living stromatolite fragment with ancient microbial community.,-25.9980,113.7871
+HIJK Cheese Rind,food,Roquefort Caves,2023-04-25,Controlled Humidity,9,225.00,Fungal and bacterial consortium from traditional cheese rind.,44.0597,2.9917
+LMNO Oil Reservoir,industrial,Permian Basin,2023-02-08,Anaerobic Vials,3,499.99,Hydrocarbon-degrading bacteria from deep oil reservoir.,31.8457,-102.0820
+PQRS Soybean Nodule,symbiotic,Iowa Farmland,2023-03-12,Frozen,5,275.00,Nitrogen-fixing rhizobia from legume root nodules.,41.8780,-93.0977
+TUVW Activated Sludge,wastewater,Singapore Treatment Plant,2023-01-18,Aerated Container,8,225.50,Active microbial community from wastewater treatment.,1.3521,103.8198
+XYZA Bee Hive,apiary,New Zealand Meadow,2023-04-20,Honey Medium,4,350.00,Lactic acid bacteria from honey bee microbiome.,-40.9006,174.8860
+BCDE Fermented Kimchi,fermentation,South Korean Market,2023-02-18,Vacuum Sealed,7,199.99,Bacterial culture from traditional fermented cabbage.,37.5665,126.9780
+FGHI Penguin Guano,avian,Falkland Islands,2023-03-28,Frozen,3,325.50,Specialized microbes from penguin colony waste.,-51.7963,-59.5236
+JKLM Bat Guano,cave,Gomantong Caves,2023-01-08,Desiccated,5,375.00,Diverse microbial community from bat cave deposits.,5.5252,118.0738
+NOPQ Lichen Symbiont,symbiotic,Norwegian Tundra,2023-04-10,Freeze-dried,6,299.99,Fungal-algal symbiotic culture from Arctic lichen.,68.9712,18.5335
+RSTU Sourdough Starter,fermentation,San Francisco Bakery,2023-02-22,Room Temperature,10,150.00,Active sourdough culture with wild yeasts and lactobacilli.,37.7749,-122.4194
+VWXY Rumen Fluid,digestive,New Zealand Dairy Farm,2023-03-08,Anaerobic Jar,4,425.00,Cellulolytic microbes from cow rumen.,-43.5321,172.6362
+ZABC Dental Plaque,biofilm,University Research Lab,2023-01-12,Glycerol Stock,7,275.50,Oral microbiome sample from human dental plaque.,40.4237,-86.9212
+DEFG Kefir Grains,probiotic,Caucasus Mountains,2023-04-28,Milk Medium,9,199.99,Traditional milk kefir grains with complex microbial community.,43.3563,42.4776
+HIJK Sauerkraut Brine,fermentation,German Delicatessen,2023-02-03,Vacuum Sealed,5,175.00,Lactic acid bacteria from fermented cabbage brine.,52.5200,13.4050
+LMNO Natto Culture,food,Japanese Market,2023-03-30,Refrigerated,3,225.50,Bacillus subtilis culture for traditional fermented soybeans.,35.6762,139.6503
+PQRS Tempeh Starter,fungal,Indonesian Village,2023-01-28,Freeze-dried,6,199.99,Rhizopus culture for soybean fermentation.,-7.7971,110.3688
+TUVW Miso Paste,fermentation,Kyoto Brewery,2023-04-02,Vacuum Sealed,8,225.00,Aspergillus oryzae culture from traditional miso.,35.0116,135.7681
+XYZA Ginger Beer Plant,symbiotic,Caribbean Island,2023-02-14,Sugar Solution,4,175.50,Symbiotic culture for traditional ginger beer fermentation.,18.1096,-77.2975
+BCDE Vinegar Mother,acetic,Italian Vineyard,2023-03-24,Oxygenated,7,199.99,Acetobacter culture for traditional vinegar production.,43.7696,11.2558
+FGHI Yogurt Culture,dairy,Bulgarian Farm,2023-01-03,Frozen,5,150.00,Traditional yogurt starter culture with multiple strains.,42.7339,25.4858
+JKLM Idli Batter,fermentation,South Indian Kitchen,2023-04-14,Room Temperature,9,175.50,Natural fermentation culture for rice cakes.,13.0827,80.2707
+NOPQ Blue Cheese,fungal,French Cave,2023-02-27,Controlled Humidity,3,350.00,Penicillium roqueforti culture from artisanal cheese.,44.3778,2.9686
+RSTU Soy Sauce Koji,food,Japanese Brewery,2023-03-16,Refrigerated,6,225.50,Aspergillus sojae culture for traditional soy sauce.,34.9877,135.7503
+VWXY Dosa Starter,fermentation,Tamil Nadu Restaurant,2023-01-24,Room Temperature,8,175.00,Natural fermentation culture for rice and lentil crepes.,13.0827,80.2707
+ZABC Kombucha Mother,fermentation,California Brewery,2023-04-22,Acidic Solution,5,199.99,Pellicle with symbiotic culture for kombucha brewing.,37.7749,-122.4194
+DEFG Sake Koji,fungal,Japanese Sake Brewery,2023-02-09,Refrigerated,3,275.50,Aspergillus oryzae for rice fermentation.,35.6762,139.6503
+HIJK Kvass Culture,fermentation,Russian Bakery,2023-03-26,Bread Medium,7,150.00,Traditional culture for fermented bread beverage.,55.7558,37.6173
+LMNO Surströmming,fermentation,Swedish Fishery,2023-01-14,Salt Brine,4,225.00,Bacterial culture for fermented herring.,63.8258,20.2630
+PQRS Palm Wine,alcoholic,Nigerian Village,2023-04-18,Sugar Solution,6,175.50,Natural yeast culture for palm sap fermentation.,6.5244,3.3792
+TUVW Pozol Starter,fermentation,Mexican Market,2023-02-23,Corn Medium,9,150.00,Traditional culture for fermented corn dough.,16.7370,-92.6376
+XYZA Pulque Culture,agave,Mexican Highlands,2023-03-05,Agave Sap,3,225.50,Bacterial and yeast culture for traditional pulque.,19.4326,-99.1332
+BCDE Chicha Starter,maize,Peruvian Andes,2023-01-19,Corn Medium,5,175.00,Traditional culture for maize beer fermentation.,-13.1631,-72.5450
+FGHI Injera Starter,teff,Ethiopian Restaurant,2023-04-08,Teff Medium,8,150.00,Sourdough culture for traditional flatbread.,9.0050,38.7638
+JKLM Airag Culture,dairy,Mongolian Steppe,2023-02-17,Mare's Milk,4,225.99,Traditional culture for fermented horse milk.,47.8864,106.9057
+NOPQ Boza Starter,cereal,Turkish Market,2023-03-22,Wheat Medium,6,150.50,Lactic acid bacteria for traditional fermented drink.,41.0082,28.9784
+RSTU Tepache Culture,pineapple,Mexican Kitchen,2023-01-07,Fruit Medium,9,125.00,Natural culture for fermented pineapple beverage.,19.4326,-99.1332
+VWXY Viili Starter,dairy,Finnish Farm,2023-04-25,Milk Medium,3,175.50,Mesophilic culture for ropy fermented milk.,60.1699,24.9384
+ZABC Filmjölk Culture,dairy,Swedish Dairy,2023-02-11,Milk Medium,5,150.00,Traditional Scandinavian fermented milk culture.,59.3293,18.0686
+DEFG Skyr Culture,dairy,Icelandic Farm,2023-03-19,Skim Milk,7,175.99,Traditional Icelandic cultured dairy product.,64.1466,-21.9426
+HIJK Amasi Culture,dairy,South African Farm,2023-01-26,Milk Medium,4,150.50,Traditional fermented milk culture.,-30.5595,22.9375
+LMNO Qula Culture,dairy,Tibetan Plateau,2023-04-12,Yak Milk,6,199.99,Traditional culture for fermented yak cheese.,29.6500,91.1000
+PQRS Kumis Culture,dairy,Kazakh Steppe,2023-02-19,Mare's Milk,8,175.00,Traditional culture for fermented horse milk.,48.0196,66.9237
+TUVW Lassi Culture,dairy,Indian Dairy,2023-03-09,Yogurt Base,3,125.50,Traditional culture for yogurt-based drink.,28.6139,77.2090
+XYZA Doogh Culture,dairy,Iranian Market,2023-01-17,Yogurt Base,5,150.00,Traditional culture for savory yogurt drink.,35.6892,51.3890
+BCDE Ayran Culture,dairy,Turkish Dairy,2023-04-30,Yogurt Base,7,125.99,Traditional culture for diluted yogurt beverage.,41.0082,28.9784
+FGHI Matsoni Culture,dairy,Georgian Farm,2023-02-07,Milk Medium,4,175.50,Traditional Caucasian fermented milk culture.,41.6938,44.8015
+JKLM Piimä Culture,dairy,Finnish Dairy,2023-03-14,Milk Medium,6,150.00,Nordic fermented milk culture.,60.1699,24.9384
+NOPQ Caspian Sea Yogurt,dairy,Japanese Market,2023-01-21,Milk Medium,9,175.99,Lactococcus-based fermented milk culture.,35.6762,139.6503
+RSTU Tarhana Starter,fermentation,Turkish Kitchen,2023-04-05,Yogurt-Flour Mix,3,150.50,Traditional culture for fermented soup base.,38.4237,27.1428
+VWXY Shio Koji,fungal,Japanese Pantry,2023-02-28,Salt-Rice Medium,5,199.99,Salt-fermented rice koji culture.,35.6762,139.6503
+ZABC Amazake Starter,rice,Japanese Brewery,2023-03-11,Rice Medium,8,175.00,Sweet fermented rice culture.,34.9877,135.7503
+DEFG Doenjang Culture,soybean,Korean Farm,2023-01-09,Soybean Medium,4,225.50,Traditional culture for fermented soybean paste.,37.5665,126.9780
+HIJK Gochujang Starter,chili,Korean Kitchen,2023-04-17,Chili-Rice Medium,6,199.99,Culture for fermented chili paste.,35.8714,128.6014
+LMNO Cheonggukjang,soybean,Korean Market,2023-02-13,Soybean Medium,9,175.50,Fast-fermenting soybean culture.,37.5665,126.9780
+PQRS Jeotgal Culture,seafood,Korean Coast,2023-03-27,Salt Brine,3,225.00,Traditional culture for fermented seafood.,35.1796,129.0756
+TUVW Kimchi Starter,vegetable,Korean Kitchen,2023-01-31,Vegetable Medium,5,150.99,Traditional culture for fermented vegetables.,37.5665,126.9780
+XYZA Sauerkraut Culture,cabbage,German Kitchen,2023-04-09,Cabbage Medium,7,125.50,Lactic acid bacteria for cabbage fermentation.,52.5200,13.4050
+BCDE Curtido Starter,cabbage,Salvadoran Kitchen,2023-02-24,Cabbage-Carrot Mix,4,150.00,Culture for traditional fermented cabbage relish.,13.6929,-89.2182
+FGHI Achar Culture,pickle,Indian Kitchen,2023-03-03,Vegetable-Oil Mix,6,125.99,Culture for traditional oil pickle.,28.6139,77.2090
+JKLM Torshi Starter,vegetable,Iranian Market,2023-01-11,Vegetable-Vinegar Mix,9,150.50,Culture for traditional vinegar pickles.,35.6892,51.3890
+NOPQ Tsukemono Culture,vegetable,Japanese Kitchen,2023-04-27,Rice Bran Medium,3,175.00,Culture for traditional Japanese pickles.,35.6762,139.6503
+RSTU Dill Pickle,cucumber,Polish Deli,2023-02-01,Salt Brine,5,125.99,Lactic acid bacteria for cucumber fermentation.,52.2297,21.0122
+VWXY Kosher Dill,cucumber,New York Deli,2023-03-17,Garlic Brine,8,150.50,Traditional culture for kosher dill pickles.,40.7128,-74.0060
+ZABC Miso Starter,soybean,Japanese Brewery,2023-01-27,Soybean-Rice Mix,4,225.00,Koji culture for traditional miso.,35.0116,135.7681
+DEFG Tempeh Spores,soybean,Indonesian Market,2023-04-03,Soybean Medium,6,175.99,Rhizopus culture for tempeh production.,-6.2088,106.8456
+HIJK Natto Spores,soybean,Japanese Market,2023-02-21,Soybean Medium,9,199.50,Bacillus subtilis for natto production.,35.6762,139.6503
+LMNO Stinky Tofu,soybean,Taiwanese Market,2023-03-07,Brine Solution,3,175.00,Culture for fermented tofu.,25.0330,121.5654
+PQRS Century Egg,preserved,Chinese Market,2023-01-13,Alkaline Clay,5,225.99,Traditional culture for preserved eggs.,22.3193,114.1694
+TUVW Hákarl Culture,shark,Icelandic Fishery,2023-04-20,Gravel Medium,7,250.50,Culture for traditional fermented shark.,64.1466,-21.9426
+XYZA Rakfisk Culture,fish,Norwegian Fishery,2023-02-16,Salt Brine,4,225.00,Culture for traditional fermented trout.,59.9139,10.7522
+BCDE Lutefisk Starter,fish,Norwegian Market,2023-03-23,Lye Solution,6,199.99,Culture for traditional lye-cured fish.,59.9139,10.7522
+FGHI Gravlax Culture,salmon,Swedish Fishery,2023-01-29,Salt-Sugar Cure,9,175.50,Culture for traditional cured salmon.,59.3293,18.0686
+JKLM Katsuobushi Mold,fish,Japanese Smokehouse,2023-04-07,Smoked Bonito,3,250.00,Aspergillus culture for dried bonito flakes.,34.9877,135.7503
+NOPQ Garum Starter,fish,Italian Coast,2023-02-26,Salt Brine,5,225.99,Traditional culture for fermented fish sauce.,40.8518,14.2681
+RSTU Fish Sauce,anchovy,Thai Fishery,2023-03-13,Salt Brine,8,199.50,Culture for traditional fish sauce.,13.7563,100.5018
+VWXY Shrimp Paste,crustacean,Malaysian Coast,2023-01-23,Salt Brine,4,175.00,Culture for traditional fermented shrimp paste.,3.1390,101.6869
+ZABC Bagoong Culture,fish,Philippine Coast,2023-04-15,Salt Brine,6,199.99,Culture for traditional fermented fish paste.,14.5995,120.9842
+DEFG Pla Ra Culture,fish,Thai Market,2023-02-04,Rice-Fish Mix,9,175.50,Culture for fermented fish with rice.,13.7563,100.5018
+HIJK Narezushi,fish,Japanese Village,2023-03-29,Rice-Fish Mix,3,250.00,Culture for traditional fermented sushi precursor.,35.0116,135.7681
