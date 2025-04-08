@@ -7,6 +7,7 @@ import { Sample } from '@/types/sample';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faTrash, faShoppingCart, faDownload, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import { Map, Marker } from 'react-map-gl';
 
 interface SampleDetailClientProps {
   id: string;
@@ -187,12 +188,12 @@ export default function SampleDetailClient({ id }: SampleDetailClientProps) {
                   
                   <div className="bg-gray-50 p-3 rounded">
                     <p className="text-sm text-gray-500">Collection Date</p>
-                    <p className="font-medium">{sample.collection_date}</p>
+                    <p className="font-medium">{sample.collectionDate}</p>
                   </div>
                   
                   <div className="bg-gray-50 p-3 rounded">
                     <p className="text-sm text-gray-500">Storage Condition</p>
-                    <p className="font-medium">{sample.storage_condition}</p>
+                    <p className="font-medium">{sample.storageCondition}</p>
                   </div>
                   
                   <div className="bg-gray-50 p-3 rounded">
@@ -223,17 +224,27 @@ export default function SampleDetailClient({ id }: SampleDetailClientProps) {
             <div>
               <h2 className="text-xl font-semibold mb-4 text-[#003949]">Location Information</h2>
               
-              {sample.latitude && sample.longitude ? (
-                <div className="bg-gray-100 h-[300px] rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <p className="font-medium">Map Placeholder</p>
-                    <p className="text-sm text-gray-500">Latitude: {sample.latitude}</p>
-                    <p className="text-sm text-gray-500">Longitude: {sample.longitude}</p>
+              {sample.coordinates && (
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold mb-2">Location</h3>
+                  <div className="h-64 w-full relative">
+                    <Map
+                      initialViewState={{
+                        longitude: sample.coordinates[1],
+                        latitude: sample.coordinates[0],
+                        zoom: 8
+                      }}
+                      style={{ width: '100%', height: '100%' }}
+                      mapStyle="mapbox://styles/mapbox/streets-v11"
+                      mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+                    >
+                      <Marker
+                        longitude={sample.coordinates[1]}
+                        latitude={sample.coordinates[0]}
+                        color="#F97316"
+                      />
+                    </Map>
                   </div>
-                </div>
-              ) : (
-                <div className="bg-gray-100 h-[300px] rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500">No location data available</p>
                 </div>
               )}
               
