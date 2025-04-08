@@ -9,6 +9,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle, faCartPlus, faFlask, faFileAlt, faUpload, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import SamplesTable from './SamplesTable';
+import { useCart } from '@/app/context/CartContext';
+import { useAuth } from '@/app/auth/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 // Define an interface that matches what SamplesTable expects
 interface TableSample {
@@ -22,7 +25,9 @@ interface TableSample {
   collectionDate?: string;
   storageCondition?: string;
   availability: string;
-  inStock?: boolean;
+  inStock: boolean;
+  quantity: number;
+  created_at: string;
 }
 
 const SamplesMapContainer = dynamic(
@@ -45,48 +50,53 @@ export default function SamplesPage() {
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [storageCondition, setStorageCondition] = useState<string | null>(null);
+  const { addToCart } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchSamples() {
       setLoading(true);
       try {
+        let data = [];
+        let fetchError = null;
+        
         console.log('Fetching samples from Supabase (Client-side)...');
         
-        // Use the search_samples function with pagination
-        const { data, error: fetchError } = await supabase
-          .rpc('search_samples', {
-            search_term: searchTerm || null,
-            sample_type: filterType,
-            min_price: minPrice,
-            max_price: maxPrice,
-            storage: storageCondition,
-            page_size: pageSize,
-            page_number: page
-          });
-
-        if (fetchError) {
-          console.error('Error fetching samples:', fetchError);
-          setError(`Failed to load samples: ${fetchError.message}`);
-          throw fetchError;
+        // Always try the direct query first as a safer approach
+        const { data: directData, error: directError } = await supabase
+          .from('samples')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range((page - 1) * pageSize, page * pageSize - 1);
+        
+        if (directError) {
+          console.error('Error with direct query:', directError);
+          setError(`Failed to load samples: ${directError.message}`);
+          setLoading(false);
+          return;
         }
         
-        // Extract samples and total count
-        if (data && data.length > 0) {
-          const totalCountValue = data[0].total_count;
-          setTotalCount(totalCountValue);
-          console.log(`Fetched ${data.length} samples out of ${totalCountValue} total`);
+        // Get the total count
+        const { count, error: countError } = await supabase
+          .from('samples')
+          .select('*', { count: 'exact', head: true });
+        
+        if (countError) {
+          console.error('Error fetching count:', countError);
         } else {
-          setTotalCount(0);
-          console.log('No samples found');
+          setTotalCount(count || 0);
+          console.log(`Total count: ${count}`);
         }
         
-        setSamples(data || []);
+        data = directData || [];
+        console.log(`Fetched ${data.length} samples directly`);
+        
+        setSamples(data);
         setError(null);
       } catch (catchError) {
         console.error('Error in fetchSamples:', catchError);
-        if (!error) {
-          setError(`An unexpected error occurred: ${(catchError as Error).message}`);
-        }
+        setError(`An unexpected error occurred: ${(catchError as Error).message}`);
       } finally {
         setLoading(false);
       }
@@ -107,11 +117,13 @@ export default function SamplesPage() {
       description: sample.description || '',
       location: sample.location,
       price: sample.price,
-      coordinates: sample.latitude && sample.longitude ? [sample.latitude, sample.longitude] : undefined,
-      collectionDate: sample.collection_date,
-      storageCondition: sample.storage_condition,
+      coordinates: sample.coordinates,
+      collectionDate: sample.collectionDate,
+      storageCondition: sample.storageCondition,
       availability: sample.quantity > 0 ? 'Available' : 'Out of Stock',
-      inStock: sample.quantity > 0
+      inStock: sample.quantity > 0,
+      quantity: sample.quantity,
+      created_at: sample.created_at
     }));
   }, [samples, mapFilteredSamples]);
 
@@ -129,12 +141,28 @@ export default function SamplesPage() {
     );
   }, [tableSamples, searchTerm]);
 
+  // Calculate the samples to display based on current pagination
+  const paginatedSamples = useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredTableSamples.slice(startIndex, endIndex);
+  }, [filteredTableSamples, page, pageSize]);
+
   const handleSampleSelect = (sample: TableSample) => {
     setSelectedSample(sample);
   };
 
   const handleAddToCart = (sample: TableSample) => {
-    // Implementation of handleAddToCart
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    
+    // Convert TableSample back to Sample format
+    const sampleToAdd = samples.find(s => s.id.toString() === sample.id);
+    if (sampleToAdd) {
+      addToCart(sampleToAdd);
+    }
   };
 
   // Handler for map filter changes
@@ -181,15 +209,18 @@ export default function SamplesPage() {
     return result;
   };
 
-  // Add pagination controls component
+  // Update the Pagination component with clearer counting information
   const Pagination = () => {
-    const totalPages = Math.ceil(totalCount / pageSize);
+    const totalPages = Math.ceil(filteredTableSamples.length / pageSize);
+    const startCount = filteredTableSamples.length > 0 ? (page - 1) * pageSize + 1 : 0;
+    const endCount = Math.min(page * pageSize, filteredTableSamples.length);
     
     return (
       <div className="pagination-controls flex justify-between items-center mt-4">
         <div className="flex items-center">
           <span className="text-sm text-gray-600">
-            Showing {samples.length} of {totalCount} samples
+            Showing {startCount} to {endCount} of {filteredTableSamples.length} samples
+            {totalCount > filteredTableSamples.length && ` (filtered from ${totalCount} total)`}
           </span>
           <select 
             className="ml-4 p-1 border rounded text-sm"
@@ -334,9 +365,10 @@ export default function SamplesPage() {
       {!loading && !error && samples.length > 0 && (
         <div className="bg-white rounded-lg shadow-lg p-4 mt-8">
           <SamplesTable 
-            samples={filteredTableSamples}
+            samples={paginatedSamples}
             onSampleSelect={handleSampleSelect}
             onAddToCart={handleAddToCart}
+            isAuthenticated={!!user}
           />
           
           <Pagination />
