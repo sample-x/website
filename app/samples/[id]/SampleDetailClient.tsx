@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSupabase } from '@/app/supabase-provider';
 import { useRouter } from 'next/navigation';
+import { useSupabase } from '@/app/supabase-provider';
+import { useAuth } from '@/app/auth/AuthProvider';
+import { useCart } from '@/app/context/CartContext';
 import { Sample } from '@/types/sample';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faTrash, faShoppingCart, faDownload, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
-import { Map, Marker } from 'react-map-gl';
 
 interface SampleDetailClientProps {
   id: string;
@@ -227,23 +228,12 @@ export default function SampleDetailClient({ id }: SampleDetailClientProps) {
               {sample.coordinates && (
                 <div className="mt-4">
                   <h3 className="text-lg font-semibold mb-2">Location</h3>
-                  <div className="h-64 w-full relative">
-                    <Map
-                      initialViewState={{
-                        longitude: sample.coordinates[1],
-                        latitude: sample.coordinates[0],
-                        zoom: 8
-                      }}
-                      style={{ width: '100%', height: '100%' }}
-                      mapStyle="mapbox://styles/mapbox/streets-v11"
-                      mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                    >
-                      <Marker
-                        longitude={sample.coordinates[1]}
-                        latitude={sample.coordinates[0]}
-                        color="#F97316"
-                      />
-                    </Map>
+                  <div className="bg-gray-100 h-[300px] rounded-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="font-medium">Location Information</p>
+                      <p className="text-sm text-gray-500">Latitude: {sample.coordinates[0]}</p>
+                      <p className="text-sm text-gray-500">Longitude: {sample.coordinates[1]}</p>
+                    </div>
                   </div>
                 </div>
               )}
