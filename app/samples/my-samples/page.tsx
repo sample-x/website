@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/auth/AuthProvider';
 import { useSupabase } from '@/app/supabase-provider';
@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
-import { Sample } from '@/types/sample';
+import { Sample } from '@/app/types/sample';
 
 export default function MySamplesPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -20,6 +20,11 @@ export default function MySamplesPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sampleToDelete, setSampleToDelete] = useState<Sample | null>(null);
+  const [updating, setUpdating] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editField, setEditField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>('');
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -88,6 +93,189 @@ export default function MySamplesPage() {
       setShowDeleteModal(false);
       setSampleToDelete(null);
     }
+  };
+
+  // Handle "Add to Marketplace" button click
+  const handleAddToMarketplace = async (sample: Sample) => {
+    if (!user) return;
+    
+    setUpdating(sample.id.toString());
+    try {
+      const { error } = await supabase
+        .from('samples')
+        .update({ status: 'public' })
+        .eq('id', sample.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Update local state
+      setSamples(samples.map(s => {
+        if (s.id === sample.id) {
+          return { ...s, status: 'public' };
+        }
+        return s;
+      }));
+      
+      toast.success('Sample added to marketplace successfully');
+    } catch (err) {
+      console.error('Error updating sample:', err);
+      toast.error('Failed to add sample to marketplace');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  // Handle "Remove from Marketplace" button click
+  const handleRemoveFromMarketplace = async (sample: Sample) => {
+    if (!user) return;
+    
+    setUpdating(sample.id.toString());
+    try {
+      const { error } = await supabase
+        .from('samples')
+        .update({ status: 'private' })
+        .eq('id', sample.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Update local state
+      setSamples(samples.map(s => {
+        if (s.id === sample.id) {
+          return { ...s, status: 'private' };
+        }
+        return s;
+      }));
+      
+      toast.success('Sample removed from marketplace successfully');
+    } catch (err) {
+      console.error('Error updating sample:', err);
+      toast.error('Failed to remove sample from marketplace');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  // Handle toggling edit mode for a field
+  const handleEdit = (sample: Sample, field: string) => {
+    setEditingId(sample.id.toString());
+    setEditField(field);
+    setEditValue(sample[field]?.toString() || '');
+    
+    // Focus the input after a small delay to ensure it's rendered
+    setTimeout(() => {
+      if (editInputRef.current) {
+        editInputRef.current.focus();
+      }
+    }, 50);
+  };
+
+  // Handle saving the edit
+  const handleSaveEdit = async () => {
+    if (!editingId || !editField) return;
+    
+    setUpdating(editingId);
+    try {
+      // Validate edit value
+      if (editField === 'price' && (isNaN(parseFloat(editValue)) || parseFloat(editValue) < 0)) {
+        toast.error('Price must be a valid positive number');
+        return;
+      }
+      
+      if (editField === 'quantity' && (isNaN(parseInt(editValue)) || parseInt(editValue) < 0)) {
+        toast.error('Quantity must be a valid positive number');
+        return;
+      }
+      
+      // Prepare the update object
+      const updateData: any = {};
+      updateData[editField] = 
+        editField === 'price' ? parseFloat(editValue) :
+        editField === 'quantity' ? parseInt(editValue) :
+        editValue;
+      
+      // Update in database
+      const { error } = await supabase
+        .from('samples')
+        .update(updateData)
+        .eq('id', editingId);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Update local state
+      setSamples(samples.map(s => {
+        if (s.id.toString() === editingId) {
+          return { ...s, [editField]: updateData[editField] };
+        }
+        return s;
+      }));
+      
+      toast.success('Sample updated successfully');
+      
+      // Reset edit state
+      setEditingId(null);
+      setEditField(null);
+    } catch (err) {
+      console.error('Error updating sample:', err);
+      toast.error('Failed to update sample');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  // Handle cancelling the edit
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditField(null);
+  };
+
+  // Handle key press events in edit input
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
+
+  // Render editable field based on current editing state
+  const renderEditableField = (sample: Sample, field: string, displayValue: React.ReactNode) => {
+    const isEditing = editingId === sample.id.toString() && editField === field;
+    
+    if (isEditing) {
+      return (
+        <div className="flex items-center">
+          <input
+            ref={editInputRef}
+            type={field === 'price' || field === 'quantity' ? 'number' : 'text'}
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleSaveEdit}
+            className="px-2 py-1 border border-gray-300 rounded w-full"
+            min={field === 'price' || field === 'quantity' ? 0 : undefined}
+            step={field === 'price' ? 0.01 : undefined}
+          />
+        </div>
+      );
+    }
+    
+    return (
+      <div 
+        className="editable-field cursor-pointer hover:bg-gray-50 px-2 py-1 rounded flex items-center"
+        onClick={() => handleEdit(sample, field)}
+      >
+        {displayValue}
+        <span className="ml-1 text-gray-400 text-xs">
+          <FontAwesomeIcon icon={faEdit} />
+        </span>
+      </div>
+    );
   };
 
   if (authLoading || !user) {
@@ -169,7 +357,10 @@ export default function MySamplesPage() {
                       Price
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date Added
+                      Ownership
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
                     </th>
                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -183,7 +374,11 @@ export default function MySamplesPage() {
                         <div className="flex items-center">
                           <div>
                             <div className="text-sm font-medium text-gray-900">
-                              {sample.name}
+                              {renderEditableField(
+                                sample, 
+                                'name', 
+                                sample.name
+                              )}
                             </div>
                             <div className="text-sm text-gray-500 truncate max-w-[200px]">
                               {sample.description}
@@ -200,25 +395,84 @@ export default function MySamplesPage() {
                         {sample.location}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${sample.price.toFixed(2)}
+                        {renderEditableField(
+                          sample, 
+                          'price',
+                          `$${sample.price.toFixed(2)}`
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(sample.created_at).toLocaleDateString()}
+                        <div className="text-xs">
+                          {sample.institution_name && (
+                            <div className="mb-1">
+                              <span className="font-semibold">Institution:</span> {sample.institution_name}
+                            </div>
+                          )}
+                          {sample.sample_owner_id === user?.id && (
+                            <div className="text-green-600 font-semibold">
+                              You are the owner
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {sample.status === 'public' ? (
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            Public
+                          </span>
+                        ) : (
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            Private
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <Link
-                          href={`/sample-details?id=${sample.id}`}
-                          className="text-indigo-600 hover:text-indigo-900 mr-4"
+                          href={`/samples/${sample.id}`}
+                          className="text-indigo-600 hover:text-indigo-900 mr-3"
                         >
                           View
                         </Link>
                         <Link
-                          href={`/sample-details?id=${sample.id}&edit=true`}
-                          className="text-green-600 hover:text-green-900 mr-4"
+                          href={`/samples/edit/${sample.id}`}
+                          className="text-green-600 hover:text-green-900 mr-3"
                         >
                           <FontAwesomeIcon icon={faEdit} className="mr-1" />
                           Edit
                         </Link>
+                        
+                        {sample.status === 'private' ? (
+                          <button
+                            onClick={() => handleAddToMarketplace(sample)}
+                            className="text-blue-600 hover:text-blue-900 mr-3"
+                            disabled={updating === sample.id.toString()}
+                          >
+                            {updating === sample.id.toString() ? (
+                              <span>Adding...</span>
+                            ) : (
+                              <>
+                                <FontAwesomeIcon icon={faPlus} className="mr-1" />
+                                Add to Marketplace
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleRemoveFromMarketplace(sample)}
+                            className="text-yellow-600 hover:text-yellow-900 mr-3"
+                            disabled={updating === sample.id.toString()}
+                          >
+                            {updating === sample.id.toString() ? (
+                              <span>Removing...</span>
+                            ) : (
+                              <>
+                                <FontAwesomeIcon icon={faPlus} className="mr-1" />
+                                Remove from Marketplace
+                              </>
+                            )}
+                          </button>
+                        )}
+                        
                         <button
                           onClick={() => handleDeleteClick(sample)}
                           className="text-red-600 hover:text-red-900"

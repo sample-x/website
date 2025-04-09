@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSupabase } from '@/app/supabase-provider';
 import { useAuth } from '@/app/auth/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { Sample } from '@/types/sample';
+import { Sample } from '@/app/types/sample';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faEdit, faTrash, faShoppingCart, faDownload, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
@@ -221,22 +221,49 @@ export default function SampleViewEditClient({ id }: SampleViewEditClientProps) 
                         <p className="text-sm text-gray-500">Price</p>
                         <p className="font-medium">${sample.price.toFixed(2)}</p>
                       </div>
-                      
+
                       <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-sm text-gray-500">Quantity Available</p>
-                        <p className="font-medium">{sample.quantity}</p>
-                      </div>
-                      
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-sm text-gray-500">ID</p>
-                        <p className="font-medium text-sm truncate">{sample.id}</p>
+                        <p className="text-sm text-gray-500">Status</p>
+                        <p className="font-medium">
+                          {sample.status === 'public' ? (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                              Public (Listed in Marketplace)
+                            </span>
+                          ) : (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                              Private (Only visible to you)
+                            </span>
+                          )}
+                        </p>
                       </div>
                     </div>
                     
-                    {sample.description && (
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-sm text-gray-500 mb-1">Description</p>
-                        <p className="whitespace-pre-line">{sample.description}</p>
+                    {/* Add ownership section */}
+                    {(sample.institution_name || sample.institution_contact_name || sample.institution_contact_email) && (
+                      <div className="mt-6">
+                        <h3 className="text-md font-semibold mb-3 text-gray-800">Ownership Information</h3>
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                          {sample.institution_name && (
+                            <div className="mb-2">
+                              <span className="font-semibold">Institution:</span> {sample.institution_name}
+                            </div>
+                          )}
+                          {isOwner && sample.institution_contact_name && (
+                            <div className="mb-2">
+                              <span className="font-semibold">Contact Person:</span> {sample.institution_contact_name}
+                            </div>
+                          )}
+                          {isOwner && sample.institution_contact_email && (
+                            <div>
+                              <span className="font-semibold">Contact Email:</span> {sample.institution_contact_email}
+                            </div>
+                          )}
+                          {!isOwner && (
+                            <div className="mt-2 text-sm text-blue-600">
+                              <p>Contact information is only visible to the sample owner.</p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>

@@ -25,6 +25,7 @@ interface FormData {
   institution_name: string;
   institution_contact_name: string;
   institution_contact_email: string;
+  status: string;
 }
 
 export default function EditSampleClient({ id }: { id: string }) {
@@ -47,7 +48,8 @@ export default function EditSampleClient({ id }: { id: string }) {
     longitude: null,
     institution_name: '',
     institution_contact_name: '',
-    institution_contact_email: ''
+    institution_contact_email: '',
+    status: 'private'
   });
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -102,7 +104,8 @@ export default function EditSampleClient({ id }: { id: string }) {
           longitude: data.longitude,
           institution_name: data.institution_name || '',
           institution_contact_name: data.institution_contact_name || '',
-          institution_contact_email: data.institution_contact_email || ''
+          institution_contact_email: data.institution_contact_email || '',
+          status: data.status || 'private'
         });
       } catch (err) {
         console.error('Error fetching sample:', err);
@@ -189,7 +192,8 @@ export default function EditSampleClient({ id }: { id: string }) {
           longitude: formData.longitude,
           institution_name: formData.institution_name,
           institution_contact_name: formData.institution_contact_name,
-          institution_contact_email: formData.institution_contact_email
+          institution_contact_email: formData.institution_contact_email,
+          status: formData.status
         })
         .eq('id', sample.id);
       
@@ -458,6 +462,50 @@ export default function EditSampleClient({ id }: { id: string }) {
                       onChange={handleChange}
                       className="block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                     />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Marketplace Settings</h3>
+                
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 mb-6">
+                  <h4 className="font-medium text-yellow-800 mb-2">Sample Visibility</h4>
+                  <p className="text-sm text-yellow-700 mb-4">
+                    Control whether this sample is visible in the public marketplace.
+                    Public samples are discoverable by all users and appear on the map (if coordinates are provided).
+                  </p>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="status-private"
+                        name="status"
+                        value="private"
+                        checked={formData.status === 'private'}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-orange-500 focus:ring-orange-400"
+                      />
+                      <label htmlFor="status-private" className="ml-2 block text-sm text-gray-700">
+                        Private (Only visible to you)
+                      </label>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="status-public"
+                        name="status"
+                        value="public"
+                        checked={formData.status === 'public'}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-orange-500 focus:ring-orange-400"
+                      />
+                      <label htmlFor="status-public" className="ml-2 block text-sm text-gray-700">
+                        Public (Listed in marketplace)
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
