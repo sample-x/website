@@ -91,7 +91,7 @@ cat > out/_routes.json << EOL
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": ["/functions/*"]
+  "exclude": []
 }
 EOL
 
