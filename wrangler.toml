@@ -10,6 +10,9 @@ pages_build_output_dir = "out"
 [env.production.vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://znmkkduvzzmoxzgthwby.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpubWtrZHV2enptb3h6Z3Rod2J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3NDI2MzksImV4cCI6MjA1ODMxODYzOX0.YObW_QOjuEuvjGxi97JAIRbUWwsZ1gTSCebzNkMVqYk"
+# For Cloudflare Functions to access
+SUPABASE_URL = "https://znmkkduvzzmoxzgthwby.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpubWtrZHV2enptb3h6Z3Rod2J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3NDI2MzksImV4cCI6MjA1ODMxODYzOX0.YObW_QOjuEuvjGxi97JAIRbUWwsZ1gTSCebzNkMVqYk"
 
 # Add environment-specific settings if needed, e.g., build commands
 # command = "./build-static.sh"

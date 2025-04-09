@@ -7,7 +7,6 @@
     "/build/*",
     "/assets/*",
     "/_next/*",
-    "/api/*",
     "/favicon.ico"
   ],
   "headers": [
