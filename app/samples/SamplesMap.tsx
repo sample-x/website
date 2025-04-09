@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import { isStaticExport } from '@/app/lib/staticData'
 import { SamplesMapProps } from './mapTypes'
 import Image from 'next/image'
+import { getSampleTypeColor } from '@/app/lib/sampleColors'
 
 // Dynamically import LeafletMap to avoid SSR issues
 const LeafletMap = dynamic(() => import('./LeafletMap'), {
@@ -21,17 +22,15 @@ const LeafletMap = dynamic(() => import('./LeafletMap'), {
 })
 
 // Sample type colors for markers
-const typeColors: Record<string, string> = {
-  animal: '#ef4444',
-  plant: '#65a30d',
-  mineral: '#3b82f6',
-  synthetic: '#8b5cf6',
+const typeColors = {
   bacterial: '#10b981',
-  'cell line': '#8b5cf6',
-  environmental: '#3b82f6',
-  soil: '#92400e',
   viral: '#db2777',
-  default: '#6b7280',
+  fungal: '#f59e0b',
+  tissue: '#ef4444',
+  environmental: '#3b82f6',
+  'cell line': '#8b5cf6',
+  soil: '#92400e',
+  default: '#64748b',
 }
 
 export default function SamplesMap({ samples, onSampleSelect, selectedSample }: SamplesMapProps) {
@@ -54,15 +53,15 @@ export default function SamplesMap({ samples, onSampleSelect, selectedSample }: 
 
     console.log('SamplesMap: Processing samples for map:', samples.length);
 
-    // Filter samples with valid coordinates
-    const filteredSamples = samples.filter(
-      (sample) => typeof sample.latitude === 'number' && 
-                 typeof sample.longitude === 'number' && 
-                 !isNaN(sample.latitude) && 
-                 !isNaN(sample.longitude)
-    );
+    // Filter out samples without valid coordinates
+    const filteredSamples = samples.filter(sample => {
+      return typeof sample.latitude === 'number' && 
+             typeof sample.longitude === 'number' && 
+             !isNaN(sample.latitude) && 
+             !isNaN(sample.longitude);
+    });
 
-    console.log('SamplesMap: Filtered samples with coordinates:', filteredSamples.length);
+    console.log(`SamplesMap: Filtered samples with valid coordinates: ${filteredSamples.length} out of ${samples.length}`);
 
     if (filteredSamples.length > 0) {
       // Create markers
@@ -118,7 +117,7 @@ export default function SamplesMap({ samples, onSampleSelect, selectedSample }: 
               key={index}
               className="absolute w-3 h-3 rounded-full border border-white shadow-sm transform -translate-x-1.5 -translate-y-1.5 cursor-pointer"
               style={{
-                backgroundColor: typeColors[sample.type?.toLowerCase() || 'default'] || typeColors.default,
+                backgroundColor: getSampleTypeColor(sample.type) || typeColors.default,
                 left: `${((sample.longitude || 0) + 180) / 360 * 100}%`,
                 top: `${(90 - (sample.latitude || 0)) / 180 * 100}%`,
                 zIndex: 10
@@ -169,23 +168,7 @@ export default function SamplesMap({ samples, onSampleSelect, selectedSample }: 
 
 // Function to get the marker color based on sample type
 const getMarkerColor = (type?: string): string => {
-  if (!type) return typeColors.default;
-  
-  // Convert to lowercase for case-insensitive matching
-  const typeLower = type.toLowerCase();
-  
-  // Check if type is directly in our color map
-  for (const [key, color] of Object.entries(typeColors)) {
-    if (key === typeLower) return color;
-  }
-  
-  // Check if type contains any of our color keys
-  for (const [key, color] of Object.entries(typeColors)) {
-    if (typeLower.includes(key)) return color;
-  }
-  
-  // Default color if no match
-  return typeColors.default;
+  return getSampleTypeColor(type);
 };
 
 function createPopupContent(sample: Sample): string {

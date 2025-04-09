@@ -3,6 +3,7 @@
 import React from 'react';
 import { Sample } from './types';
 import './samples.css';
+import { getSampleTypeColor } from '@/app/lib/sampleColors';
 
 // Helper function to get host information with fallbacks
 const getHostInfo = (sample: Sample): string => {
@@ -44,35 +45,10 @@ const formatPrice = (price: number | undefined): string => {
   return `$${price.toFixed(2)}`;
 }
 
-// Helper to determine color for sample type
-const getSampleTypeColor = (type: string | undefined): string => {
-  if (!type) return '#607D8B'; // Default gray
-  
-  const typeColors: Record<string, string> = {
-    'bacterial': '#8BC34A',
-    'tissue': '#E91E63',
-    'botanical': '#4CAF50',
-    'soil': '#8B4513'
-  };
-  
-  const lowerType = type.toLowerCase();
-  
-  // Check for exact match
-  for (const [key, color] of Object.entries(typeColors)) {
-    if (lowerType === key) {
-      return color;
-    }
-  }
-  
-  // Check for partial match
-  for (const [key, color] of Object.entries(typeColors)) {
-    if (lowerType.includes(key)) {
-      return color;
-    }
-  }
-  
-  return '#607D8B'; // Default gray
-}
+// Helper to determine color for sample type - using imported utility
+const getTypeColor = (type: string | undefined): string => {
+  return getSampleTypeColor(type);
+};
 
 // Define SampleListProps interface
 interface SampleListProps {

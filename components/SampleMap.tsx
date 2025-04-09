@@ -9,6 +9,7 @@ import { sampleTypeColors } from '@/utils/constants';
 import L from 'leaflet';
 import { useRouter } from 'next/navigation';
 import { LatLngBounds, Map as LeafletMap } from 'leaflet';
+import { getSampleTypeColor } from '@/app/lib/sampleColors';
 
 // Fix for Leaflet default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -21,30 +22,7 @@ L.Icon.Default.mergeOptions({
 // Sample type colors for markers
 const getMarkerColor = (type: string): string => {
   console.log(`[Map Marker Debug] Sample type: ${type}`);
-  
-  // Highly saturated colors for better visibility
-  switch (type.toLowerCase()) {
-    case 'bacterial':
-      return '#ADFF2F'; // Bright Green
-    case 'viral':
-      return '#FF1493'; // Deep Pink
-    case 'fungal':
-      return '#FFD700'; // Gold
-    case 'cell line':
-      return '#9932CC'; // Dark Orchid
-    case 'plant':
-      return '#32CD32'; // Lime Green
-    case 'animal':
-      return '#FF8C00'; // Dark Orange
-    case 'water':
-      return '#0066FF'; // Bright Blue
-    case 'soil':
-      return '#967259'; // Walnut brown
-    case 'environmental':
-      return '#599E94'; // Turquoise
-    default:
-      return '#D62828'; // Red (default for unspecified types)
-  }
+  return getSampleTypeColor(type);
 };
 
 // After the getMarkerColor function, add a new constant for the legend
