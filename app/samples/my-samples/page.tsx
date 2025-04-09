@@ -433,19 +433,19 @@ export default function MySamplesPage() {
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <Link
+                            <a
                               href={`/samples/${sample.id}`}
                               className="text-indigo-600 hover:text-indigo-900 mr-3"
                             >
                               View
-                            </Link>
-                            <Link
+                            </a>
+                            <a
                               href={`/samples/edit/${sample.id}`}
                               className="text-green-600 hover:text-green-900 mr-3"
                             >
                               <FontAwesomeIcon icon={faEdit} className="mr-1" />
                               Edit
-                            </Link>
+                            </a>
                             
                             {sample.status === 'private' ? (
                               <button
