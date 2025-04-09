@@ -1,0 +1,23 @@
+/next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/javascript
+  X-Content-Type-Options: nosniff
+
+/next/static/chunks/*
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/javascript
+  X-Content-Type-Options: nosniff
+
+/next/static/css/*
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: text/css
+  X-Content-Type-Options: nosniff
+
+/next/static/media/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: origin-when-cross-origin 

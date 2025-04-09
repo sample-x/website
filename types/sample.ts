@@ -15,6 +15,9 @@ export interface Sample {
     updated_at?: string;
     inStock?: boolean;
     references?: string[];
+    institution_name?: string;
+    institution_contact_name?: string;
+    institution_contact_email?: string;
 }
 
 export type SampleFilter = {

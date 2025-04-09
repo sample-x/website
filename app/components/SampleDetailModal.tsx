@@ -9,13 +9,15 @@ interface SampleDetailModalProps {
   onClose: () => void
   sample: Sample | null
   onAddToCart: (sample: Sample) => Promise<void>
+  isStaticMode?: boolean
 }
 
 export default function SampleDetailModal({
   isOpen,
   onClose,
   sample,
-  onAddToCart
+  onAddToCart,
+  isStaticMode
 }: SampleDetailModalProps) {
   const [quantity, setQuantity] = useState(1)
   const [selectedTab, setSelectedTab] = useState('details')

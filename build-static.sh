@@ -5,17 +5,18 @@ set -e
 
 echo "Starting static build process..."
 
-# Ensure required environment variables are set
+# Ensure required environment variables are set (These should be provided by the build environment, e.g., Cloudflare dashboard settings)
 if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
-  echo "Error: Required environment variables are not set"
+  echo "Error: Required environment variables NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set in the build environment."
   exit 1
 fi
 
 # Set static export flag
 export STATIC_EXPORT=1
 
-# Create temporary .env.local file
-echo "Creating .env.local file..."
+# Create temporary .env.local file FOR THE BUILD PROCESS ONLY
+# Runtime values on Cloudflare Pages come from dashboard settings
+echo "Creating .env.local file for build process..."
 cat > .env.local << EOL
 NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -28,7 +29,7 @@ npm ci
 
 # Build the Next.js app (outputs to 'out/' by default with export config)
 echo "Building the Next.js app..."
-NEXT_TELEMETRY_DISABLED=1 STATIC_EXPORT=1 npm run build
+NEXT_TELEMETRY_DISABLED=1 npm run build # Removed STATIC_EXPORT=1 here as it's set globally and in .env.local
 
 # Create Cloudflare Pages specific files in 'out' directory
 echo "Creating Cloudflare Pages configuration in out/ directory..."

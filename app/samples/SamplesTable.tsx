@@ -16,6 +16,7 @@ export interface SamplesTableProps {
   onViewDetails: (sample: Sample) => void;
   loading?: boolean;
   isAuthenticated: boolean;
+  isStaticMode?: boolean;
 }
 
 // Use the imported color getter
@@ -45,7 +46,8 @@ export default function SamplesTable({
   onAddToCart,
   onViewDetails,
   loading = false,
-  isAuthenticated
+  isAuthenticated,
+  isStaticMode
 }: SamplesTableProps) {
   // Removing internal pagination state and logic - samples are now pre-paginated by parent
 

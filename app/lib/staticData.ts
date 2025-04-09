@@ -120,33 +120,14 @@ export function getStaticSampleById(id: string): Sample | undefined {
 
 // Function to check if we're in static export mode
 export function isStaticExport(): boolean {
-  // For Cloudflare Pages deployments, we need to detect static mode
+  // Check if we have Supabase credentials from environment variables
+  const hasSupabaseUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const hasSupabaseKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
-  // During build, if we set STATIC_EXPORT=1, always use static mode
-  if (process.env.STATIC_EXPORT === '1') {
-    console.log('isStaticExport: Build-time STATIC_EXPORT=1 detected');
-    return true;
-  }
+  const useStatic = !hasSupabaseUrl || !hasSupabaseKey;
+  console.log(`[staticData] isStaticExport check: URL found=${hasSupabaseUrl}, Key found=${hasSupabaseKey}. Using Static=${useStatic}`);
   
-  // At runtime (client or server), check for Supabase variables
-  const hasSupabaseUrl = typeof process.env.NEXT_PUBLIC_SUPABASE_URL === 'string' && 
-                         process.env.NEXT_PUBLIC_SUPABASE_URL.length > 10;
-  const hasSupabaseKey = typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'string' && 
-                         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 10;
-                         
-  // If Supabase variables are properly set, assume dynamic mode (NOT static)
-  if (hasSupabaseUrl && hasSupabaseKey) {
-    console.log('isStaticExport: Supabase env vars found, assuming dynamic mode');
-    return false;
-  }
-  
-  // Fallback: Check for window flag (less reliable)
-  if (typeof window !== 'undefined' && (window as any).__STATIC_MODE__) {
-    console.log('isStaticExport: window.__STATIC_MODE__ flag found');
-    return true;
-  }
-  
-  // Default to static mode if Supabase variables are missing
-  console.log('isStaticExport: Defaulting to static mode (missing Supabase vars or window flag)');
-  return true;
+  // If we don't have credentials (or they are invalid according to Supabase client init), 
+  // we assume we should be in static mode.
+  return useStatic;
 } 

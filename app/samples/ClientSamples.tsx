@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import SamplesMap from '@/app/samples/SamplesMap'
@@ -33,36 +33,64 @@ interface FilterState {
 
 type SupabaseSample = Database['public']['Tables']['samples']['Row']
 
+// Define initial empty filter state
+const initialFilterState: FilterState = {
+  searchQuery: '',
+  selectedTypes: [],
+  minPrice: 0,
+  maxPrice: 1000, // Or determine dynamically later
+  locations: [],
+  dateRange: {
+    start: null,
+    end: null
+  }
+};
+
 export default function ClientSamples() {
   const { supabase } = useSupabase()
   const { addToCart } = useCart()
   const { user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+
+  // State Initialization
   const [dbSamples, setDBSamples] = useState<SupabaseSample[]>([])
   const [tableSamples, setTableSamples] = useState<Sample[]>([])
   const [filteredSamples, setFilteredSamples] = useState<Sample[]>([])
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [isStatic, setIsStatic] = useState(true)
-  const [forceDynamicMode, setForceDynamicMode] = useState(false)
-  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [loading, setLoading] = useState(true) // Start loading initially
+  const [error, setError] = useState<string | null>(null) // State for error messages
+  const [isStaticMode, setIsStaticMode] = useState<boolean | null>(null); // Initial state unknown
+  const [showLoginModal, setShowLoginModal] = useState(false) // Keep this if needed for login flow
   const [showFilters, setShowFilters] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [availableTypes, setAvailableTypes] = useState<string[]>([])
   const [availableLocations, setAvailableLocations] = useState<string[]>([])
-  
-  const [filters, setFilters] = useState<FilterState>({
-    searchQuery: '',
-    selectedTypes: [],
-    minPrice: 0,
-    maxPrice: 1000,
-    locations: [],
-    dateRange: {
-      start: null,
-      end: null
+  const [filters, setFilters] = useState<FilterState>(initialFilterState);
+
+  // --- Mode Detection ---
+  useEffect(() => {
+    console.log('[ClientSamples] Determining mode...');
+    const staticModeDetected = isStaticExport();
+    setIsStaticMode(staticModeDetected);
+    console.log(`[ClientSamples] Mode determined: ${staticModeDetected ? 'STATIC' : 'DYNAMIC'}`);
+
+    // If dynamic mode, immediately trigger fetch
+    if (!staticModeDetected) {
+        console.log('[ClientSamples] Dynamic mode detected, initiating fetch...');
+        fetchSamples();
+    } else {
+        console.log('[ClientSamples] Static mode detected, skipping dynamic fetch.');
+        // In static mode, we are done loading as there's nothing to fetch
+        setLoading(false);
+        // Optionally load static data here if needed, but we removed the mock data loading effect
+        // If you want static data displayed, initialize state with it:
+        // const staticData = getStaticSamples(); // Assuming you have this function
+        // setTableSamples(staticData);
+        // setFilteredSamples(staticData);
+        // extractFilterOptions(staticData);
     }
-  })
+  }, []); // Run only once on mount
 
   // Handle navigation
   const handleNavigation = (path: string, e?: React.MouseEvent) => {
@@ -71,31 +99,6 @@ export default function ClientSamples() {
     }
     router.push(path)
   }
-
-  // Check if we're in static mode
-  useEffect(() => {
-    const staticMode = isStaticExport();
-    
-    // Check for localStorage override
-    let forceDynamic = false;
-    if (typeof window !== 'undefined') {
-      try {
-        forceDynamic = localStorage.getItem('forceDynamicMode') === 'true';
-        setForceDynamicMode(forceDynamic);
-      } catch (e) {
-        console.error('Error accessing localStorage:', e);
-      }
-    }
-    
-    // Set static mode based on environment and override
-    const finalStaticMode = staticMode && !forceDynamic;
-    setIsStatic(finalStaticMode);
-    
-    // If we're in dynamic mode, trigger sample fetch
-    if (!finalStaticMode) {
-      fetchSamples();
-    }
-  }, []);
 
   // Handle upload button click
   const handleUploadClick = (e: React.MouseEvent) => {
@@ -107,137 +110,63 @@ export default function ClientSamples() {
     }
   };
 
-  // Toggle dynamic mode
-  const toggleDynamicMode = () => {
-    const newValue = !forceDynamicMode;
-    setForceDynamicMode(newValue);
-    
-    // Save to localStorage
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('forceDynamicMode', newValue ? 'true' : 'false');
-      } catch (e) {
-        // Ignore localStorage errors
-      }
+  // --- Data Fetching (Dynamic Mode Only) ---
+  const fetchSamples = useCallback(async () => {
+    console.log('[ClientSamples] fetchSamples started.');
+    // Ensure we only fetch if supabase client is available and in dynamic mode
+    if (!supabase || isStaticMode) {
+      console.log('[ClientSamples] fetchSamples aborted (no supabase client or in static mode).');
+      setLoading(false); // Stop loading if we abort
+      return;
     }
-    
-    // Force reload to apply changes
-    window.location.reload();
-  };
 
-  // Fetch samples from Supabase
-  const fetchSamples = async () => {
     setLoading(true);
+    setError(null); // Clear previous errors
+
     try {
-      const { data, error } = await supabase
+      console.log('[ClientSamples] Querying Supabase for public samples...');
+      const { data, error: fetchError } = await supabase
         .from('samples')
         .select('*')
         .eq('status', 'public'); // Only fetch public samples for the marketplace
 
-      if (error) {
-        console.error('Error fetching samples:', error);
-        // Fall back to mock data
-        const mockSamples: SupabaseSample[] = [
-          {
-            id: '1',
-            name: "Marine Bacterial Culture",
-            type: "Bacterial",
-            description: "Deep sea bacterial culture isolated from hydrothermal vents",
-            location: "Pacific Ocean",
-            price: 299.99,
-            latitude: 45.5155,
-            longitude: -122.6789,
-            collection_date: "2024-02-15",
-            storage_condition: "frozen",
-            quantity: 5,
-            hash: "sample1",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: '2',
-            name: "Cell Line A549",
-            type: "Cell Line",
-            description: "Human lung carcinoma cell line",
-            location: "Laboratory Stock",
-            price: 499.99,
-            latitude: 41.8781,
-            longitude: -87.6298,
-            collection_date: "2024-01-20",
-            storage_condition: "cryogenic",
-            quantity: 3,
-            hash: "sample2",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: '3',
-            name: "Soil Sample",
-            type: "Environmental",
-            description: "Rich soil sample from Amazon rainforest",
-            location: "Brazil",
-            price: 129.99,
-            latitude: -3.4653,
-            longitude: -62.2159,
-            collection_date: "2023-11-05",
-            storage_condition: "room temperature",
-            quantity: 8,
-            hash: "sample3",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: '4',
-            name: "E. coli Strain K-12",
-            type: "Bacterial",
-            description: "Standard laboratory strain of E. coli",
-            location: "Research Lab",
-            price: 149.99,
-            latitude: 37.7749,
-            longitude: -122.4194,
-            collection_date: "2024-01-10",
-            storage_condition: "frozen",
-            quantity: 15,
-            hash: "sample4",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: '5',
-            name: "Plant Tissue",
-            type: "Plant",
-            description: "Arabidopsis thaliana leaf tissue",
-            location: "Greenhouse",
-            price: 89.99,
-            latitude: 52.5200,
-            longitude: 13.4050,
-            collection_date: "2024-03-01",
-            storage_condition: "frozen",
-            quantity: 7,
-            hash: "sample5",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ];
-        const convertedSamples = mockSamples.map(convertToTableSample);
-        setDBSamples(mockSamples);
-        setTableSamples(convertedSamples);
-        setFilteredSamples(convertedSamples);
-        extractFilterOptions(convertedSamples);
-      } else if (data) {
-        console.log('Fetched samples:', data);
+      if (fetchError) {
+        console.error('[ClientSamples] Error fetching samples from Supabase:', fetchError);
+        toast.error('Failed to load samples from database. Please check connection or try again.');
+        setError('Failed to load samples from database.'); // Set error state
+        setDBSamples([]); // Clear potentially stale data
+        setTableSamples([]);
+        setFilteredSamples([]);
+        return; // Exit on error
+      }
+
+      if (data) {
+        console.log(`[ClientSamples] Successfully fetched ${data.length} samples from Supabase.`);
         const convertedSamples = data.map(convertToTableSample);
+        console.log('[ClientSamples] Setting DB, Table, and Filtered samples state.');
         setDBSamples(data);
         setTableSamples(convertedSamples);
-        setFilteredSamples(convertedSamples);
+        setFilteredSamples(convertedSamples); // Initialize filtered with all fetched samples
         extractFilterOptions(convertedSamples);
+      } else {
+          console.warn('[ClientSamples] Fetched data is null or undefined.');
+          setDBSamples([]);
+          setTableSamples([]);
+          setFilteredSamples([]);
       }
-    } catch (error) {
-      console.error('Error in fetchSamples:', error);
+
+    } catch (catchError) {
+      console.error('[ClientSamples] Unexpected error in fetchSamples catch block:', catchError);
+      toast.error('An unexpected error occurred while loading samples.');
+      setError('An unexpected error occurred.'); // Set generic error state
+      setDBSamples([]); // Clear potentially stale data
+      setTableSamples([]);
+      setFilteredSamples([]);
     } finally {
-      setLoading(false);
+      console.log('[ClientSamples] fetchSamples finished.');
+      setLoading(false); // Ensure loading is set to false
     }
-  };
+  }, [supabase, isStaticMode]); // Depend on supabase client and mode
 
   // Extract available filter options from samples
   const extractFilterOptions = (samples: Sample[]) => {
@@ -248,27 +177,28 @@ export default function ClientSamples() {
     // Extract unique locations
     const locations = [...new Set(samples.map(s => s.location).filter(Boolean))];
     setAvailableLocations(locations as string[]);
+    console.log(`[ClientSamples] Extracted filter options: ${types.length} types, ${locations.length} locations.`);
   };
 
   // Convert Supabase sample to frontend Sample type
   const convertToTableSample = (dbSample: SupabaseSample): Sample => {
     return {
       id: dbSample.id,
-      name: dbSample.name,
-      type: dbSample.type || undefined,
-      description: dbSample.description || undefined,
-      location: dbSample.location || undefined,
-      price: dbSample.price,
-      latitude: dbSample.latitude,
-      longitude: dbSample.longitude,
+      name: dbSample.name ?? 'Unnamed Sample', // Provide default
+      type: dbSample.type ?? undefined,
+      description: dbSample.description ?? undefined,
+      location: dbSample.location ?? undefined,
+      price: dbSample.price ?? 0, // Provide default
+      latitude: dbSample.latitude ?? undefined, // Convert null to undefined
+      longitude: dbSample.longitude ?? undefined, // Convert null to undefined
       collection_date: dbSample.collection_date || undefined,
       storage_condition: dbSample.storage_condition || undefined,
-      quantity: dbSample.quantity,
-      hash: dbSample.hash || undefined,
-      created_at: dbSample.created_at || undefined, 
+      quantity: dbSample.quantity ?? 0, // Provide default
+      created_at: dbSample.created_at || undefined,
       updated_at: dbSample.updated_at || undefined,
-      inStock: (dbSample.quantity || 0) > 0,
-      references: [
+      // Calculate inStock based on quantity, handling null/undefined
+      inStock: (dbSample.quantity ?? 0) > 0,
+      references: [ // Keep mock references for now, replace if dynamic needed
         "Smith, J. et al (2023). Novel properties of strain XYZ. Journal of Microbiology, 45(2), 112-118.",
         "Zhang, L. & Johnson, T. (2022). Comparative analysis of environmental samples. Nature Methods, 18(3), 320-328."
       ]
@@ -276,236 +206,155 @@ export default function ClientSamples() {
   };
 
   // Handle adding to cart
-  const handleAddToCart = async (sample: Sample) => {
+  const handleAddToCart = useCallback(async (sample: Sample) => {
+    console.log(`[ClientSamples] Attempting to add sample ID ${sample.id} to cart.`);
     try {
       if (!user) {
         toast.error('Please log in to add items to cart');
         router.push('/login');
         return;
       }
-      
-      // Check if quantity is available
+
       if (!sample.quantity || sample.quantity <= 0) {
         toast.error('This sample is out of stock');
         return;
       }
-      
-      // Add to cart
+
       await addToCart(sample);
       toast.success(`${sample.name} added to cart`);
-      
-      // Update the displayed quantity in the table
-      const updatedSamples = tableSamples.map(s => {
-        if (s.id === sample.id) {
-          // Decrease the quantity by 1 (or the selected quantity)
-          return { 
-            ...s, 
-            quantity: Math.max(0, (s.quantity || 0) - 1),
-            inStock: ((s.quantity || 0) - 1) > 0
-          };
-        }
-        return s;
-      });
-      
-      setTableSamples(updatedSamples);
-      
-      // Also update filtered samples to keep them in sync
-      const updatedFilteredSamples = filteredSamples.map(s => {
-        if (s.id === sample.id) {
-          return { 
-            ...s, 
-            quantity: Math.max(0, (s.quantity || 0) - 1),
-            inStock: ((s.quantity || 0) - 1) > 0
-          };
-        }
-        return s;
-      });
-      
-      setFilteredSamples(updatedFilteredSamples);
-      
+
+      // Update state locally to reflect quantity decrease
+      const updateSampleState = (prevState: Sample[]) =>
+        prevState.map(s =>
+          s.id === sample.id
+            ? {
+                ...s,
+                quantity: Math.max(0, (s.quantity || 0) - 1),
+                inStock: (s.quantity || 0) - 1 > 0
+              }
+            : s
+        );
+
+      console.log(`[ClientSamples] Updating tableSamples state after adding sample ${sample.id} to cart.`);
+      setTableSamples(updateSampleState);
+
+      console.log(`[ClientSamples] Updating filteredSamples state after adding sample ${sample.id} to cart.`);
+      setFilteredSamples(updateSampleState);
+
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('[ClientSamples] Error adding to cart:', error);
       toast.error('Failed to add item to cart');
     }
-  };
+  }, [user, supabase, addToCart, router]); // Add dependencies
 
   // Handle sample selection (from map or table)
-  const handleSampleSelect = (sample: Sample) => {
+  const handleSampleSelect = useCallback((sample: Sample) => {
+    console.log(`[ClientSamples] Selected sample ID ${sample.id} from map/table.`);
     setSelectedSample(sample);
     setShowDetailModal(true);
-  };
+  }, []); // No dependencies needed
 
-  // Handle view sample details (from table)
-  const handleViewSampleDetails = (sample: Sample) => {
-    setSelectedSample(sample);
-    setShowDetailModal(true);
-  };
+  // Handle view sample details (from table) - can likely reuse handleSampleSelect
+  const handleViewSampleDetails = handleSampleSelect;
 
   // Apply filters
   useEffect(() => {
-    if (tableSamples.length > 0) {
-      let result = [...tableSamples];
-      
-      // Apply search query
-      if (filters.searchQuery) {
-        const query = filters.searchQuery.toLowerCase();
-        result = result.filter(sample => 
-          sample.name.toLowerCase().includes(query) || 
-          sample.description?.toLowerCase().includes(query) ||
-          sample.location?.toLowerCase().includes(query) ||
-          sample.type?.toLowerCase().includes(query)
-        );
-      }
-      
-      // Apply type filter
-      if (filters.selectedTypes.length > 0) {
-        result = result.filter(sample => 
-          sample.type && filters.selectedTypes.includes(sample.type)
-        );
-      }
-      
-      // Apply price range filter
-      result = result.filter(sample => 
-        sample.price >= filters.minPrice && 
-        sample.price <= filters.maxPrice
-      );
-      
-      // Apply location filter
-      if (filters.locations.length > 0) {
-        result = result.filter(sample => 
-          sample.location && filters.locations.includes(sample.location)
-        );
-      }
-      
-      // Apply date range filter
-      if (filters.dateRange.start || filters.dateRange.end) {
-        result = result.filter(sample => {
-          if (!sample.collection_date) return false;
-          
-          const sampleDate = new Date(sample.collection_date).getTime();
-          const startOk = !filters.dateRange.start || sampleDate >= new Date(filters.dateRange.start).getTime();
-          const endOk = !filters.dateRange.end || sampleDate <= new Date(filters.dateRange.end).getTime();
-          
-          return startOk && endOk;
-        });
-      }
-      
-      setFilteredSamples(result);
-    }
-  }, [tableSamples, filters]);
+    if (tableSamples.length > 0 && isStaticMode === false) {
+        console.log('[ClientSamples] Applying filters to tableSamples:', filters);
+        let result = [...tableSamples];
 
-  // Mock data for samples
-  useEffect(() => {
-    if (!isStatic) return; // Only load mock data in static mode
-    
-    // Simulate API call with mock data for now
-    setLoading(true);
-    setTimeout(() => {
-      const mockSamples: SupabaseSample[] = [
-        {
-          id: '1',
-          name: "Marine Bacterial Culture",
-          type: "Bacterial",
-          description: "Deep sea bacterial culture isolated from hydrothermal vents",
-          location: "Pacific Ocean",
-          price: 299.99,
-          latitude: 45.5155,
-          longitude: -122.6789,
-          collection_date: "2024-02-15",
-          storage_condition: "frozen",
-          quantity: 5,
-          hash: "sample1",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: "Cell Line A549",
-          type: "Cell Line",
-          description: "Human lung carcinoma cell line",
-          location: "Laboratory Stock",
-          price: 499.99,
-          latitude: 41.8781,
-          longitude: -87.6298,
-          collection_date: "2024-01-20",
-          storage_condition: "cryogenic",
-          quantity: 3,
-          hash: "sample2",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: "Soil Sample",
-          type: "Environmental",
-          description: "Rich soil sample from Amazon rainforest",
-          location: "Brazil",
-          price: 129.99,
-          latitude: -3.4653,
-          longitude: -62.2159,
-          collection_date: "2023-11-05",
-          storage_condition: "room temperature",
-          quantity: 8,
-          hash: "sample3",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '4',
-          name: "E. coli Strain K-12",
-          type: "Bacterial",
-          description: "Standard laboratory strain of E. coli",
-          location: "Research Lab",
-          price: 149.99,
-          latitude: 37.7749,
-          longitude: -122.4194,
-          collection_date: "2024-01-10",
-          storage_condition: "frozen",
-          quantity: 15,
-          hash: "sample4",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '5',
-          name: "Plant Tissue",
-          type: "Plant",
-          description: "Arabidopsis thaliana leaf tissue",
-          location: "Greenhouse",
-          price: 89.99,
-          latitude: 52.5200,
-          longitude: 13.4050,
-          collection_date: "2024-03-01",
-          storage_condition: "frozen",
-          quantity: 7,
-          hash: "sample5",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+        // Apply search query
+        if (filters.searchQuery) {
+          const query = filters.searchQuery.toLowerCase();
+          result = result.filter(sample =>
+            sample.name.toLowerCase().includes(query) ||
+            (sample.description && sample.description.toLowerCase().includes(query)) ||
+            (sample.location && sample.location.toLowerCase().includes(query)) ||
+            (sample.type && sample.type.toLowerCase().includes(query))
+          );
         }
-      ];
-      
-      // Filter mock data to only show public samples (if mock data has status)
-      const publicMockSamples = mockSamples.filter(s => s.status === 'public' || !s.status); // Assume public if status undefined
 
-      const convertedSamples = publicMockSamples.map(convertToTableSample);
-      setDBSamples(publicMockSamples);
-      setTableSamples(convertedSamples);
-      setFilteredSamples(convertedSamples);
-      extractFilterOptions(convertedSamples);
-      setLoading(false);
-    }, 1000);
-  }, [isStatic]);
+        // Apply type filter
+        if (filters.selectedTypes.length > 0) {
+          result = result.filter(sample =>
+            sample.type && filters.selectedTypes.includes(sample.type)
+          );
+        }
+
+        // Apply price range filter
+        result = result.filter(sample =>
+          (sample.price ?? 0) >= filters.minPrice && // Handle potential null price
+          (sample.price ?? 0) <= filters.maxPrice
+        );
+
+        // Apply location filter
+        if (filters.locations.length > 0) {
+          result = result.filter(sample =>
+            sample.location && filters.locations.includes(sample.location)
+          );
+        }
+
+        // Apply date range filter
+        if (filters.dateRange.start || filters.dateRange.end) {
+          result = result.filter(sample => {
+            if (!sample.collection_date) return false;
+            try {
+                const sampleDate = new Date(sample.collection_date).getTime();
+                // Check if dates are valid before comparing
+                const startDate = filters.dateRange.start ? new Date(filters.dateRange.start).getTime() : null;
+                const endDate = filters.dateRange.end ? new Date(filters.dateRange.end).getTime() : null;
+
+                if ((startDate && isNaN(startDate)) || (endDate && isNaN(endDate))) {
+                    console.warn('[ClientSamples] Invalid date provided for filtering.');
+                    return true; // Don't filter out if date is invalid, or handle differently
+                }
+
+                const startOk = !startDate || sampleDate >= startDate;
+                const endOk = !endDate || sampleDate <= endDate;
+                return startOk && endOk;
+            } catch (dateError) {
+                console.error('[ClientSamples] Error parsing date during filtering:', dateError);
+                return false; // Exclude if date parsing fails
+            }
+          });
+        }
+
+        console.log(`[ClientSamples] Filtering complete. ${result.length} samples remaining.`);
+        setFilteredSamples(result);
+    } else if (isStaticMode === false) {
+        // If dynamic mode but no table samples (e.g., after error), ensure filtered is also empty
+        console.log('[ClientSamples] No tableSamples to filter, ensuring filteredSamples is empty.');
+        setFilteredSamples([]);
+    }
+    // If isStaticMode is true, filteredSamples should have been set during initialization or remain empty
+  }, [tableSamples, filters, isStaticMode]); // Add isStaticMode dependency
 
   return (
     <main className="container mx-auto px-4 py-8">
-      {/* Samples data notification banner */}
-      {!isStatic && (
-        <div className="bg-green-50 border border-green-200 text-green-800 rounded-md p-4 mb-6">
+      {/* Status Banner */}
+      {isStaticMode === true && ( // Show only if definitively static
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md p-4 mb-6">
           <p className="flex items-center">
-            <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            Running in live mode with real Supabase connection. Sample data is being loaded from your database.
+            <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">/* Add appropriate icon */</svg>
+            Running in static mode. Displaying default data. Network features are disabled.
+          </p>
+        </div>
+      )}
+      {isStaticMode === false && !loading && !error && ( // Show only if dynamic, loaded, no error
+        <div className="bg-green-50 border border-green-200 text-green-800 rounded-md p-4 mb-6">
+           <p className="flex items-center">
+             <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+             </svg>
+             Running in live mode with real Supabase connection.
+           </p>
+        </div>
+      )}
+      {error && ( // Show error banner if error state is set
+        <div className="bg-red-50 border border-red-200 text-red-800 rounded-md p-4 mb-6">
+          <p className="flex items-center">
+            <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">/* Add error icon */</svg>
+            Error: {error}
           </p>
         </div>
       )}
@@ -517,27 +366,23 @@ export default function ClientSamples() {
         </p>
         
         <div className="flex flex-wrap gap-4 mb-6">
-          <Link href="/samples/upload" 
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md inline-flex items-center"
-            onClick={handleUploadClick}
+          <Link href="/samples/upload"
+            className={`bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md inline-flex items-center ${isStaticMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+            onClick={(e) => {
+              if (isStaticMode) {
+                e.preventDefault();
+                toast.info('Uploading samples is disabled in static mode.');
+                return;
+              }
+              handleUploadClick(e);
+            }}
+            aria-disabled={isStaticMode === true}
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
             </svg>
             Upload Samples
           </Link>
-
-          {process.env.NODE_ENV === 'development' && (
-            <button
-              onClick={toggleDynamicMode}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md inline-flex items-center"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Switch to {forceDynamicMode ? 'Static' : 'Live'} Mode
-            </button>
-          )}
         </div>
 
         {/* Search and filter section */}
@@ -702,12 +547,20 @@ export default function ClientSamples() {
           )}
         </div>
 
-        {loading ? (
-          <div className="my-12 text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 mb-4"></div>
-            <p className="text-xl">Loading samples...</p>
-          </div>
-        ) : filteredSamples.length === 0 ? (
+        {/* --- Content Display --- */}
+        {loading && isStaticMode === null && ( // Show initial loading only before mode is determined
+            <div className="my-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 mb-4"></div>
+                <p className="text-xl">Initializing...</p>
+            </div>
+        )}
+        {loading && isStaticMode === false && ( // Show loading specifically for dynamic data fetch
+            <div className="my-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 mb-4"></div>
+                <p className="text-xl">Loading samples from database...</p>
+            </div>
+        )}
+         {!loading && !error && filteredSamples.length === 0 && isStaticMode === false && ( // Dynamic mode, loaded, no error, no results
           <div className="my-12 text-center">
             <p className="text-xl">No samples found matching your criteria.</p>
             <button
@@ -727,8 +580,10 @@ export default function ClientSamples() {
               Clear Filters
             </button>
           </div>
-        ) : (
+        )}
+        {!loading && !error && filteredSamples.length > 0 && ( // Dynamic mode, loaded, no error, show results
           <>
+            {/* Map */}
             <div className="mb-8">
               <h3 className="text-xl mb-4">Sample Locations</h3>
               <div className="h-[400px] w-full">
@@ -740,21 +595,23 @@ export default function ClientSamples() {
               </div>
             </div>
 
+            {/* Table */}
             <div className="mb-8">
               <h3 className="text-xl mb-4">Available Samples ({filteredSamples.length})</h3>
               <div className="overflow-x-auto">
-                <SamplesTable 
+                <SamplesTable
                   samples={filteredSamples}
                   onSampleSelect={handleSampleSelect}
                   onAddToCart={handleAddToCart}
                   onViewDetails={handleViewSampleDetails}
-                  loading={loading}
+                  loading={false}
                   isAuthenticated={!!user}
+                  isStaticMode={isStaticMode ?? false}
                 />
               </div>
             </div>
-            
-            {/* Platform Statistics Section */}
+
+            {/* Statistics */}
             <div className="mt-12">
               <h2 className="text-2xl font-semibold mb-6">Platform Statistics</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -775,9 +632,8 @@ export default function ClientSamples() {
                 </div>
               </div>
               
-              {/* Sample Type Distribution Chart */}
               <div className="mb-10">
-                <SampleTypePieChart samples={tableSamples} />
+                <SampleTypePieChart samples={isStaticMode ? [] : tableSamples} />
               </div>
             </div>
           </>
@@ -790,6 +646,7 @@ export default function ClientSamples() {
         onClose={() => setShowDetailModal(false)}
         sample={selectedSample}
         onAddToCart={handleAddToCart}
+        isStaticMode={isStaticMode ?? false}
       />
     </main>
   );
