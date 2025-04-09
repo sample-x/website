@@ -62,22 +62,31 @@ export default function ClientSamples() {
   const [availableLocations, setAvailableLocations] = useState<string[]>([])
   const [filters, setFilters] = useState<FilterState>(initialFilterState);
 
-  // --- Mode Detection ---
+  // --- Effect 1: Mode Detection --- 
   useEffect(() => {
-    console.log('[ClientSamples] Determining mode...');
+    console.log('[ClientSamples] Effect 1: Determining mode...');
     const staticModeDetected = isStaticExport();
+    // Set the state based on detection
     setIsStaticMode(staticModeDetected);
-    console.log(`[ClientSamples] Mode determined: ${staticModeDetected ? 'STATIC' : 'DYNAMIC'}`);
-
-    // If dynamic mode, immediately trigger fetch
-    if (!staticModeDetected) {
-        console.log('[ClientSamples] Dynamic mode detected, initiating API fetch call...');
-        fetchSamplesViaApi(); // Call the async function
-    } else {
-        console.log('[ClientSamples] Static mode detected, skipping dynamic fetch.');
+    console.log(`[ClientSamples] Effect 1: Mode set to: ${staticModeDetected ? 'STATIC' : 'DYNAMIC'}`);
+    
+    // If static, we can stop loading early
+    if (staticModeDetected) {
+        console.log('[ClientSamples] Effect 1: Static mode detected, setting loading=false.');
         setLoading(false);
     }
+    // DO NOT trigger fetch from here
   }, []); // Run only once on mount
+
+  // --- Effect 2: Trigger Fetch When Mode is Dynamic --- 
+  useEffect(() => {
+    console.log(`[ClientSamples] Effect 2: Running check. isStaticMode = ${isStaticMode}`);
+    // Only run fetch if mode has been determined AND it is DYNAMIC
+    if (isStaticMode === false) {
+      console.log('[ClientSamples] Effect 2: Dynamic mode confirmed, initiating API fetch call...');
+      fetchSamplesViaApi();
+    }
+  }, [isStaticMode]); // <-- Add isStaticMode as dependency
 
   // Handle navigation
   const handleNavigation = (path: string, e?: React.MouseEvent) => {
@@ -97,25 +106,20 @@ export default function ClientSamples() {
     }
   };
 
-  // --- Data Fetching via Cloudflare Function API ---
+  // --- Data Fetching via Cloudflare Function API --- 
+  // useCallback dependency array might not be needed if only called by Effect 2
   const fetchSamplesViaApi = useCallback(async () => {
-    console.log(`[ClientSamples] fetchSamplesViaApi called. Current isStaticMode: ${isStaticMode}`);
-    
-    // Ensure we only fetch if in dynamic mode
-    if (isStaticMode !== false) { 
-      console.log('[ClientSamples] fetchSamplesViaApi aborted (condition isStaticMode !== false is TRUE).');
-      setLoading(false); 
-      return;
-    }
-    console.log('[ClientSamples] fetchSamplesViaApi proceeding (condition isStaticMode !== false is FALSE).');
+    console.log(`[ClientSamples] fetchSamplesViaApi called. (isStaticMode should be false here: ${isStaticMode})`);
+    // Can likely remove the redundant check here now, as Effect 2 guards the call
+    // if (isStaticMode !== false) { ... } 
 
     setLoading(true);
-    setError(null); // Clear previous errors
+    setError(null); 
 
     try {
-      console.log('[ClientSamples] >>>>> ATTEMPTING TO FETCH from API endpoint /api/get-samples...'); // Added specific log
+      console.log('[ClientSamples] >>>>> ATTEMPTING TO FETCH from API endpoint /api/get-samples...');
       const response = await fetch('/api/get-samples');
-      console.log('[ClientSamples] <<<<< FETCH call completed.'); // Added specific log
+      console.log('[ClientSamples] <<<<< FETCH call completed.');
 
       if (!response.ok) {
         let errorMsg = `API Error: ${response.status} ${response.statusText}`;
@@ -158,9 +162,9 @@ export default function ClientSamples() {
       }
     } finally {
       console.log('[ClientSamples] fetchSamplesViaApi finished.');
-      setLoading(false); // Ensure loading is set to false
+      setLoading(false); 
     }
-  }, [isStaticMode]); // Depend only on mode
+  }, []); // <-- Can potentially remove isStaticMode dependency if Effect 2 handles the guard
 
   // Extract available filter options from samples
   const extractFilterOptions = (samples: Sample[]) => {
