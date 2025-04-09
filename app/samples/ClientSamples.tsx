@@ -10,9 +10,7 @@ import './samples.css'
 import { isStaticExport } from '@/app/lib/staticData'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { toast } from 'react-toastify'
-import { useSupabase } from '@/app/supabase-provider'
 import { useCart } from '@/app/context/CartContext'
-import { Database } from '@/types/supabase'
 import { Sample } from '@/types/sample'
 import SampleDetailModal from '@/app/components/SampleDetailModal'
 import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline'
@@ -31,8 +29,6 @@ interface FilterState {
   };
 }
 
-type SupabaseSample = Database['public']['Tables']['samples']['Row']
-
 // Define initial empty filter state
 const initialFilterState: FilterState = {
   searchQuery: '',
@@ -47,14 +43,12 @@ const initialFilterState: FilterState = {
 };
 
 export default function ClientSamples() {
-  const { supabase } = useSupabase()
   const { addToCart } = useCart()
   const { user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
   // State Initialization
-  const [dbSamples, setDBSamples] = useState<SupabaseSample[]>([])
   const [tableSamples, setTableSamples] = useState<Sample[]>([])
   const [filteredSamples, setFilteredSamples] = useState<Sample[]>([])
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null)
@@ -77,8 +71,8 @@ export default function ClientSamples() {
 
     // If dynamic mode, immediately trigger fetch
     if (!staticModeDetected) {
-        console.log('[ClientSamples] Dynamic mode detected, initiating fetch...');
-        fetchSamples();
+        console.log('[ClientSamples] Dynamic mode detected, initiating API fetch...');
+        fetchSamplesViaApi();
     } else {
         console.log('[ClientSamples] Static mode detected, skipping dynamic fetch.');
         // In static mode, we are done loading as there's nothing to fetch
@@ -110,13 +104,13 @@ export default function ClientSamples() {
     }
   };
 
-  // --- Data Fetching (Dynamic Mode Only) ---
-  const fetchSamples = useCallback(async () => {
-    console.log('[ClientSamples] fetchSamples started.');
-    // Ensure we only fetch if supabase client is available and in dynamic mode
-    if (!supabase || isStaticMode) {
-      console.log('[ClientSamples] fetchSamples aborted (no supabase client or in static mode).');
-      setLoading(false); // Stop loading if we abort
+  // --- Data Fetching via Cloudflare Function API ---
+  const fetchSamplesViaApi = useCallback(async () => {
+    console.log('[ClientSamples] fetchSamplesViaApi started.');
+    // Ensure we only fetch if in dynamic mode
+    if (isStaticMode !== false) { // Check against false explicitly, as null means mode not yet determined
+      console.log('[ClientSamples] fetchSamplesViaApi aborted (not in dynamic mode).');
+      setLoading(false); 
       return;
     }
 
@@ -124,49 +118,53 @@ export default function ClientSamples() {
     setError(null); // Clear previous errors
 
     try {
-      console.log('[ClientSamples] Querying Supabase for public samples...');
-      const { data, error: fetchError } = await supabase
-        .from('samples')
-        .select('*')
-        .eq('status', 'public'); // Only fetch public samples for the marketplace
+      console.log('[ClientSamples] Fetching from API endpoint /api/get-samples...');
+      const response = await fetch('/api/get-samples');
 
-      if (fetchError) {
-        console.error('[ClientSamples] Error fetching samples from Supabase:', fetchError);
-        toast.error('Failed to load samples from database. Please check connection or try again.');
-        setError('Failed to load samples from database.'); // Set error state
-        setDBSamples([]); // Clear potentially stale data
+      if (!response.ok) {
+        let errorMsg = `API Error: ${response.status} ${response.statusText}`;
+        try {
+            const errorBody = await response.json();
+            errorMsg = errorBody.error || errorMsg;
+        } catch (e) { /* Ignore parsing error */ }
+        console.error(`[ClientSamples] Error fetching from /api/get-samples: ${errorMsg}`);
+        toast.error(`Failed to load samples: ${errorMsg}`);
+        setError('Failed to load samples from the server.');
         setTableSamples([]);
         setFilteredSamples([]);
         return; // Exit on error
       }
 
+      const data: Sample[] = await response.json(); // Assuming API returns data in Sample format directly
+
       if (data) {
-        console.log(`[ClientSamples] Successfully fetched ${data.length} samples from Supabase.`);
-        const convertedSamples = data.map(convertToTableSample);
-        console.log('[ClientSamples] Setting DB, Table, and Filtered samples state.');
-        setDBSamples(data);
-        setTableSamples(convertedSamples);
-        setFilteredSamples(convertedSamples); // Initialize filtered with all fetched samples
-        extractFilterOptions(convertedSamples);
+        console.log(`[ClientSamples] Successfully fetched ${data.length} samples via API.`);
+        console.log('[ClientSamples] Setting Table and Filtered samples state from API data.');
+        setTableSamples(data); // Use API data directly
+        setFilteredSamples(data); // Initialize filtered with all fetched samples
+        extractFilterOptions(data);
       } else {
-          console.warn('[ClientSamples] Fetched data is null or undefined.');
-          setDBSamples([]);
+          console.warn('[ClientSamples] API returned null or undefined data.');
           setTableSamples([]);
           setFilteredSamples([]);
       }
 
-    } catch (catchError) {
-      console.error('[ClientSamples] Unexpected error in fetchSamples catch block:', catchError);
-      toast.error('An unexpected error occurred while loading samples.');
-      setError('An unexpected error occurred.'); // Set generic error state
-      setDBSamples([]); // Clear potentially stale data
-      setTableSamples([]);
-      setFilteredSamples([]);
+    } catch (catchError: any) { // Catch network errors from fetch itself
+      console.error('[ClientSamples] Network or other unexpected error in fetchSamplesViaApi:', catchError);
+      // Check if it's the profile fetch error (though ideally handled elsewhere)
+      if (catchError?.message?.includes('fetch user profile')) {
+          console.warn('[ClientSamples] Profile fetch error caught during sample fetch, ignoring for now.')
+      } else {
+          toast.error('A network error occurred while loading samples.');
+          setError(`Network Error: ${catchError.message}`); 
+          setTableSamples([]);
+          setFilteredSamples([]);
+      }
     } finally {
-      console.log('[ClientSamples] fetchSamples finished.');
+      console.log('[ClientSamples] fetchSamplesViaApi finished.');
       setLoading(false); // Ensure loading is set to false
     }
-  }, [supabase, isStaticMode]); // Depend on supabase client and mode
+  }, [isStaticMode]); // Depend only on mode
 
   // Extract available filter options from samples
   const extractFilterOptions = (samples: Sample[]) => {
@@ -181,7 +179,7 @@ export default function ClientSamples() {
   };
 
   // Convert Supabase sample to frontend Sample type
-  const convertToTableSample = (dbSample: SupabaseSample): Sample => {
+  const convertToTableSample = (dbSample: any): Sample => {
     return {
       id: dbSample.id,
       name: dbSample.name ?? 'Unnamed Sample', // Provide default
@@ -245,7 +243,7 @@ export default function ClientSamples() {
       console.error('[ClientSamples] Error adding to cart:', error);
       toast.error('Failed to add item to cart');
     }
-  }, [user, supabase, addToCart, router]); // Add dependencies
+  }, [user, addToCart, router]); // Add dependencies
 
   // Handle sample selection (from map or table)
   const handleSampleSelect = useCallback((sample: Sample) => {

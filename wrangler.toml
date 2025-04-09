@@ -2,3 +2,21 @@
 name = "samplex"
 compatibility_date = "2023-12-01"
 pages_build_output_dir = "out"
+
+# Define environment variables for production
+# These will be available during the build and at runtime
+[env.production]
+# Environment variables accessible by the client (NEXT_PUBLIC_ prefix)
+[env.production.vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://znmkkduvzzmoxzgthwby.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpubWtrZHV2enptb3h6Z3Rod2J5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3NDI2MzksImV4cCI6MjA1ODMxODYzOX0.YObW_QOjuEuvjGxi97JAIRbUWwsZ1gTSCebzNkMVqYk"
+
+# Add environment-specific settings if needed, e.g., build commands
+# command = "./build-static.sh"
+
+# You can also define secrets here if preferred over the UI, but UI is often safer
+# [env.production.secrets]
+# SUPABASE_URL = ""
+# SUPABASE_ANON_KEY = ""
+
+# Add [env.preview] sections if you need different variables for preview deployments
