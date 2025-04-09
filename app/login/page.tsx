@@ -12,7 +12,7 @@ import './login.css'
 import { isStaticExport } from '@/app/lib/staticData'
 
 export default function LoginPage() {
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn, signInWithGoogle, isLoading: authLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
@@ -49,13 +49,16 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
 
+    // Safely get redirect path, default to /samples if searchParams is null
+    const redirectPath = searchParams ? (searchParams.get('redirect') || '/samples') : '/samples'; 
+
     // In static mode, simulate login
     if (isStatic) {
       setTimeout(() => {
         // Set demo mode user
         localStorage.setItem('staticUser', JSON.stringify({ email, name: 'Demo User' }))
         toast.success('Demo mode: Logged in as demo user')
-        router.push('/samples')
+        router.push(redirectPath)
       }, 1000)
       return
     }
@@ -68,7 +71,7 @@ export default function LoginPage() {
         toast.error('Login failed: ' + error.message)
       } else {
         toast.success('Login successful!')
-        router.push('/samples')
+        router.push(redirectPath)
       }
     } catch (err) {
       console.error('Login error:', err)

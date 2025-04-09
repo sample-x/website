@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/app/supabase-provider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload, faCheck, faTimes, faTable, faEye, faBan, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faUpload, faCheck, faTimes, faTable, 
+  faEye, faBan, faInfoCircle 
+} from '@fortawesome/free-solid-svg-icons';
 import './upload.css';
 import { isStaticExport } from '@/app/lib/staticData';
 import { useAuth } from '@/app/auth/AuthProvider';
@@ -19,13 +22,14 @@ interface SampleData {
   quantity: number;
   price: number;
   description?: string;
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
   hash?: string;
   institution_name?: string;
   institution_contact_name?: string;
   institution_contact_email?: string;
-  [key: string]: string | number | undefined;
+  status: string;
+  [key: string]: string | number | undefined | null;
 }
 
 interface ValidationError {
@@ -113,78 +117,102 @@ export default function UploadPage() {
     
     switch (field) {
       case 'price':
+        // More tolerant price validation - allow any non-negative number or convert to 0
         const price = parseFloat(strValue);
-        if (isNaN(price) || price < 0) {
+        if (isNaN(price)) {
           return {
             row: rowNumber,
             field,
-            message: 'Price must be a positive number'
+            message: 'Price is not a valid number - will be set to 0'
+          };
+        } else if (price < 0) {
+          return {
+            row: rowNumber,
+            field,
+            message: 'Price must be a positive number - negative values will be converted to positive'
           };
         }
         break;
 
       case 'quantity':
+        // More tolerant quantity validation - allow any number or convert to 1
         const quantity = parseInt(strValue);
-        if (isNaN(quantity) || quantity < 1) {
+        if (isNaN(quantity)) {
           return {
             row: rowNumber,
             field,
-            message: 'Quantity must be a positive integer'
+            message: 'Quantity is not a valid number - will be set to 1'
+          };
+        } else if (quantity < 1) {
+          return {
+            row: rowNumber,
+            field,
+            message: 'Quantity must be a positive integer - will be set to 1'
           };
         }
         break;
 
       case 'collection_date':
-        const date = new Date(strValue);
-        if (isNaN(date.getTime())) {
+        // More tolerant date validation with multiple formats
+        const dateFormats = [
+          /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
+          /^\d{2}-\d{2}-\d{4}$/, // DD-MM-YYYY
+          /^\d{2}\/\d{2}\/\d{4}$/, // DD/MM/YYYY
+          /^\d{4}\/\d{2}\/\d{2}$/, // YYYY/MM/DD
+          /^\d{2}\.\d{2}\.\d{4}$/, // DD.MM.YYYY
+        ];
+        
+        const isValidDateFormat = dateFormats.some(format => format.test(strValue));
+        
+        if (!isValidDateFormat && strValue.trim() !== '') {
           return {
             row: rowNumber,
             field,
-            message: 'Invalid date format (use YYYY-MM-DD)'
+            message: 'Invalid date format - please use YYYY-MM-DD or other standard formats'
           };
         }
-        if (date > new Date()) {
-          return {
-            row: rowNumber,
-            field,
-            message: 'Collection date cannot be in the future'
-          };
-        }
+        
+        // Don't validate date is in the past - allow future dates
         break;
 
       case 'latitude':
-        if (strValue) {
+        if (strValue && strValue.toLowerCase() !== 'null' && strValue !== '') {
           const lat = parseFloat(strValue);
           if (isNaN(lat) || lat < -90 || lat > 90) {
             return {
               row: rowNumber,
               field,
-              message: 'Latitude must be between -90 and 90'
+              message: 'Latitude must be between -90 and 90 - will be set to null'
             };
           }
         }
         break;
 
       case 'longitude':
-        if (strValue) {
+        if (strValue && strValue.toLowerCase() !== 'null' && strValue !== '') {
           const lng = parseFloat(strValue);
           if (isNaN(lng) || lng < -180 || lng > 180) {
             return {
               row: rowNumber,
               field,
-              message: 'Longitude must be between -180 and 180'
+              message: 'Longitude must be between -180 and 180 - will be set to null'
             };
           }
         }
         break;
 
       case 'type':
+        // More tolerant type validation - dynamically capitalize first letter
+        // and allow custom types with warning
         const validTypes = ['bacterial', 'viral', 'fungal', 'tissue', 'environmental', 'cell line', 'soil', 'botanical', 'dna', 'water', 'industrial'];
-        if (!validTypes.includes(strValue.toLowerCase())) {
+        const normalizedValue = strValue.toLowerCase().trim();
+        
+        if (!validTypes.includes(normalizedValue)) {
+          // Dynamic type extension - allow but warn
           return {
             row: rowNumber,
             field,
-            message: `Type must be one of: ${validTypes.join(', ')}`
+            message: `Type "${strValue}" is not standard - will be added as a new type category`
           };
         }
         break;
@@ -193,81 +221,201 @@ export default function UploadPage() {
   };
 
   // Process and validate samples from CSV
-  const processSamples = (headers: string[], rows: string[][]): { samples: SampleData[], errors: ValidationError[] } => {
+  const processSamples = (headers: string[], rows: string[][]): { samples: SampleData[], errors: ValidationError[], warnings: ValidationError[] } => {
     const samples: SampleData[] = [];
     const errors: ValidationError[] = [];
+    const warnings: ValidationError[] = []; 
     
+    // Define required and optional fields
+    const requiredFields = [
+      'name', 'type'
+    ];
+    
+    const semiRequiredFields = [
+      'location', 'collection_date', 'storage_condition', 'quantity', 'price'
+    ];
+    
+    const optionalFields = [
+      'description', 'latitude', 'longitude', 
+      'institution_name', 'institution_contact_name', 'institution_contact_email'
+    ];
+
     // Process each row
     rows.forEach((values, rowIndex) => {
+      let rowHasError = false; // Flag for critical errors only
       // Map headers to values
       const sample: Partial<SampleData> = {};
+      
+      // Initialize with defaults for missing fields
       headers.forEach((header, index) => {
         if (index < values.length) {
-          const value = values[index].trim();
+          const value = values[index] ? values[index].trim() : '';
           
-          switch (header) {
-            case 'price':
-            case 'quantity':
-            case 'latitude':
-            case 'longitude':
-              // Parse numeric fields
-              sample[header] = value ? parseFloat(value) : undefined;
-              break;
-            default:
-              // Store as string
-              sample[header] = value || undefined;
+          // Handle quoted values (e.g. "value,with,commas")
+          if (value.startsWith('"') && value.endsWith('"')) {
+            sample[header.toLowerCase()] = value.substring(1, value.length - 1);
+          } else {
+            sample[header.toLowerCase()] = value;
           }
         }
       });
       
-      // Validate required fields
-      const requiredFields = [
-        'name', 'type', 'location', 'collection_date', 
-        'storage_condition', 'quantity', 'price'
-      ];
-      
-      const missingFields = requiredFields.filter(field => 
-        !sample[field] && sample[field] !== 0
-      );
-      
-      if (missingFields.length > 0) {
-        errors.push({
-          row: String(rowIndex + 1),
-          field: missingFields.join(', '),
-          message: `Missing required fields: ${missingFields.join(', ')}`
-        });
-        return; // Skip this sample
+      // Validate strictly required fields
+      requiredFields.forEach(field => {
+        const value = sample[field];
+        if (value === undefined || value === null || String(value).trim() === '') {
+          errors.push({
+            row: String(rowIndex + 1),
+            field: field,
+            message: `Missing strictly required field: ${field}`
+          });
+          rowHasError = true;
+        } else if (field === 'type') {
+          // Validate type but make it non-blocking
+          const validationWarning = validateField(value, field, String(rowIndex + 1));
+          if (validationWarning) {
+            warnings.push(validationWarning);
+            // We'll auto-format type later - no need to mark as error
+          }
+        }
+      });
+
+      // If strictly required fields are missing, skip this sample row
+      if (rowHasError) {
+        return; 
       }
-      
-      // Validate each field
-      for (const field in sample) {
-        const validationError = validateField(sample[field], field, String(rowIndex + 1));
-        if (validationError) {
-          errors.push(validationError);
+
+      // Process semi-required fields and auto-fill with defaults if missing/invalid
+      semiRequiredFields.forEach(field => {
+        const value = sample[field];
+        if (value === undefined || value === null || String(value).trim() === '') {
+          warnings.push({
+            row: String(rowIndex + 1),
+            field: field,
+            message: `Missing field: ${field} - will use default value`
+          });
+          
+          // Set default values for missing fields
+          switch(field) {
+            case 'price':
+              sample[field] = 0; // Use number instead of string
+              break;
+            case 'quantity':
+              sample[field] = 1; // Use number instead of string
+              break;
+            case 'collection_date':
+              sample[field] = new Date().toISOString().split('T')[0]; // Today's date
+              break;
+            case 'location':
+              sample[field] = 'Unknown';
+              break;
+            case 'storage_condition':
+              sample[field] = 'Room temperature';
+              break;
+          }
+        } else {
+          // Validate format for semi-required fields
+          const validationWarning = validateField(value, field, String(rowIndex + 1));
+          if (validationWarning) {
+            warnings.push(validationWarning);
+            
+            // Auto-correct the value based on field type
+            switch(field) {
+              case 'price':
+                const price = parseFloat(String(value));
+                sample[field] = isNaN(price) ? 0 : Math.abs(price); // Use number instead of string
+                break;
+              case 'quantity':
+                const quantity = parseInt(String(value));
+                sample[field] = isNaN(quantity) || quantity < 1 ? 1 : quantity; // Use number instead of string
+                break;
+              case 'collection_date':
+                // Keep original if format is wrong - we'll try to parse it later
+                break;
+              default:
+                // Keep the original value
+                break;
+            }
+          }
+        }
+      });
+
+      // Validate optional fields
+      optionalFields.forEach(field => {
+        const value = sample[field];
+        if (value !== undefined && String(value).trim() !== '') {
+          const validationWarning = validateField(value, field, String(rowIndex + 1));
+          if (validationWarning) {
+            warnings.push(validationWarning);
+            
+            // Set invalid optional field to empty/null instead of rejecting row
+            if (field === 'latitude' || field === 'longitude') {
+                sample[field] = null; // Use null for numeric fields if invalid
+            }
+          }
+        }
+      });
+
+      // Normalize and format type - first letter capitalized
+      if (sample.type) {
+        const words = String(sample.type).split(' ');
+        const formattedType = words.map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ).join(' ');
+        
+        sample.type = formattedType;
+      }
+
+      // Try to format collection_date to ISO format if it's not already
+      if (sample.collection_date && !/^\d{4}-\d{2}-\d{2}$/.test(sample.collection_date)) {
+        try {
+          // Try to parse various date formats
+          const dateParts = sample.collection_date.split(/[-/.]/);
+          let year, month, day;
+          
+          if (dateParts[0].length === 4) {
+            // Assuming YYYY-MM-DD or YYYY/MM/DD
+            [year, month, day] = dateParts;
+          } else {
+            // Assuming DD-MM-YYYY or MM-DD-YYYY or similar
+            [day, month, year] = dateParts;
+          }
+          
+          // Create a new date and convert to ISO format
+          const date = new Date(`${year}-${month}-${day}`);
+          if (!isNaN(date.getTime())) {
+            sample.collection_date = date.toISOString().split('T')[0];
+          }
+        } catch (e) {
+          // If parsing fails, keep the original and it will warn the user
+          console.warn("Failed to parse date:", sample.collection_date);
         }
       }
-      
-      // If there are no errors for this row, add it to samples
-      if (!errors.some(e => e.row === String(rowIndex + 1))) {
-        // Create a complete sample object with all fields
-        const completeSample = {
-          name: sample.name || '',
-          type: sample.type || '',
-          location: sample.location || '',
-          collection_date: sample.collection_date || '',
-          storage_condition: sample.storage_condition || '',
-          quantity: sample.quantity || 0,
-          price: sample.price || 0,
-          description: sample.description,
-          latitude: sample.latitude,
-          longitude: sample.longitude
-        } as SampleData;
-        
-        samples.push(completeSample);
-      }
+
+      // Create a complete sample object with potentially corrected fields
+      const completeSample = {
+        name: String(sample.name || ''),
+        type: String(sample.type || ''),
+        location: String(sample.location || 'Unknown'),
+        collection_date: String(sample.collection_date || new Date().toISOString().split('T')[0]),
+        storage_condition: String(sample.storage_condition || 'Room temperature'),
+        quantity: typeof sample.quantity === 'number' ? sample.quantity : parseInt(String(sample.quantity || '1'), 10),
+        price: typeof sample.price === 'number' ? sample.price : parseFloat(String(sample.price || '0')),
+        description: String(sample.description || ''),
+        latitude: sample.latitude === null || sample.latitude === undefined || String(sample.latitude).toLowerCase() === 'null' ? 
+          null : parseFloat(String(sample.latitude)),
+        longitude: sample.longitude === null || sample.longitude === undefined || String(sample.longitude).toLowerCase() === 'null' ? 
+          null : parseFloat(String(sample.longitude)),
+        institution_name: String(sample.institution_name || ''),
+        institution_contact_name: String(sample.institution_contact_name || ''),
+        institution_contact_email: String(sample.institution_contact_email || ''),
+        status: 'private' // Set default status
+      } as SampleData;
+
+      samples.push(completeSample);
     });
     
-    return { samples, errors };
+    return { samples, errors, warnings };
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -300,15 +448,8 @@ export default function UploadPage() {
         console.log('Headers:', lines[0]);
         const headers = lines[0].split(',').map(header => header.trim());
         
-        const requiredFields = [
-          'name',
-          'type',
-          'location',
-          'collection_date',
-          'storage_condition',
-          'quantity',
-          'price'
-        ];
+        // Only check for these essential fields
+        const requiredFields = ['name', 'type'];
 
         // Validate headers
         const missingFields = requiredFields.filter(field => !headers.includes(field));
@@ -317,7 +458,7 @@ export default function UploadPage() {
           console.log('Missing required fields:', missingFields);
           setUploadState({
             status: 'error',
-            message: `Missing required fields: ${missingFields.join(', ')}`,
+            message: `Missing essential fields: ${missingFields.join(', ')}. CSV must contain at least 'name' and 'type' columns.`,
             data: null,
             errors: [],
             showPreview: false
@@ -325,24 +466,50 @@ export default function UploadPage() {
           return;
         }
 
-        // Parse data rows
-        const rows = lines.slice(1).map(line => {
-          return line.split(',').map(value => value.trim());
-        });
+        // Parse data rows - handle quoted values properly
+        const rows: string[][] = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i];
+          const values: string[] = [];
+          let currentValue = '';
+          let inQuotes = false;
+          
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            
+            if (char === '"' && (j === 0 || line[j-1] !== '\\')) {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              values.push(currentValue);
+              currentValue = '';
+            } else {
+              currentValue += char;
+            }
+          }
+          
+          // Add the last value
+          values.push(currentValue);
+          rows.push(values);
+        }
         
         console.log(`Parsed ${rows.length} data rows`);
         
         // Process and validate the samples
-        const { samples, errors } = processSamples(headers, rows);
+        const { samples, errors, warnings } = processSamples(headers, rows);
         
-        console.log(`Processed into ${samples.length} valid samples with ${errors.length} errors`);
+        // Combine errors and warnings for reporting
+        const allIssues = [...errors, ...warnings];
+        
+        console.log(`Processed into ${samples.length} valid samples with ${errors.length} errors and ${warnings.length} warnings`);
         
         if (errors.length > 0) {
+          // Critical errors found - block upload
           setUploadState({
             status: 'error',
-            message: `Found ${errors.length} validation errors.`,
-            data: samples,
-            errors: errors,
+            message: `Found ${errors.length} critical validation errors that prevent upload.`,
+            data: null, // Do not provide data for upload if errors exist
+            errors: allIssues, // Show all issues
             showPreview: true
           });
         } else if (samples.length === 0) {
@@ -354,11 +521,12 @@ export default function UploadPage() {
             showPreview: false
           });
         } else {
+          // Samples are valid for upload, may have warnings
           setUploadState({
             status: 'validating',
-            message: `Found ${samples.length} valid samples.`,
-            data: samples,
-            errors: [],
+            message: `Found ${samples.length} samples ready for upload` + (warnings.length > 0 ? ` with ${warnings.length} warnings that were auto-corrected.` : '.'),
+            data: samples, // Provide data for upload
+            errors: warnings.length > 0 ? warnings : [], // Only show warnings if there are any
             showPreview: true
           });
         }
@@ -443,7 +611,8 @@ export default function UploadPage() {
           // If these are not in the CSV, use user profile values as defaults
           institution_name: sample.institution_name || profile?.institution || '',
           institution_contact_name: sample.institution_contact_name || `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim(),
-          institution_contact_email: sample.institution_contact_email || user?.email || ''
+          institution_contact_email: sample.institution_contact_email || user?.email || '',
+          status: 'private' // Set default status
         };
       });
 

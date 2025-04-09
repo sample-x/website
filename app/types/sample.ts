@@ -25,6 +25,8 @@ export interface Sample {
   institution_contact_name?: string;
   institution_contact_email?: string;
   sample_owner_id?: string;
+  // Sample status
+  status?: 'private' | 'public';
 }
 
 export interface CartItem {

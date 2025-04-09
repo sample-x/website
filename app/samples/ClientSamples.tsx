@@ -131,7 +131,8 @@ export default function ClientSamples() {
     try {
       const { data, error } = await supabase
         .from('samples')
-        .select('*');
+        .select('*')
+        .eq('status', 'public'); // Only fetch public samples
 
       if (error) {
         console.error('Error fetching samples:', error);
@@ -224,7 +225,7 @@ export default function ClientSamples() {
         setFilteredSamples(convertedSamples);
         extractFilterOptions(convertedSamples);
       } else if (data) {
-        console.log('Fetched samples:', data);
+        console.log('Fetched public samples:', data);
         const convertedSamples = data.map(convertToTableSample);
         setDBSamples(data);
         setTableSamples(convertedSamples);
@@ -270,7 +271,8 @@ export default function ClientSamples() {
       references: [
         "Smith, J. et al (2023). Novel properties of strain XYZ. Journal of Microbiology, 45(2), 112-118.",
         "Zhang, L. & Johnson, T. (2022). Comparative analysis of environmental samples. Nature Methods, 18(3), 320-328."
-      ]
+      ],
+      status: dbSample.status === 'public' ? 'public' : 'private', // Ensure status is correctly typed
     };
   };
 
@@ -482,9 +484,12 @@ export default function ClientSamples() {
           updated_at: new Date().toISOString()
         }
       ];
+      
+      // Filter mock data to only show public samples (if mock data has status)
+      const publicMockSamples = mockSamples.filter(s => s.status === 'public' || !s.status); // Assume public if status undefined
 
-      const convertedSamples = mockSamples.map(convertToTableSample);
-      setDBSamples(mockSamples);
+      const convertedSamples = publicMockSamples.map(convertToTableSample);
+      setDBSamples(publicMockSamples);
       setTableSamples(convertedSamples);
       setFilteredSamples(convertedSamples);
       extractFilterOptions(convertedSamples);
