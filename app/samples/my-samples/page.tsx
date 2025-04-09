@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { Sample } from '@/app/types/sample';
+import { getSampleTypeColor } from '@/app/lib/sampleColors';
 
 export default function MySamplesPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -340,152 +341,159 @@ export default function MySamplesPage() {
               </Link>
             </div>
           ) : (
-            <div className="bg-white shadow-md rounded-md overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Sample
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ownership
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {samples.map((sample) => (
-                    <tr key={sample.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {renderEditableField(
-                                sample, 
-                                'name', 
-                                sample.name
+            <div className="overflow-x-auto">
+              <div className="inline-block min-w-full align-middle">
+                <div className="overflow-hidden shadow-md rounded-md">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Sample
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Type
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Location
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Price
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Ownership
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {samples.map((sample) => (
+                        <tr key={sample.id}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {renderEditableField(
+                                    sample, 
+                                    'name', 
+                                    sample.name
+                                  )}
+                                </div>
+                                <div className="text-sm text-gray-500 truncate max-w-[200px]">
+                                  {sample.description}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span 
+                              className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
+                              style={{ backgroundColor: getSampleTypeColor(sample.type) }}
+                            >
+                              {sample.type}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {sample.location}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {renderEditableField(
+                              sample, 
+                              'price',
+                              `$${sample.price.toFixed(2)}`
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div className="text-xs">
+                              {sample.institution_name && (
+                                <div className="mb-1">
+                                  <span className="font-semibold">Institution:</span> {sample.institution_name}
+                                </div>
+                              )}
+                              {sample.sample_owner_id === user?.id && (
+                                <div className="text-green-600 font-semibold">
+                                  You are the owner
+                                </div>
                               )}
                             </div>
-                            <div className="text-sm text-gray-500 truncate max-w-[200px]">
-                              {sample.description}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          {sample.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {sample.location}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {renderEditableField(
-                          sample, 
-                          'price',
-                          `$${sample.price.toFixed(2)}`
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="text-xs">
-                          {sample.institution_name && (
-                            <div className="mb-1">
-                              <span className="font-semibold">Institution:</span> {sample.institution_name}
-                            </div>
-                          )}
-                          {sample.sample_owner_id === user?.id && (
-                            <div className="text-green-600 font-semibold">
-                              You are the owner
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {sample.status === 'public' ? (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                            Public
-                          </span>
-                        ) : (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                            Private
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
-                          href={`/samples/${sample.id}`}
-                          className="text-indigo-600 hover:text-indigo-900 mr-3"
-                        >
-                          View
-                        </Link>
-                        <Link
-                          href={`/samples/edit/${sample.id}`}
-                          className="text-green-600 hover:text-green-900 mr-3"
-                        >
-                          <FontAwesomeIcon icon={faEdit} className="mr-1" />
-                          Edit
-                        </Link>
-                        
-                        {sample.status === 'private' ? (
-                          <button
-                            onClick={() => handleAddToMarketplace(sample)}
-                            className="text-blue-600 hover:text-blue-900 mr-3"
-                            disabled={updating === sample.id.toString()}
-                          >
-                            {updating === sample.id.toString() ? (
-                              <span>Adding...</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {sample.status === 'public' ? (
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                Public
+                              </span>
                             ) : (
-                              <>
-                                <FontAwesomeIcon icon={faPlus} className="mr-1" />
-                                Add to Marketplace
-                              </>
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                Private
+                              </span>
                             )}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleRemoveFromMarketplace(sample)}
-                            className="text-yellow-600 hover:text-yellow-900 mr-3"
-                            disabled={updating === sample.id.toString()}
-                          >
-                            {updating === sample.id.toString() ? (
-                              <span>Removing...</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <Link
+                              href={`/samples/${sample.id}`}
+                              className="text-indigo-600 hover:text-indigo-900 mr-3"
+                            >
+                              View
+                            </Link>
+                            <Link
+                              href={`/samples/edit/${sample.id}`}
+                              className="text-green-600 hover:text-green-900 mr-3"
+                            >
+                              <FontAwesomeIcon icon={faEdit} className="mr-1" />
+                              Edit
+                            </Link>
+                            
+                            {sample.status === 'private' ? (
+                              <button
+                                onClick={() => handleAddToMarketplace(sample)}
+                                className="text-blue-600 hover:text-blue-900 mr-3"
+                                disabled={updating === sample.id.toString()}
+                              >
+                                {updating === sample.id.toString() ? (
+                                  <span>Adding...</span>
+                                ) : (
+                                  <>
+                                    <FontAwesomeIcon icon={faPlus} className="mr-1" />
+                                    Add to Marketplace
+                                  </>
+                                )}
+                              </button>
                             ) : (
-                              <>
-                                <FontAwesomeIcon icon={faPlus} className="mr-1" />
-                                Remove from Marketplace
-                              </>
+                              <button
+                                onClick={() => handleRemoveFromMarketplace(sample)}
+                                className="text-yellow-600 hover:text-yellow-900 mr-3"
+                                disabled={updating === sample.id.toString()}
+                              >
+                                {updating === sample.id.toString() ? (
+                                  <span>Removing...</span>
+                                ) : (
+                                  <>
+                                    <FontAwesomeIcon icon={faPlus} className="mr-1" />
+                                    Remove from Marketplace
+                                  </>
+                                )}
+                              </button>
                             )}
-                          </button>
-                        )}
-                        
-                        <button
-                          onClick={() => handleDeleteClick(sample)}
-                          className="text-red-600 hover:text-red-900"
-                          disabled={deleting === sample.id.toString()}
-                        >
-                          <FontAwesomeIcon icon={faTrash} className="mr-1" />
-                          {deleting === sample.id.toString() ? 'Deleting...' : 'Delete'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                            
+                            <button
+                              onClick={() => handleDeleteClick(sample)}
+                              className="text-red-600 hover:text-red-900"
+                              disabled={deleting === sample.id.toString()}
+                            >
+                              <FontAwesomeIcon icon={faTrash} className="mr-1" />
+                              {deleting === sample.id.toString() ? 'Deleting...' : 'Delete'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
         </div>

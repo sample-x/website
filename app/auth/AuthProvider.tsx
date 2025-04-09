@@ -70,17 +70,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
         console.log(`Auth event: ${event}`);
+        
+        // Always update the session and user state immediately
         setSession(session);
         setUser(session?.user || null);
         
         if (session?.user) {
+          // Trigger profile fetch for any auth event with a user
           await fetchUserProfile(session.user.id);
         } else {
           setProfile(null);
         }
         
+        setIsLoading(false);
+        
         // Force refresh for auth changes
-        if (event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           router.refresh();
         }
         if (event === 'SIGNED_OUT') {
@@ -98,6 +103,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUserProfile = async (userId: string) => {
     try {
       console.log('Fetching user profile for user:', userId);
+      
+      // First try to get the profile
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -118,9 +125,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Prepare profile data from metadata if available
           const profileData = {
             id: userId,
-            first_name: userMeta.first_name || userMeta.given_name || null,
-            last_name: userMeta.last_name || userMeta.family_name || null,
-            institution: userMeta.institution || userMeta.organization || userMeta.company || null
+            first_name: userMeta.first_name || userMeta.given_name || '',
+            last_name: userMeta.last_name || userMeta.family_name || '',
+            institution: userMeta.institution || userMeta.organization || userMeta.company || '',
+            username: userMeta.preferred_username || userMeta.name || userMeta.email?.split('@')[0] || ''
           };
           
           // Create profile
