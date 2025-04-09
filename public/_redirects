@@ -1,3 +1,6 @@
-/samples/:id  /404.html  200!
-/samples/edit/:id  /404.html  200!
-/* /index.html 200 
+/samples/my-samples    /samples/my-samples/index.html      200
+/samples/upload      /samples/upload/index.html        200
+/samples/edit/*      /samples/edit/[id]/index.html     200
+/samples/:id         /samples/[id]/index.html          200
+/sample-details     /sample-details/index.html        200
+/*                   /index.html                       200 
