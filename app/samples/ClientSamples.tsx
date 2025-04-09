@@ -71,18 +71,11 @@ export default function ClientSamples() {
 
     // If dynamic mode, immediately trigger fetch
     if (!staticModeDetected) {
-        console.log('[ClientSamples] Dynamic mode detected, initiating API fetch...');
-        fetchSamplesViaApi();
+        console.log('[ClientSamples] Dynamic mode detected, initiating API fetch call...');
+        fetchSamplesViaApi(); // Call the async function
     } else {
         console.log('[ClientSamples] Static mode detected, skipping dynamic fetch.');
-        // In static mode, we are done loading as there's nothing to fetch
         setLoading(false);
-        // Optionally load static data here if needed, but we removed the mock data loading effect
-        // If you want static data displayed, initialize state with it:
-        // const staticData = getStaticSamples(); // Assuming you have this function
-        // setTableSamples(staticData);
-        // setFilteredSamples(staticData);
-        // extractFilterOptions(staticData);
     }
   }, []); // Run only once on mount
 
@@ -106,20 +99,23 @@ export default function ClientSamples() {
 
   // --- Data Fetching via Cloudflare Function API ---
   const fetchSamplesViaApi = useCallback(async () => {
-    console.log('[ClientSamples] fetchSamplesViaApi started.');
+    console.log(`[ClientSamples] fetchSamplesViaApi called. Current isStaticMode: ${isStaticMode}`);
+    
     // Ensure we only fetch if in dynamic mode
-    if (isStaticMode !== false) { // Check against false explicitly, as null means mode not yet determined
-      console.log('[ClientSamples] fetchSamplesViaApi aborted (not in dynamic mode).');
+    if (isStaticMode !== false) { 
+      console.log('[ClientSamples] fetchSamplesViaApi aborted (condition isStaticMode !== false is TRUE).');
       setLoading(false); 
       return;
     }
+    console.log('[ClientSamples] fetchSamplesViaApi proceeding (condition isStaticMode !== false is FALSE).');
 
     setLoading(true);
     setError(null); // Clear previous errors
 
     try {
-      console.log('[ClientSamples] Fetching from API endpoint /api/get-samples...');
+      console.log('[ClientSamples] >>>>> ATTEMPTING TO FETCH from API endpoint /api/get-samples...'); // Added specific log
       const response = await fetch('/api/get-samples');
+      console.log('[ClientSamples] <<<<< FETCH call completed.'); // Added specific log
 
       if (!response.ok) {
         let errorMsg = `API Error: ${response.status} ${response.statusText}`;
