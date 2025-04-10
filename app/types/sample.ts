@@ -1,37 +1,29 @@
-export interface Sample {
-  id: number;
-  name: string;
-  type: string;
-  location: string | null;
-  collection_date?: string | null;
-  storage?: string;
-  storage_condition?: string | null;
-  quantity: number;
-  price: number;
-  description?: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  user_id?: string;
+export type Sample = {
+  id: string;
+  collection_date: string;
   created_at: string;
-  updated_at?: string;
-  imageUrl?: string;
+  description: string | null;
+  geog: unknown;
+  institution_contact_email: string | null;
+  institution_contact_name: string | null;
+  institution_name: string;
   inStock: boolean;
-  hash?: string;
-  metadata?: Record<string, any>;
-  // Additional fields for sample table
-  contact?: string;
-  // Institution and ownership fields
-  institution_name?: string;
-  institution_contact_name?: string;
-  institution_contact_email?: string;
-  sample_owner_id?: string;
-  // Sample status
-  status?: 'private' | 'public';
-}
+  latitude: number;
+  longitude: number;
+  name: string;
+  price: number;
+  quantity: number;
+  sample_type: string;
+  storage_condition?: string;
+  storage_location: string;
+  updated_at: string;
+  user_id: string | null;
+};
 
 export interface CartItem {
   sample: Sample;
-  quantity: number;
+  quantity_selected: number;
+  added_at?: number;
 }
 
 export interface OrderItem {
@@ -40,6 +32,7 @@ export interface OrderItem {
   sample_id: string;
   quantity: number;
   price: number;
+  total: number;
   samples?: Sample;
 }
 

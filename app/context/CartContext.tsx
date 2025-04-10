@@ -3,13 +3,39 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useSupabase } from '@/app/supabase-provider';
 import { useAuth } from '@/app/auth/AuthProvider';
-import { Sample } from '@/types/sample';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { isStaticExport } from '@/app/lib/staticData';
 
+// Add expiration time constant at the top after imports
+const CART_EXPIRATION_HOURS = 8;
+
+// Update Sample type to match database structure
+export type Sample = {
+  id: string;
+  collection_date: string;
+  created_at: string;
+  description: string | null;
+  geog: unknown;
+  institution_contact_email: string | null;
+  institution_contact_name: string | null;
+  institution_name: string;
+  inStock: boolean;
+  latitude: number;
+  longitude: number;
+  name: string;
+  price: number;
+  quantity: number;
+  type: string;
+  storage_condition?: string;
+  storage_location: string;
+  updated_at: string;
+  user_id: string | null;
+};
+
 interface CartItem extends Sample {
   quantity_selected: number;
+  added_at: number; // Make this required
 }
 
 interface CartContextType {
@@ -56,6 +82,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         setIsInitialized(false);
         
+        // Clear cart if user logged out
+        if (!user && !isLoading) {
+          setItems([]);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('cart');
+          }
+          setIsInitialized(true);
+          setIsLoading(false);
+          return;
+        }
+
         // First, try to get items from localStorage (ONLY ON CLIENT)
         let localItems: CartItem[] = [];
         if (typeof window !== 'undefined') {
@@ -63,8 +100,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (savedCart) {
             try {
               localItems = JSON.parse(savedCart);
+              // Filter out expired items
+              localItems = filterExpiredItems(localItems);
               console.log('Loaded cart from localStorage:', localItems);
-              // Immediately set items to avoid flashing empty cart
               setItems(localItems);
             } catch (e) {
               console.error('Error parsing cart from localStorage:', e);
@@ -83,94 +121,99 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (user) {
+          console.log('User is logged in, loading cart from database for user:', user.id);
           // Try to load cart from Supabase if user is logged in
-          const { data, error } = await supabase
-            .from('cart_items')
-            .select(`
-              quantity,
-              sample_id,
-              samples (*)
-            `)
-            .eq('user_id', user.id);
+          try {
+            const { data, error } = await supabase
+              .from('cart_items')
+              .select(`
+                quantity,
+                sample_id,
+                samples (*)
+              `)
+              .eq('user_id', user.id);
 
-          if (error) {
-            console.error('Error loading cart from database:', error);
-            // If there's a database error, fall back to localStorage
-            setUseLocalStorage(true);
-            // Make sure we keep the items already set from localStorage
-            // No need to call setItems again as we've already set them above
-          } else {
-            const dbItems = data?.map((item: { 
-              sample_id: string; 
-              quantity: number; 
-              samples: Sample 
-            }) => ({
-              ...item.samples,
-              quantity_selected: item.quantity
-            })) || [];
-
-            // If we have items in localStorage, merge them with database items
-            if (localItems.length > 0) {
-              const mergedItems = [...dbItems];
-              
-              // Add localStorage items that don't exist in DB
-              localItems.forEach(localItem => {
-                const existingItem = mergedItems.find(item => item.id === localItem.id);
-                if (!existingItem) {
-                  mergedItems.push(localItem);
-                }
-              });
-
-              // Save merged items to database
-              try {
-                // First, delete existing cart items
-                const { error: deleteError } = await supabase
-                  .from('cart_items')
-                  .delete()
-                  .eq('user_id', user.id);
-
-                if (!deleteError) {
-                  // Then insert merged items
-                  const { error: insertError } = await supabase
-                    .from('cart_items')
-                    .insert(
-                      mergedItems.map(item => ({
-                        user_id: user.id,
-                        sample_id: item.id,
-                        quantity: item.quantity_selected
-                      }))
-                    );
-
-                  if (!insertError) {
-                    setItems(mergedItems);
-                    setUseLocalStorage(false);
-                    // Always keep the cart in localStorage as backup
-                    if (typeof window !== 'undefined') {
-                      localStorage.setItem('cart', JSON.stringify(mergedItems));
-                    }
-                    return;
-                  }
-                }
-              } catch (e) {
-                console.error('Error merging carts:', e);
-              }
-            }
-
-            // Only update if we actually have items from DB, otherwise keep localStorage
-            if (dbItems.length > 0) {
-              setItems(dbItems);
-              setUseLocalStorage(false);
-              // Always keep localStorage as backup
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('cart', JSON.stringify(dbItems));
-              }
-            } else if (localItems.length > 0) {
-              // DB is empty but we have localStorage items, keep using those
-              setItems(localItems);
+            if (error) {
+              console.error('Error loading cart from database:', error);
+              // If there's a database error, fall back to localStorage
               setUseLocalStorage(true);
+              // Make sure we keep the items already set from localStorage
+              // No need to call setItems again as we've already set them above
+            } else {
+              const dbItems = data?.map(mapOrderItemToCartItem) || [];
+
+              console.log('Loaded cart from database:', dbItems);
+
+              // If we have items in localStorage, merge them with database items
+              if (localItems.length > 0) {
+                const mergedItems = [...dbItems];
+                
+                // Add localStorage items that don't exist in DB
+                localItems.forEach(localItem => {
+                  const existingItem = mergedItems.find(item => item.id === localItem.id);
+                  if (!existingItem) {
+                    mergedItems.push(localItem);
+                  }
+                });
+
+                // Save merged items to database
+                try {
+                  // First, delete existing cart items
+                  const { error: deleteError } = await supabase
+                    .from('cart_items')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                  if (!deleteError) {
+                    // Then insert merged items
+                    const { error: insertError } = await supabase
+                      .from('cart_items')
+                      .insert(
+                        mergedItems.map(item => ({
+                          user_id: user.id,
+                          sample_id: item.id,
+                          quantity: item.quantity_selected
+                        }))
+                      );
+
+                    if (!insertError) {
+                      setItems(mergedItems);
+                      setUseLocalStorage(false);
+                      // Always keep the cart in localStorage as backup
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('cart', JSON.stringify(mergedItems));
+                      }
+                      setIsInitialized(true);
+                      setIsLoading(false);
+                      return;
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error merging carts:', e);
+                }
+              }
+
+              // Only update if we actually have items from DB, otherwise keep localStorage
+              if (dbItems.length > 0) {
+                setItems(dbItems);
+                setUseLocalStorage(false);
+                // Always keep localStorage as backup
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('cart', JSON.stringify(dbItems));
+                }
+              } else if (localItems.length > 0) {
+                // DB is empty but we have localStorage items, keep using those
+                setItems(localItems);
+                setUseLocalStorage(true);
+              }
             }
+          } catch (dbError) {
+            console.error('Error querying cart from database:', dbError);
+            // Keep using localStorage items
+            setUseLocalStorage(true);
           }
         } else {
+          console.log('User not logged in, using localStorage for cart');
           // Not logged in, use localStorage items (already loaded if client-side)
           setUseLocalStorage(true);
           // Only set items if we haven't already done it above
@@ -180,19 +223,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('Error in loadCart:', error);
-        // Fall back to localStorage on error (ONLY ON CLIENT)
         setUseLocalStorage(true);
-        let fallbackItems: CartItem[] = [];
-        if (typeof window !== 'undefined') {
-          const savedCart = localStorage.getItem('cart');
-          if (savedCart) {
-            try {
-              fallbackItems = JSON.parse(savedCart);
-              setItems(fallbackItems);
-            } catch (e) {
-              console.error('Error parsing cart from localStorage:', e);
-              localStorage.removeItem('cart');
-            }
+        if (!user) {
+          setItems([]);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('cart');
           }
         }
       } finally {
@@ -273,71 +308,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, user, supabase, isInitialized, isSaving, useLocalStorage, isStatic]);
 
-  const addToCart = async (sample: Sample, quantity: number = 1) => {
-    // Allow guest cart additions for better UX - we'll prompt for login at checkout
-    try {
-      // Update state with the new item
-      setItems(currentItems => {
-        const existingItem = currentItems.find(item => item.id === sample.id);
-        
-        if (existingItem) {
-          // Update quantity if item exists
-          const newQuantity = existingItem.quantity_selected + quantity;
-          
-          // Check if we're exceeding available quantity
-          if (sample.quantity !== undefined && newQuantity > sample.quantity) {
-            toast.error('Cannot exceed available quantity');
-            return currentItems;
-          }
-          
-          const updatedItems = currentItems.map(item =>
-            item.id === sample.id
-              ? { ...item, quantity_selected: newQuantity }
-              : item
-          );
-          
-          // Always update localStorage immediately for all users
-          if (typeof window !== 'undefined') {
-            try {
-              localStorage.setItem('cart', JSON.stringify(updatedItems));
-            } catch (e) {
-              console.error('Error saving cart to localStorage:', e);
-            }
-          }
-          
-          toast.success('Updated quantity in cart');
-          return updatedItems;
-        }
-        
-        // Add new item
-        if (sample.quantity !== undefined && quantity > sample.quantity) {
-          toast.error('Cannot exceed available quantity');
-          return currentItems;
-        }
-
-        const newItem: CartItem = {
-          ...sample,
-          quantity_selected: quantity
-        };
-
-        const newItems = [...currentItems, newItem];
-        
-        // Always update localStorage immediately for all users
-        if (typeof window !== 'undefined') {
-          try {
-            localStorage.setItem('cart', JSON.stringify(newItems));
-          } catch (e) {
-            console.error('Error saving cart to localStorage:', e);
-          }
-        }
-        
-        toast.success('Added to cart');
-        return newItems;
-      });
-    } catch (error) {
-      console.error('Error in addToCart:', error);
-      toast.error('Failed to add item to cart');
+  const addToCart = (sample: Sample, quantity: number = 1) => {
+    if (!user && !useLocalStorage) {
+      toast.error('Please log in to add items to cart');
+      router.push('/login');
+      return;
     }
+
+    const now = Date.now();
+    const newItem: CartItem = {
+      ...sample,
+      quantity_selected: quantity,
+      added_at: now
+    };
+
+    setItems(prevItems => {
+      const existingItem = prevItems.find(item => item.id === sample.id);
+      if (existingItem) {
+        return prevItems.map(item =>
+          item.id === sample.id
+            ? { ...item, quantity_selected: item.quantity_selected + quantity, added_at: now }
+            : item
+        );
+      }
+      return [...prevItems, newItem];
+    });
   };
 
   const removeFromCart = (sampleId: string) => {
@@ -411,6 +406,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     0
   );
 
+  // Add a function to filter expired items
+  const filterExpiredItems = (items: CartItem[]): CartItem[] => {
+    const now = Date.now();
+    return items.filter(item => {
+      const itemAge = now - (item.added_at || 0);
+      return itemAge < (CART_EXPIRATION_HOURS * 60 * 60 * 1000);
+    });
+  };
+
+  // Add an effect to periodically check for expired items
+  useEffect(() => {
+    const checkExpiration = () => {
+      setItems(prevItems => filterExpiredItems(prevItems));
+    };
+
+    const interval = setInterval(checkExpiration, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <CartContext.Provider
       value={{
@@ -437,3 +451,39 @@ export function useCart() {
   }
   return context;
 } 
+
+// Update the mapping function to handle nullable fields
+const mapOrderItemToCartItem = (item: { 
+  quantity: number; 
+  sample_id: string; 
+  samples: { 
+    collection_date: string;
+    created_at: string;
+    description: string | null;
+    geog: unknown;
+    id: string;
+    institution_contact_email: string | null;
+    institution_contact_name: string | null;
+    institution_name: string | null;
+    latitude: number;
+    longitude: number;
+    name: string;
+    price: number;
+    quantity: number;
+    type: string;
+    storage_condition?: string;
+    storage_location: string;
+    updated_at: string;
+    user_id: string | null;
+  }
+}): CartItem => {
+  const { samples, ...rest } = item;
+  return {
+    ...samples,
+    id: item.sample_id,
+    quantity_selected: item.quantity,
+    added_at: Date.now(),
+    inStock: Number(samples.quantity) > 0,
+    institution_name: samples.institution_name || ''
+  };
+};
