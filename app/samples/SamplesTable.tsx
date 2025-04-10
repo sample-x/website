@@ -221,16 +221,16 @@ export default function SamplesTable({
                       e.stopPropagation();
                       onAddToCart(sample);
                     }}
-                    disabled={!sample.inStock}
+                    disabled={!isAuthenticated || !sample.inStock}
                     className={
-                      sample.inStock
+                      isAuthenticated && sample.inStock
                         ? 'text-orange-500 hover:text-orange-700'
                         : 'text-gray-400 cursor-not-allowed'
                     }
                     aria-label="Add to cart"
                   >
                     <ShoppingCartIcon className="h-5 w-5" />
-                    <span className="sr-only">{sample.inStock ? 'Add to Cart' : 'Out of Stock'}</span>
+                    <span className="sr-only">{!isAuthenticated ? 'Please login to add to cart' : sample.inStock ? 'Add to Cart' : 'Out of Stock'}</span>
                   </button>
                 </td>
               </tr>

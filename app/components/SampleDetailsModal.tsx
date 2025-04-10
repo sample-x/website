@@ -1,11 +1,23 @@
 'use client'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCartPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
 import { Sample } from '@/types/sample';
-import { sampleTypeColors } from '@/utils/constants';
 import { SampleMap } from '@/components/SampleMap';
 import StorageSymbol from './StorageSymbol';
+import {
+  Modal,
+  Paper,
+  Typography,
+  IconButton,
+  Grid as MuiGrid,
+  Button,
+  Box,
+  Chip,
+  Link,
+  styled
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface SampleDetailsModalProps {
   sample: Sample;
@@ -13,101 +25,150 @@ interface SampleDetailsModalProps {
   onAddToCart: (sample: Sample) => void;
 }
 
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  maxWidth: '800px',
+  width: '90%',
+  padding: theme.spacing(4),
+  maxHeight: '90vh',
+  overflow: 'auto'
+}));
+
+const DetailItem = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(2)
+}));
+
 export default function SampleDetailsModal({ sample, onClose, onAddToCart }: SampleDetailsModalProps) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full mx-4 relative">
-        <button
+    <Modal
+      open={true}
+      onClose={onClose}
+      aria-labelledby="sample-details-modal"
+      aria-describedby="sample-details-description"
+    >
+      <StyledPaper elevation={3}>
+        <IconButton
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+          aria-label="close"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+          <CloseIcon />
+        </IconButton>
 
-        <div className="sample-details">
-          <h2 className="text-2xl font-bold mb-4">{sample.name}</h2>
+        <Typography variant="h4" component="h2" gutterBottom>
+          {sample.name}
+        </Typography>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="detail-item">
-              <strong>Type:</strong>
-              <div className="sample-type">
-                <span 
-                  className="type-indicator" 
-                  style={{ 
-                    backgroundColor: sampleTypeColors[sample.type.toLowerCase()] || sampleTypeColors.default 
-                  }}
-                ></span>
-                {sample.type}
-              </div>
-            </div>
+        <MuiGrid container component="div" spacing={3}>
+          <MuiGrid component="div" item xs={12} md={6}>
+            <DetailItem>
+              <Typography variant="subtitle1" fontWeight="bold">Type</Typography>
+              <Chip
+                label={sample.type}
+                sx={{
+                  bgcolor: sample.type === 'DNA' ? '#e3f2fd' :
+                    sample.type === 'RNA' ? '#fce4ec' :
+                    sample.type === 'Protein' ? '#f3e5f5' : '#e8f5e9'
+                }}
+              />
+            </DetailItem>
+          </MuiGrid>
 
-            <div className="detail-item">
-              <strong>Location:</strong>
-              <span>{sample.location}</span>
-            </div>
+          <MuiGrid component="div" item xs={12} md={6}>
+            <DetailItem>
+              <Typography variant="subtitle1" fontWeight="bold">Location</Typography>
+              <Typography>{sample.location}</Typography>
+            </DetailItem>
+          </MuiGrid>
 
-            <div className="detail-item">
-              <strong>Price:</strong>
-              <span>${sample.price.toFixed(2)}</span>
-            </div>
+          <MuiGrid item xs={12} md={6}>
+            <DetailItem>
+              <Typography variant="subtitle1" fontWeight="bold">Price</Typography>
+              <Typography>${sample.price.toFixed(2)}</Typography>
+            </DetailItem>
+          </MuiGrid>
 
-            <div className="detail-item">
-              <strong>Collection Date:</strong>
-              <span>{sample.collection_date ? new Date(sample.collection_date).toLocaleDateString() : 'N/A'}</span>
-            </div>
+          <MuiGrid item xs={12} md={6}>
+            <DetailItem>
+              <Typography variant="subtitle1" fontWeight="bold">Collection Date</Typography>
+              <Typography>
+                {sample.collection_date ? new Date(sample.collection_date).toLocaleDateString() : 'N/A'}
+              </Typography>
+            </DetailItem>
+          </MuiGrid>
 
-            <div className="detail-item">
-              <strong>Storage Condition:</strong>
-              <div className="flex items-center gap-2">
+          <MuiGrid item xs={12} md={6}>
+            <DetailItem>
+              <Typography variant="subtitle1" fontWeight="bold">Storage Condition</Typography>
+              <Box display="flex" alignItems="center" gap={1}>
                 <StorageSymbol condition={sample.storage_condition || ''} id={`modal-${sample.id}`} />
-                <span>{sample.storage_condition || 'N/A'}</span>
-              </div>
-            </div>
+                <Typography>{sample.storage_condition || 'N/A'}</Typography>
+              </Box>
+            </DetailItem>
+          </MuiGrid>
 
-            <div className="detail-item">
-              <strong>Availability:</strong>
-              <span className={`availability ${sample.inStock ? 'in-stock' : 'out-of-stock'}`}>
-                {sample.quantity > 0 ? 'In Stock' : 'Out of Stock'}
-              </span>
-            </div>
-          </div>
+          <MuiGrid item xs={12} md={6}>
+            <DetailItem>
+              <Typography variant="subtitle1" fontWeight="bold">Availability</Typography>
+              <Chip
+                label={Number(sample.quantity) > 0 ? `${sample.quantity} Available` : 'Out of Stock'}
+                color={Number(sample.quantity) > 0 ? 'success' : 'error'}
+              />
+            </DetailItem>
+          </MuiGrid>
 
-          <div className="mt-4">
-            <strong>Description:</strong>
-            <p className="mt-2">{sample.description || 'No description available.'}</p>
-          </div>
-
-          {typeof sample.latitude === 'number' && typeof sample.longitude === 'number' && (
-            <>
-              <div className="mt-4">
-                <strong>Coordinates:</strong>
-                <p className="mt-2">
-                  {sample.latitude.toFixed(4)}, {sample.longitude.toFixed(4)}
-                </p>
-              </div>
-              <div className="map-section">
-                <h3>Sample Location</h3>
-                <div className="modal-map">
-                  <SampleMap samples={[sample]} />
-                </div>
-              </div>
-            </>
+          {sample.institution_contact_name && (
+            <MuiGrid item xs={12}>
+              <DetailItem>
+                <Typography variant="subtitle1" fontWeight="bold">Institution Contact</Typography>
+                <Typography>{sample.institution_contact_name}</Typography>
+                {sample.institution_contact_email && (
+                  <Link href={`mailto:${sample.institution_contact_email}`} color="primary">
+                    {sample.institution_contact_email}
+                  </Link>
+                )}
+              </DetailItem>
+            </MuiGrid>
           )}
+        </MuiGrid>
 
-          <div className="modal-actions">
-            <button
-              className="add-to-cart-button"
-              onClick={() => onAddToCart(sample)}
-              disabled={!sample.inStock}
-            >
-              <FontAwesomeIcon icon={faCartPlus} />
-              {sample.inStock ? 'Add to Cart' : 'Out of Stock'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+        <DetailItem>
+          <Typography variant="subtitle1" fontWeight="bold">Description</Typography>
+          <Typography>{sample.description || 'No description available.'}</Typography>
+        </DetailItem>
+
+        {typeof sample.latitude === 'number' && typeof sample.longitude === 'number' && (
+          <>
+            <DetailItem>
+              <Typography variant="subtitle1" fontWeight="bold">Coordinates</Typography>
+              <Typography>
+                {sample.latitude.toFixed(4)}, {sample.longitude.toFixed(4)}
+              </Typography>
+            </DetailItem>
+            <DetailItem>
+              <Typography variant="h6">Sample Location</Typography>
+              <Box sx={{ height: '300px', width: '100%', mt: 2 }}>
+                <SampleMap samples={[sample]} />
+              </Box>
+            </DetailItem>
+          </>
+        )}
+
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => onAddToCart(sample)}
+            disabled={Number(sample.quantity) <= 0}
+            startIcon={<FontAwesomeIcon icon={faCartPlus} />}
+          >
+            {Number(sample.quantity) > 0 ? 'Add to Cart' : 'Out of Stock'}
+          </Button>
+        </Box>
+      </StyledPaper>
+    </Modal>
   );
 } 
