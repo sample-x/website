@@ -17,7 +17,7 @@ export default function CheckoutPage() {
   const supabase = useSupabaseClient();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, profile } = useAuth();
+  const { user, profile, isLoading } = useAuth();
   const { items, total, clearCart } = useCart();
   
   const [loading, setLoading] = useState(false);
@@ -43,23 +43,23 @@ export default function CheckoutPage() {
   
   useEffect(() => {
     // If user is not logged in, redirect to login
-    if (!user) {
+    if (!user && !isLoading) {
       router.push('/login?redirect=/checkout');
       return;
     }
     
     // If cart is empty, redirect to cart page
-    if (items.length === 0) {
+    if (items.length === 0 && !isLoading) {
       router.push('/cart');
       return;
     }
 
     // Pre-fill shipping info from profile if available
-    if (profile && !shippingInfo) {
+    if (profile && !shippingInfo && !isLoading) {
       setShippingInfo({
         firstName: profile.first_name || '',
         lastName: profile.last_name || '',
-        email: user.email || '',
+        email: user?.email || '',
         address: profile.address || '',
         city: profile.city || '',
         state: profile.state || '',
@@ -69,7 +69,7 @@ export default function CheckoutPage() {
         shippingNotes: ''
       });
     }
-  }, [user, profile, router, items, shippingInfo]);
+  }, [user, profile, router, items, shippingInfo, isLoading]);
   
   const handleShippingSubmit = (data: ShippingData) => {
     setShippingInfo(data);
@@ -90,8 +90,40 @@ export default function CheckoutPage() {
       const randomOrderNumber = Math.floor(100000 + Math.random() * 900000).toString();
       setOrderNumber(randomOrderNumber);
       
+      console.log('Creating order with number:', randomOrderNumber);
+      
+      // Simple check to make sure database is available
+      try {
+        const { error: testError } = await supabase.from('samples').select('count').limit(1);
+        if (testError) {
+          console.error('Database connection test failed:', testError);
+          throw new Error('Database connection issue. Please try again.');
+        }
+      } catch (testError) {
+        console.error('Database test error:', testError);
+        throw new Error('Could not connect to database. Please try again later.');
+      }
+      
       // Create order in database
       try {
+        console.log('Inserting order into database...');
+        console.log('Order data:', {
+          user_id: user.id,
+          order_number: randomOrderNumber,
+          total_amount: orderTotal,
+          shipping_address: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} ${shippingInfo.zipCode}`,
+          shipping_name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+          shipping_email: shippingInfo.email,
+          shipping_method: shippingInfo.shippingMethod
+        });
+        
+        // First, make sure orders table exists
+        const { error: checkTableError } = await supabase.rpc('check_table_exists', { table_name: 'orders' });
+        if (checkTableError) {
+          console.error('Error checking if orders table exists:', checkTableError);
+          // We'll attempt the insert anyway
+        }
+        
         const { data: order, error: orderError } = await supabase
           .from('orders')
           .insert({
@@ -108,78 +140,95 @@ export default function CheckoutPage() {
             is_tax_exempt: isTaxExempt,
             notes: shippingInfo.shippingNotes || ''
           })
-          .select()
-          .single();
+          .select();
         
-        if (orderError) throw orderError;
+        console.log('Order insert result:', { data: order, error: orderError });
         
-        if (order) {
-          try {
-            // Create order items
-            const orderItems = items.map(item => ({
-              order_id: order.id,
-              sample_id: item.id,
-              quantity: item.quantity_selected,
-              price: item.price,
-              total: item.price * item.quantity_selected
-            }));
-            
-            const { error: itemsError } = await supabase
-              .from('order_items')
-              .insert(orderItems);
-            
-            if (itemsError) {
-              console.error('Error creating order items:', itemsError);
-              // Delete the order if items failed to insert
-              await supabase.from('orders').delete().eq('id', order.id);
-              throw new Error('Failed to create order items');
-            }
-          } catch (itemError) {
-            console.error('Error with order items:', itemError);
-            throw new Error('Failed to process order items');
-          }
-          
-          // If the address is new, update the user profile (optional, won't block checkout)
-          if (profile && (
-            profile.address !== shippingInfo.address ||
-            profile.city !== shippingInfo.city ||
-            profile.state !== shippingInfo.state ||
-            profile.zip_code !== shippingInfo.zipCode
-          )) {
-            try {
-              await supabase
-                .from('user_profiles')
-                .update({
-                  address: shippingInfo.address,
-                  city: shippingInfo.city,
-                  state: shippingInfo.state,
-                  zip_code: shippingInfo.zipCode
-                })
-                .eq('id', user.id);
-            } catch (profileError) {
-              console.error('Error updating profile:', profileError);
-              // Continue with checkout even if profile update fails
-            }
-          }
-          
-          // Log instead of sending email for now
-          console.log('Order confirmation would be sent to:', user.email);
-          console.log('Order number:', randomOrderNumber);
-          
-          // If we got this far, the order was created successfully
-          // Clear cart first before redirecting
-          clearCart();
-          setOrderComplete(true);
-          toast.success('Order placed successfully!');
-          
-          // Redirect to success page
-          router.push(`/checkout/success?order=${randomOrderNumber}`);
-        } else {
-          throw new Error('Failed to create order');
+        if (orderError) {
+          console.error('Order creation failed with error:', orderError);
+          throw new Error(`Failed to create order: ${orderError.message || 'Database error'}`);
         }
-      } catch (orderError) {
+        
+        if (!order || order.length === 0) {
+          console.error('No order created');
+          throw new Error('Failed to create order. No order returned from database.');
+        }
+        
+        const orderId = order[0].id;
+        console.log('Order created with ID:', orderId);
+        
+        try {
+          // Create order items
+          const orderItems = items.map(item => ({
+            order_id: orderId,
+            sample_id: item.id,
+            quantity: item.quantity_selected,
+            price: item.price,
+            total: item.price * item.quantity_selected
+          }));
+          
+          console.log('Inserting order items:', orderItems);
+          
+          const { data: itemsData, error: itemsError } = await supabase
+            .from('order_items')
+            .insert(orderItems)
+            .select();
+          
+          console.log('Order items result:', { data: itemsData, error: itemsError });
+          
+          if (itemsError) {
+            console.error('Error creating order items:', itemsError);
+            // Try to delete the order if items failed to insert
+            try {
+              await supabase.from('orders').delete().eq('id', orderId);
+            } catch (deleteError) {
+              console.error('Failed to delete order after items error:', deleteError);
+            }
+            throw new Error(`Failed to create order items: ${itemsError.message || 'Database error'}`);
+          }
+        } catch (itemError) {
+          console.error('Error with order items:', itemError);
+          throw new Error('Failed to process order items');
+        }
+        
+        // If the address is new, update the user profile (optional, won't block checkout)
+        if (profile && (
+          profile.address !== shippingInfo.address ||
+          profile.city !== shippingInfo.city ||
+          profile.state !== shippingInfo.state ||
+          profile.zip_code !== shippingInfo.zipCode
+        )) {
+          try {
+            await supabase
+              .from('user_profiles')
+              .update({
+                address: shippingInfo.address,
+                city: shippingInfo.city,
+                state: shippingInfo.state,
+                zip_code: shippingInfo.zipCode
+              })
+              .eq('id', user.id);
+          } catch (profileError) {
+            console.error('Error updating profile:', profileError);
+            // Continue with checkout even if profile update fails
+          }
+        }
+        
+        // Log instead of sending email for now
+        console.log('Order confirmation would be sent to:', user.email);
+        console.log('Order number:', randomOrderNumber);
+        
+        // If we got this far, the order was created successfully
+        // Clear cart first before redirecting
+        clearCart();
+        setOrderComplete(true);
+        toast.success('Order placed successfully!');
+        
+        // Redirect to success page
+        router.push(`/checkout/success?order=${randomOrderNumber}`);
+      } catch (orderError: any) {
         console.error('Order creation error:', orderError);
-        throw new Error('Failed to create order. Please try again.');
+        throw new Error(orderError.message || 'Failed to create order. Please try again.');
       }
     } catch (err: any) {
       console.error('Checkout error:', err);

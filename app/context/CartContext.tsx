@@ -83,94 +83,106 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (user) {
+          console.log('User is logged in, loading cart from database for user:', user.id);
           // Try to load cart from Supabase if user is logged in
-          const { data, error } = await supabase
-            .from('cart_items')
-            .select(`
-              quantity,
-              sample_id,
-              samples (*)
-            `)
-            .eq('user_id', user.id);
+          try {
+            const { data, error } = await supabase
+              .from('cart_items')
+              .select(`
+                quantity,
+                sample_id,
+                samples (*)
+              `)
+              .eq('user_id', user.id);
 
-          if (error) {
-            console.error('Error loading cart from database:', error);
-            // If there's a database error, fall back to localStorage
-            setUseLocalStorage(true);
-            // Make sure we keep the items already set from localStorage
-            // No need to call setItems again as we've already set them above
-          } else {
-            const dbItems = data?.map((item: { 
-              sample_id: string; 
-              quantity: number; 
-              samples: Sample 
-            }) => ({
-              ...item.samples,
-              quantity_selected: item.quantity
-            })) || [];
-
-            // If we have items in localStorage, merge them with database items
-            if (localItems.length > 0) {
-              const mergedItems = [...dbItems];
-              
-              // Add localStorage items that don't exist in DB
-              localItems.forEach(localItem => {
-                const existingItem = mergedItems.find(item => item.id === localItem.id);
-                if (!existingItem) {
-                  mergedItems.push(localItem);
-                }
-              });
-
-              // Save merged items to database
-              try {
-                // First, delete existing cart items
-                const { error: deleteError } = await supabase
-                  .from('cart_items')
-                  .delete()
-                  .eq('user_id', user.id);
-
-                if (!deleteError) {
-                  // Then insert merged items
-                  const { error: insertError } = await supabase
-                    .from('cart_items')
-                    .insert(
-                      mergedItems.map(item => ({
-                        user_id: user.id,
-                        sample_id: item.id,
-                        quantity: item.quantity_selected
-                      }))
-                    );
-
-                  if (!insertError) {
-                    setItems(mergedItems);
-                    setUseLocalStorage(false);
-                    // Always keep the cart in localStorage as backup
-                    if (typeof window !== 'undefined') {
-                      localStorage.setItem('cart', JSON.stringify(mergedItems));
-                    }
-                    return;
-                  }
-                }
-              } catch (e) {
-                console.error('Error merging carts:', e);
-              }
-            }
-
-            // Only update if we actually have items from DB, otherwise keep localStorage
-            if (dbItems.length > 0) {
-              setItems(dbItems);
-              setUseLocalStorage(false);
-              // Always keep localStorage as backup
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('cart', JSON.stringify(dbItems));
-              }
-            } else if (localItems.length > 0) {
-              // DB is empty but we have localStorage items, keep using those
-              setItems(localItems);
+            if (error) {
+              console.error('Error loading cart from database:', error);
+              // If there's a database error, fall back to localStorage
               setUseLocalStorage(true);
+              // Make sure we keep the items already set from localStorage
+              // No need to call setItems again as we've already set them above
+            } else {
+              const dbItems = data?.map((item: { 
+                sample_id: string; 
+                quantity: number; 
+                samples: Sample 
+              }) => ({
+                ...item.samples,
+                quantity_selected: item.quantity
+              })) || [];
+
+              console.log('Loaded cart from database:', dbItems);
+
+              // If we have items in localStorage, merge them with database items
+              if (localItems.length > 0) {
+                const mergedItems = [...dbItems];
+                
+                // Add localStorage items that don't exist in DB
+                localItems.forEach(localItem => {
+                  const existingItem = mergedItems.find(item => item.id === localItem.id);
+                  if (!existingItem) {
+                    mergedItems.push(localItem);
+                  }
+                });
+
+                // Save merged items to database
+                try {
+                  // First, delete existing cart items
+                  const { error: deleteError } = await supabase
+                    .from('cart_items')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                  if (!deleteError) {
+                    // Then insert merged items
+                    const { error: insertError } = await supabase
+                      .from('cart_items')
+                      .insert(
+                        mergedItems.map(item => ({
+                          user_id: user.id,
+                          sample_id: item.id,
+                          quantity: item.quantity_selected
+                        }))
+                      );
+
+                    if (!insertError) {
+                      setItems(mergedItems);
+                      setUseLocalStorage(false);
+                      // Always keep the cart in localStorage as backup
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('cart', JSON.stringify(mergedItems));
+                      }
+                      setIsInitialized(true);
+                      setIsLoading(false);
+                      return;
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error merging carts:', e);
+                }
+              }
+
+              // Only update if we actually have items from DB, otherwise keep localStorage
+              if (dbItems.length > 0) {
+                setItems(dbItems);
+                setUseLocalStorage(false);
+                // Always keep localStorage as backup
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('cart', JSON.stringify(dbItems));
+                }
+              } else if (localItems.length > 0) {
+                // DB is empty but we have localStorage items, keep using those
+                setItems(localItems);
+                setUseLocalStorage(true);
+              }
             }
+          } catch (dbError) {
+            console.error('Error querying cart from database:', dbError);
+            // Keep using localStorage items
+            setUseLocalStorage(true);
           }
         } else {
+          console.log('User not logged in, using localStorage for cart');
           // Not logged in, use localStorage items (already loaded if client-side)
           setUseLocalStorage(true);
           // Only set items if we haven't already done it above
