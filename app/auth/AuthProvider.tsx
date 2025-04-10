@@ -13,6 +13,10 @@ interface UserProfile {
   country: string | null;
   phone: string | null;
   username: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
 }
 
 interface AuthContextType {
@@ -128,7 +132,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             first_name: userMeta.first_name || userMeta.given_name || '',
             last_name: userMeta.last_name || userMeta.family_name || '',
             institution: userMeta.institution || userMeta.organization || userMeta.company || '',
-            username: userMeta.preferred_username || userMeta.name || userMeta.email?.split('@')[0] || ''
+            username: userMeta.preferred_username || userMeta.name || userMeta.email?.split('@')[0] || '',
+            address: userMeta.address || '',
+            city: userMeta.city || '',
+            state: userMeta.state || '',
+            zip_code: userMeta.zip_code || ''
           };
           
           // Create profile

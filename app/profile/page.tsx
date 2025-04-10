@@ -17,7 +17,11 @@ export default function ProfilePage() {
     institution: '',
     country: '',
     phone: '',
-    username: ''
+    username: '',
+    address: '',
+    city: '',
+    state: '',
+    zip_code: ''
   });
   const [formModified, setFormModified] = useState(false);
 
@@ -38,7 +42,11 @@ export default function ProfilePage() {
         institution: profile.institution,
         country: profile.country,
         phone: profile.phone,
-        username: profile.username
+        username: profile.username,
+        address: profile.address,
+        city: profile.city,
+        state: profile.state,
+        zip_code: profile.zip_code
       });
       
       setFormData({
@@ -47,7 +55,11 @@ export default function ProfilePage() {
         institution: profile.institution || '',
         country: profile.country || '',
         phone: profile.phone || '',
-        username: profile.username || ''
+        username: profile.username || '',
+        address: profile.address || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        zip_code: profile.zip_code || ''
       });
     } else {
       console.log('No profile data available');
@@ -261,6 +273,82 @@ export default function ProfilePage() {
                       name="phone"
                       type="tel"
                       value={formData.phone}
+                      onChange={handleChange}
+                      className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                    Address
+                  </label>
+                  <div className="mt-1 relative">
+                    <span className="absolute left-3 top-3 text-gray-400">
+                      <FontAwesomeIcon icon={faBuilding} />
+                    </span>
+                    <input
+                      id="address"
+                      name="address"
+                      type="text"
+                      value={formData.address}
+                      onChange={handleChange}
+                      className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                    City
+                  </label>
+                  <div className="mt-1 relative">
+                    <span className="absolute left-3 top-3 text-gray-400">
+                      <FontAwesomeIcon icon={faBuilding} />
+                    </span>
+                    <input
+                      id="city"
+                      name="city"
+                      type="text"
+                      value={formData.city}
+                      onChange={handleChange}
+                      className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                    State
+                  </label>
+                  <div className="mt-1 relative">
+                    <span className="absolute left-3 top-3 text-gray-400">
+                      <FontAwesomeIcon icon={faBuilding} />
+                    </span>
+                    <input
+                      id="state"
+                      name="state"
+                      type="text"
+                      value={formData.state}
+                      onChange={handleChange}
+                      className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700">
+                    Zip Code
+                  </label>
+                  <div className="mt-1 relative">
+                    <span className="absolute left-3 top-3 text-gray-400">
+                      <FontAwesomeIcon icon={faBuilding} />
+                    </span>
+                    <input
+                      id="zip_code"
+                      name="zip_code"
+                      type="text"
+                      value={formData.zip_code}
                       onChange={handleChange}
                       className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                     />

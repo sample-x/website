@@ -30,7 +30,7 @@ export default function CartPage() {
     }
 
     setIsCheckingOut(true);
-    // For now, just redirect to a checkout page
+    // Navigate to our new checkout page
     router.push('/checkout');
   };
   
