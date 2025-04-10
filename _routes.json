@@ -106,6 +106,10 @@
       "dest": "/404.html"
     },
     {
+      "src": "^/api/get-samples",
+      "dest": "/api/get-samples"
+    },
+    {
       "src": "^/.*$",
       "dest": "/404.html"
     }
