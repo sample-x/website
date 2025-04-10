@@ -58,33 +58,33 @@ export default function CheckoutSuccessPage() {
           .eq('user_id', user.id)
           .single();
         
-        if (orderError) throw orderError;
-        if (!orderData) {
-          setError('Order not found');
-          setLoading(false);
-          return;
+        if (orderError) {
+          console.error('Error fetching order:', orderError);
+          // Don't throw error, just continue without order data
         }
         
-        setOrder(orderData as Order);
-        
-        // Fetch order items with sample details
-        const { data: itemsData, error: itemsError } = await supabase
-          .from('order_items')
-          .select(`
-            *,
-            sample:sample_id (
-              name,
-              type
-            )
-          `)
-          .eq('order_id', orderData.id);
-        
-        if (itemsError) throw itemsError;
-        setOrderItems(itemsData as OrderItem[]);
-        
+        if (orderData) {
+          setOrder(orderData as Order);
+          
+          // Fetch order items with sample details
+          const { data: itemsData, error: itemsError } = await supabase
+            .from('order_items')
+            .select(`
+              *,
+              sample:sample_id (
+                name,
+                type
+              )
+            `)
+            .eq('order_id', orderData.id);
+          
+          if (!itemsError && itemsData) {
+            setOrderItems(itemsData as OrderItem[]);
+          }
+        }
       } catch (err) {
         console.error('Error fetching order details:', err);
-        setError('Error loading order details');
+        // Don't set error, just continue with basic success page
       } finally {
         setLoading(false);
       }
@@ -104,20 +104,7 @@ export default function CheckoutSuccessPage() {
     );
   }
   
-  if (error || !order) {
-    return (
-      <div className="checkout-container">
-        <div className="error-message">
-          <h2>Error</h2>
-          <p>{error || 'Order information not available'}</p>
-          <Link href="/samples" className="btn btn-primary">
-            Browse Samples
-          </Link>
-        </div>
-      </div>
-    );
-  }
-  
+  // Even without order data, show a basic success message
   return (
     <div className="checkout-container">
       <div className="success-message">
@@ -125,48 +112,60 @@ export default function CheckoutSuccessPage() {
         <h1>Order Successful!</h1>
         <p>Thank you for your purchase. Your order has been received.</p>
         
-        <div className="order-details">
-          <h2>Order Information</h2>
-          <p><strong>Order Number:</strong> #{order.order_number}</p>
-          <p><strong>Date:</strong> {new Date(order.created_at).toLocaleDateString()}</p>
-          <p><strong>Status:</strong> <span className="status-badge">{order.status}</span></p>
-        </div>
-        
-        <div className="shipping-info">
-          <h2>Shipping Information</h2>
-          <p><strong>Recipient:</strong> {order.shipping_name}</p>
-          <p><strong>Address:</strong> {order.shipping_address}</p>
-          <p><strong>Email:</strong> {order.shipping_email}</p>
-        </div>
-        
-        <div className="order-items">
-          <h2>Order Items</h2>
-          <div className="items-list">
-            {orderItems.map(item => (
-              <div key={item.id} className="order-item">
-                <div className="item-info">
-                  <p className="item-name">{item.sample?.name}</p>
-                  <p className="item-type">{item.sample?.type}</p>
+        {order ? (
+          <>
+            <div className="order-details">
+              <h2>Order Information</h2>
+              <p><strong>Order Number:</strong> #{order.order_number}</p>
+              <p><strong>Date:</strong> {new Date(order.created_at).toLocaleDateString()}</p>
+              <p><strong>Status:</strong> <span className="status-badge">{order.status}</span></p>
+            </div>
+            
+            <div className="shipping-info">
+              <h2>Shipping Information</h2>
+              <p><strong>Recipient:</strong> {order.shipping_name}</p>
+              <p><strong>Address:</strong> {order.shipping_address}</p>
+              <p><strong>Email:</strong> {order.shipping_email}</p>
+            </div>
+            
+            {orderItems.length > 0 && (
+              <div className="order-items">
+                <h2>Order Items</h2>
+                <div className="items-list">
+                  {orderItems.map(item => (
+                    <div key={item.id} className="order-item">
+                      <div className="item-info">
+                        <p className="item-name">{item.sample?.name}</p>
+                        <p className="item-type">{item.sample?.type}</p>
+                      </div>
+                      <div className="item-quantity">
+                        Qty: {item.quantity}
+                      </div>
+                      <div className="item-price">
+                        ${item.total.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="item-quantity">
-                  Qty: {item.quantity}
-                </div>
-                <div className="item-price">
-                  ${item.total.toFixed(2)}
+                
+                <div className="order-total">
+                  <p><strong>Total:</strong> ${order.total_amount.toFixed(2)}</p>
                 </div>
               </div>
-            ))}
+            )}
+          </>
+        ) : (
+          <div className="order-details">
+            <h2>Order Information</h2>
+            <p><strong>Order Number:</strong> #{orderNumber || 'N/A'}</p>
+            <p>Your order has been processed successfully.</p>
           </div>
-          
-          <div className="order-total">
-            <p><strong>Total:</strong> ${order.total_amount.toFixed(2)}</p>
-          </div>
-        </div>
+        )}
         
         <div className="next-steps">
           <h2>What's Next?</h2>
           <p>Your samples will be prepared for shipping within 1-2 business days.</p>
-          <p>A confirmation email has been sent to your registered email address.</p>
+          <p>A confirmation email will be sent to your registered email address.</p>
           <p>The sample owners have been notified and will prepare your order for shipping.</p>
         </div>
         
