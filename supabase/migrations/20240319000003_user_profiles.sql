@@ -8,10 +8,6 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
   institution TEXT,
   country TEXT,
   phone TEXT,
-  address TEXT,
-  city TEXT,
-  state TEXT,
-  zip_code TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
