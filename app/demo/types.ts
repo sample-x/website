@@ -3,6 +3,7 @@ export interface DemoSlot {
   start: Date;
   end: Date;
   available: boolean;
+  resourceId?: string;
 }
 
 export interface SelectedSlot {

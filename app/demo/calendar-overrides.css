@@ -1,0 +1,88 @@
+/* Calendar custom styles */
+.rbc-event {
+  background-color: #2563eb !important; /* Blue 600 */
+  border-radius: 4px !important;
+  padding: 2px 5px !important;
+  color: white !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+.rbc-event.selected,
+.rbc-event:hover {
+  background-color: #f97316 !important; /* Orange 500 */
+}
+
+.rbc-event-content {
+  font-size: 0.8rem !important;
+  line-height: 1 !important;
+  text-align: center !important;
+}
+
+.rbc-time-view {
+  border: 1px solid #e5e7eb !important; /* Gray 200 */
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.rbc-header {
+  background-color: #f9fafb !important; /* Gray 50 */
+  padding: 8px 0 !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+}
+
+.rbc-row-content {
+  z-index: 0 !important;
+}
+
+.rbc-time-header-content {
+  border-left: 1px solid #e5e7eb !important; /* Gray 200 */
+}
+
+.rbc-time-header-gutter {
+  background-color: #f9fafb !important; /* Gray 50 */
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid #e5e7eb !important; /* Gray 200 */
+}
+
+.rbc-today {
+  background-color: #f0f9ff !important; /* Light blue 50 */
+}
+
+.rbc-off-range-bg {
+  background-color: #f9fafb !important; /* Gray 50 */
+}
+
+.rbc-toolbar button {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important; /* Gray 200 */
+  color: #4b5563 !important; /* Gray 600 */
+  border-radius: 4px !important;
+  transition: all 0.2s !important;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #f9fafb !important; /* Gray 50 */
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #2563eb !important; /* Blue 600 */
+  color: white !important;
+}
+
+/* Custom event styling */
+.calendar-event {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.calendar-event.selected {
+  color: white;
+} 

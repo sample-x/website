@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import { DemoSlot, SelectedSlot } from './types';
 import { useAuth } from '../auth/AuthProvider';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import './calendar-overrides.css';
 
 const locales = {
   'en-US': require('date-fns/locale/en-US'),
@@ -44,6 +45,7 @@ const generateAvailableSlots = (): DemoSlot[] => {
           start,
           end,
           available: true,
+          resourceId: `${start.toISOString()}`,
         });
       }
     }
@@ -60,6 +62,16 @@ export default function DemoPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showTimeConfirmationPopup, setShowTimeConfirmationPopup] = useState(false);
+
+  const handleSelectEvent = (event: DemoSlot) => {
+    if (event.available) {
+      setSelectedSlot({
+        start: event.start,
+        end: event.end,
+      });
+      setShowTimeConfirmationPopup(true);
+    }
+  };
 
   const handleSelectSlot = (slotInfo: SlotInfo) => {
     const slot = availableSlots.find(
@@ -137,7 +149,7 @@ export default function DemoPage() {
 
   if (showConfirmation) {
     return (
-      <div className="container mx-auto px-4 py-10 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 max-w-6xl flex items-center justify-center min-h-[calc(100vh-200px)]">
         <div className="max-w-2xl mx-auto text-center">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 space-y-6">
             <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -161,129 +173,148 @@ export default function DemoPage() {
     );
   }
 
+  // Create custom components for the calendar
+  const CustomEvent = ({ event }: { event: DemoSlot }) => {
+    const isSelected = selectedSlot && 
+                       event.start.getTime() === selectedSlot.start.getTime() && 
+                       event.end.getTime() === selectedSlot.end.getTime();
+    
+    return (
+      <div className={`calendar-event ${isSelected ? 'selected' : ''}`}>
+        {format(event.start, 'h:mm a')}
+      </div>
+    );
+  };
+
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-              Schedule Demo
-            </h1>
-            <p className="text-base text-gray-600 dark:text-gray-300">
-              Ready to explore Samplex? Schedule a personalized demo with our team
-              to learn how we can help streamline your sample management process.
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">What you'll learn:</h2>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-600 dark:text-gray-300">Overview of the Samplex platform and its key features</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-600 dark:text-gray-300">Best practices for managing and tracking samples</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-600 dark:text-gray-300">How to optimize your sample exchange workflow</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-600 dark:text-gray-300">Tips for collaboration and team management</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-600 dark:text-gray-300">Security features and data protection measures</span>
-              </li>
-            </ul>
-          </div>
-
-          {!user && (
-            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4">
-              <p className="text-orange-800 dark:text-orange-200">
-                Please sign in to schedule a demo.
+    <div className="flex flex-col justify-center min-h-[calc(100vh-200px)]">
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                Schedule Demo
+              </h1>
+              <p className="text-base text-gray-600 dark:text-gray-300">
+                Ready to explore Samplex? Schedule a personalized demo with our team
+                to learn how we can help streamline your sample management process.
               </p>
             </div>
-          )}
-        </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 relative">
-          <Calendar
-            localizer={localizer}
-            events={availableSlots}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 500 }}
-            selectable
-            onSelectSlot={handleSelectSlot}
-            defaultView="week"
-            views={['week', 'month']}
-            min={new Date(0, 0, 0, 9, 0, 0)} // 9 AM
-            max={new Date(0, 0, 0, 17, 0, 0)} // 5 PM
-            eventPropGetter={(event: DemoSlot) => ({
-              className: `${
-                selectedSlot &&
-                event.start.getTime() === selectedSlot.start.getTime() &&
-                event.end.getTime() === selectedSlot.end.getTime()
-                  ? 'bg-orange-500'
-                  : 'bg-green-500'
-              }`,
-            })}
-          />
-          
-          {/* Time confirmation popup */}
-          {showTimeConfirmationPopup && selectedSlot && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-xl">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-auto shadow-xl">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Confirm Your Time Slot
-                </h3>
-                <div className="mb-4">
-                  <p className="text-gray-600 dark:text-gray-300 font-medium">
-                    {format(selectedSlot.start, 'EEEE, MMMM do, yyyy')}
-                  </p>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {format(selectedSlot.start, 'h:mm a')} - {format(selectedSlot.end, 'h:mm a')} PT
-                  </p>
-                </div>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={() => {
-                      setShowTimeConfirmationPopup(false);
-                      setSelectedSlot(null);
-                    }}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex-1"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleScheduleDemo}
-                    disabled={!user || isSubmitting}
-                    className={`px-4 py-2 rounded-md transition-colors flex-1 ${
-                      user && !isSubmitting
-                        ? 'bg-orange-500 text-white hover:bg-orange-600'
-                        : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                    }`}
-                  >
-                    {isSubmitting ? 'Scheduling...' : 'Schedule Demo'}
-                  </button>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">What you'll learn:</h2>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-600 dark:text-gray-300">Overview of the Samplex platform and its key features</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-600 dark:text-gray-300">Best practices for managing and tracking samples</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-600 dark:text-gray-300">How to optimize your sample exchange workflow</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-600 dark:text-gray-300">Tips for collaboration and team management</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-600 dark:text-gray-300">Security features and data protection measures</span>
+                </li>
+              </ul>
+            </div>
+
+            {!user && (
+              <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4">
+                <p className="text-orange-800 dark:text-orange-200">
+                  Please sign in to schedule a demo.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 relative">
+            <Calendar
+              localizer={localizer}
+              events={availableSlots}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height: 480 }}
+              selectable
+              onSelectSlot={handleSelectSlot}
+              onSelectEvent={handleSelectEvent}
+              defaultView="week"
+              views={['week', 'month']}
+              min={new Date(0, 0, 0, 9, 0, 0)} // 9 AM
+              max={new Date(0, 0, 0, 17, 0, 0)} // 5 PM
+              components={{
+                event: CustomEvent as any,
+              }}
+              eventPropGetter={(event: DemoSlot) => ({
+                className: `${
+                  selectedSlot &&
+                  event.start.getTime() === selectedSlot.start.getTime() &&
+                  event.end.getTime() === selectedSlot.end.getTime()
+                    ? 'bg-orange-500'
+                    : 'bg-blue-500'
+                }`,
+              })}
+            />
+            
+            {/* Time confirmation popup */}
+            {showTimeConfirmationPopup && selectedSlot && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-xl">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-auto shadow-xl">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Confirm Your Time Slot
+                  </h3>
+                  <div className="mb-4">
+                    <p className="text-gray-600 dark:text-gray-300 font-medium">
+                      {format(selectedSlot.start, 'EEEE, MMMM do, yyyy')}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {format(selectedSlot.start, 'h:mm a')} - {format(selectedSlot.end, 'h:mm a')} PT
+                    </p>
+                  </div>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => {
+                        setShowTimeConfirmationPopup(false);
+                        setSelectedSlot(null);
+                      }}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex-1"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleScheduleDemo}
+                      disabled={!user || isSubmitting}
+                      className={`px-4 py-2 rounded-md transition-colors flex-1 ${
+                        user && !isSubmitting
+                          ? 'bg-orange-500 text-white hover:bg-orange-600'
+                          : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      {isSubmitting ? 'Scheduling...' : 'Schedule Demo'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
