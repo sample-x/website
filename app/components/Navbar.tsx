@@ -123,6 +123,9 @@ export default function Navbar() {
             <Link href="/samples" className="text-gray-700 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400">
               Samples
             </Link>
+            <Link href="/demo" className="text-gray-700 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400">
+              Demo
+            </Link>
             <Link href="/#contact" className="text-gray-700 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400">
               Contact
             </Link>
@@ -249,6 +252,13 @@ export default function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               Samples
+            </Link>
+            <Link
+              href="/demo"
+              className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+              onClick={() => setIsOpen(false)}
+            >
+              Demo
             </Link>
             <Link
               href="/#contact"
