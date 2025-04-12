@@ -121,7 +121,7 @@ export default function DemoPage() {
       }
 
       // Save the appointment
-      const { error: insertError } = await supabase
+      const { data: appointment, error: insertError } = await supabase
         .from('demo_appointments')
         .insert({
           user_id: user.id,
@@ -130,10 +130,34 @@ export default function DemoPage() {
           start_time: selectedSlot.start.toISOString(),
           end_time: selectedSlot.end.toISOString(),
           status: 'scheduled',
-        });
+        })
+        .select()
+        .single();
 
       if (insertError) {
         throw insertError;
+      }
+
+      // Send notification email using Supabase Edge Function
+      try {
+        const { data: emailResponse, error: functionError } = await supabase.functions.invoke('send-demo-notification', {
+          body: {
+            appointment: {
+              id: appointment.id,
+              email: user.email,
+              name: profile ? `${profile.first_name} ${profile.last_name}` : user.email,
+              start_time: selectedSlot.start.toISOString(),
+              end_time: selectedSlot.end.toISOString(),
+            }
+          }
+        });
+
+        if (functionError) {
+          console.error('Error from Supabase Function:', functionError);
+        }
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError);
+        // Don't throw error, as the appointment was still created successfully
       }
 
       setShowTimeConfirmationPopup(false);
